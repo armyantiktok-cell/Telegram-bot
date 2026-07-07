@@ -78,7 +78,7 @@ def set_order_status(order_id, status):
 
 
 _domain = os.environ.get("REPLIT_DOMAINS", "")
-WEBAPP_URL = f"https://{_domain}" if _domain else ""
+WEBAPP_URL = os.environ.get("WEBAPP_URL", f"https://{_domain}" if _domain else "")
 
 MONOBANK_CARD = "4441 1111 3196 2080"
 PUBG_ID_FOR_UC = "51230579110"
