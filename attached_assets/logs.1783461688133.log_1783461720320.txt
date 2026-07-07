@@ -1,0 +1,256 @@
+2026-07-07T21:48:19.337407287Z [inf]  Starting Container
+2026-07-07T21:48:19.852351228Z [err]  /app/bot.py:469: PTBUserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message. Read this FAQ entry to learn more about the per_* settings: https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-Asked-Questions#what-do-the-per_-settings-in-conversationhandler-do.
+2026-07-07T21:48:19.852361208Z [err]    payment_conv = ConversationHandler(
+2026-07-07T21:48:19.852365808Z [err]  2026-07-07 21:48:18,884 - __main__ - INFO - Бот ARMYAN запускается...
+2026-07-07T21:48:19.852369248Z [err]  2026-07-07 21:48:19,332 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getMe "HTTP/1.1 200 OK"
+2026-07-07T21:48:19.852372738Z [err]  2026-07-07 21:48:19,477 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/deleteWebhook "HTTP/1.1 200 OK"
+2026-07-07T21:48:19.852376488Z [err]  2026-07-07 21:48:19,479 - telegram.ext.Application - INFO - Application started
+2026-07-07T21:48:24.105920381Z [err]  2026-07-07 21:48:24,094 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 409 Conflict"
+2026-07-07T21:48:24.105920781Z [err]      return await self._do_post(
+2026-07-07T21:48:24.105927661Z [err]  2026-07-07 21:48:24,095 - telegram.ext.Application - ERROR - No error handlers are registered, logging exception.
+2026-07-07T21:48:24.105928001Z [err]             ^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:24.105931941Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_extbot.py", line 378, in _do_post
+2026-07-07T21:48:24.105932071Z [err]  Traceback (most recent call last):
+2026-07-07T21:48:24.105935931Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_utils/networkloop.py", line 161, in network_retry_loop
+2026-07-07T21:48:24.105939391Z [err]      await do_action()
+2026-07-07T21:48:24.105944271Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_utils/networkloop.py", line 154, in do_action
+2026-07-07T21:48:24.105947691Z [err]      action_cb_task.result()
+2026-07-07T21:48:24.105951551Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_updater.py", line 340, in polling_action_cb
+2026-07-07T21:48:24.105955071Z [err]      updates = await self.bot.get_updates(
+2026-07-07T21:48:24.105959581Z [err]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:24.105963081Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_extbot.py", line 680, in get_updates
+2026-07-07T21:48:24.105966281Z [err]      updates = await super().get_updates(
+2026-07-07T21:48:24.105969921Z [err]                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:24.105973141Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 4767, in get_updates
+2026-07-07T21:48:24.105976541Z [err]      await self._post(
+2026-07-07T21:48:24.105979901Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 712, in _post
+2026-07-07T21:48:24.107305962Z [err]      return await super()._do_post(
+2026-07-07T21:48:24.107311762Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:24.107314882Z [err]      result = await self._request_wrapper(
+2026-07-07T21:48:24.107316222Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 741, in _do_post
+2026-07-07T21:48:24.107321172Z [err]      result = await request.post(
+2026-07-07T21:48:24.107321892Z [err]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:24.107324632Z [err]               ^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:24.107326902Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/request/_baserequest.py", line 375, in _request_wrapper
+2026-07-07T21:48:24.107328872Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/request/_baserequest.py", line 198, in post
+2026-07-07T21:48:24.107330882Z [err]      raise exception
+2026-07-07T21:48:24.107334752Z [err]  telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-07-07T21:48:29.913780484Z [err]  2026-07-07 21:48:29,912 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 409 Conflict"
+2026-07-07T21:48:29.914790897Z [err]  2026-07-07 21:48:29,913 - telegram.ext.Application - ERROR - No error handlers are registered, logging exception.
+2026-07-07T21:48:29.914801817Z [err]  Traceback (most recent call last):
+2026-07-07T21:48:29.914809227Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_utils/networkloop.py", line 161, in network_retry_loop
+2026-07-07T21:48:29.914812977Z [err]      await do_action()
+2026-07-07T21:48:29.914816757Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_utils/networkloop.py", line 154, in do_action
+2026-07-07T21:48:29.914820657Z [err]      action_cb_task.result()
+2026-07-07T21:48:29.914824137Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_updater.py", line 340, in polling_action_cb
+2026-07-07T21:48:29.914827627Z [err]      updates = await self.bot.get_updates(
+2026-07-07T21:48:29.914832037Z [err]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:29.914836307Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_extbot.py", line 680, in get_updates
+2026-07-07T21:48:29.914841087Z [err]      updates = await super().get_updates(
+2026-07-07T21:48:29.914844447Z [err]                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:29.914847787Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 4767, in get_updates
+2026-07-07T21:48:29.914850867Z [err]      await self._post(
+2026-07-07T21:48:29.914854577Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 712, in _post
+2026-07-07T21:48:29.914858307Z [err]      return await self._do_post(
+2026-07-07T21:48:29.914861807Z [err]             ^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:29.914865147Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_extbot.py", line 378, in _do_post
+2026-07-07T21:48:29.914868487Z [err]      return await super()._do_post(
+2026-07-07T21:48:29.914873107Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:29.915617862Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 741, in _do_post
+2026-07-07T21:48:29.915621042Z [err]      result = await request.post(
+2026-07-07T21:48:29.915624502Z [err]               ^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:29.915627912Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/request/_baserequest.py", line 198, in post
+2026-07-07T21:48:29.915631452Z [err]      result = await self._request_wrapper(
+2026-07-07T21:48:29.915634642Z [err]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:29.915638142Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/request/_baserequest.py", line 375, in _request_wrapper
+2026-07-07T21:48:29.915642322Z [err]      raise exception
+2026-07-07T21:48:29.915645592Z [err]  telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-07-07T21:48:49.768985857Z [err]  2026-07-07 21:48:41,563 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:48:51.733190759Z [err]  2026-07-07 21:48:51,719 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:48:59.492927513Z [err]  2026-07-07 21:48:59,470 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:48:59.956605555Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 1138, in send_message
+2026-07-07T21:48:59.956611665Z [err]      return await self._send_message(
+2026-07-07T21:48:59.956612525Z [err]  2026-07-07 21:48:59,904 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/sendMessage "HTTP/1.1 400 Bad Request"
+2026-07-07T21:48:59.956615185Z [err]  2026-07-07 21:48:59,904 - telegram.ext.Application - ERROR - No error handlers are registered, logging exception.
+2026-07-07T21:48:59.956615905Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:59.956617725Z [err]  Traceback (most recent call last):
+2026-07-07T21:48:59.956620215Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_application.py", line 1315, in process_update
+2026-07-07T21:48:59.956622545Z [err]      await coroutine
+2026-07-07T21:48:59.956626005Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_handlers/basehandler.py", line 159, in handle_update
+2026-07-07T21:48:59.956628585Z [err]      return await self.callback(update, context)
+2026-07-07T21:48:59.956631345Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:59.956633845Z [err]    File "/app/bot.py", line 108, in start
+2026-07-07T21:48:59.956636175Z [err]      await update.message.reply_text(
+2026-07-07T21:48:59.956638525Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_message.py", line 2228, in reply_text
+2026-07-07T21:48:59.956641205Z [err]      return await self.get_bot().send_message(
+2026-07-07T21:48:59.956643725Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:59.956646055Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_extbot.py", line 3150, in send_message
+2026-07-07T21:48:59.956648335Z [err]      return await super().send_message(
+2026-07-07T21:48:59.956650745Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:59.957222541Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_extbot.py", line 638, in _send_message
+2026-07-07T21:48:59.957225381Z [err]      result = await super()._send_message(
+2026-07-07T21:48:59.957227831Z [err]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:59.957230061Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 828, in _send_message
+2026-07-07T21:48:59.957232391Z [err]      result = await self._post(
+2026-07-07T21:48:59.957234671Z [err]               ^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:59.957238011Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 712, in _post
+2026-07-07T21:48:59.957240391Z [err]      return await self._do_post(
+2026-07-07T21:48:59.957243171Z [err]             ^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:59.957246091Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_extbot.py", line 378, in _do_post
+2026-07-07T21:48:59.957249201Z [err]      return await super()._do_post(
+2026-07-07T21:48:59.957251631Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:59.957253861Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 741, in _do_post
+2026-07-07T21:48:59.957256091Z [err]      result = await request.post(
+2026-07-07T21:48:59.957258771Z [err]               ^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:59.957260991Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/request/_baserequest.py", line 198, in post
+2026-07-07T21:48:59.957263681Z [err]      result = await self._request_wrapper(
+2026-07-07T21:48:59.957265961Z [err]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:48:59.957268311Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/request/_baserequest.py", line 375, in _request_wrapper
+2026-07-07T21:48:59.957270501Z [err]      raise exception
+2026-07-07T21:48:59.957272771Z [err]  telegram.error.BadRequest: Inline keyboard button web app url 'web-production-2bc2a.up.railway.app' is invalid: only https links are allowed
+2026-07-07T21:49:09.647975811Z [err]  2026-07-07 21:49:09,618 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:49:15.806019788Z [err]  2026-07-07 21:49:15,804 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:49:16.265325021Z [err]  2026-07-07 21:49:16,261 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/sendMessage "HTTP/1.1 400 Bad Request"
+2026-07-07T21:49:16.265325921Z [err]      return await self.get_bot().send_message(
+2026-07-07T21:49:16.265329971Z [err]  2026-07-07 21:49:16,262 - telegram.ext.Application - ERROR - No error handlers are registered, logging exception.
+2026-07-07T21:49:16.265332471Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:49:16.265334061Z [err]  Traceback (most recent call last):
+2026-07-07T21:49:16.265336051Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_extbot.py", line 3150, in send_message
+2026-07-07T21:49:16.265337741Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_application.py", line 1315, in process_update
+2026-07-07T21:49:16.265339191Z [err]      return await super().send_message(
+2026-07-07T21:49:16.265341201Z [err]      await coroutine
+2026-07-07T21:49:16.265342081Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:49:16.265344681Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_handlers/basehandler.py", line 159, in handle_update
+2026-07-07T21:49:16.265346101Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 1138, in send_message
+2026-07-07T21:49:16.265348251Z [err]      return await self.callback(update, context)
+2026-07-07T21:49:16.265349851Z [err]      return await self._send_message(
+2026-07-07T21:49:16.265352731Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:49:16.265353881Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:49:16.265357331Z [err]    File "/app/bot.py", line 108, in start
+2026-07-07T21:49:16.265360351Z [err]      await update.message.reply_text(
+2026-07-07T21:49:16.265363611Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_message.py", line 2228, in reply_text
+2026-07-07T21:49:16.266056607Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_extbot.py", line 638, in _send_message
+2026-07-07T21:49:16.266063336Z [err]      result = await super()._send_message(
+2026-07-07T21:49:16.266067566Z [err]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:49:16.266071696Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 828, in _send_message
+2026-07-07T21:49:16.266075836Z [err]      result = await self._post(
+2026-07-07T21:49:16.266080636Z [err]               ^^^^^^^^^^^^^^^^^
+2026-07-07T21:49:16.266084906Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:49:16.266085886Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 712, in _post
+2026-07-07T21:49:16.266090836Z [err]      return await self._do_post(
+2026-07-07T21:49:16.266098696Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 741, in _do_post
+2026-07-07T21:49:16.266099436Z [err]             ^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:49:16.266108226Z [err]      result = await request.post(
+2026-07-07T21:49:16.266109606Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_extbot.py", line 378, in _do_post
+2026-07-07T21:49:16.266115956Z [err]               ^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:49:16.266117956Z [err]      return await super()._do_post(
+2026-07-07T21:49:16.266122256Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/request/_baserequest.py", line 198, in post
+2026-07-07T21:49:16.266126366Z [err]      result = await self._request_wrapper(
+2026-07-07T21:49:16.266129766Z [err]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:49:16.266133426Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/request/_baserequest.py", line 375, in _request_wrapper
+2026-07-07T21:49:16.266146716Z [err]      raise exception
+2026-07-07T21:49:16.266150646Z [err]  telegram.error.BadRequest: Inline keyboard button web app url 'web-production-2bc2a.up.railway.app' is invalid: only https links are allowed
+2026-07-07T21:49:25.986831565Z [err]  2026-07-07 21:49:25,975 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:49:45.990394304Z [err]  2026-07-07 21:49:36,122 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:49:46.292924882Z [err]  2026-07-07 21:49:46,277 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:50:06.296341743Z [err]  2026-07-07 21:49:56,422 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:50:06.680207475Z [err]  2026-07-07 21:50:06,567 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:50:26.682056527Z [err]  2026-07-07 21:50:16,720 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:50:26.871845427Z [err]  2026-07-07 21:50:26,869 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:50:46.854302910Z [err]  2026-07-07 21:50:37,014 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:50:47.163441915Z [err]  2026-07-07 21:50:47,158 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:51:07.182247566Z [err]  2026-07-07 21:50:57,314 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:51:07.469689700Z [err]  2026-07-07 21:51:07,463 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:51:27.443923513Z [err]  2026-07-07 21:51:17,608 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:51:27.782611137Z [err]  2026-07-07 21:51:27,756 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:51:47.773373922Z [err]  2026-07-07 21:51:37,908 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:51:48.071557673Z [err]  2026-07-07 21:51:48,055 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:52:08.069723442Z [err]  2026-07-07 21:51:58,217 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:52:08.373703303Z [err]  2026-07-07 21:52:08,365 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:52:28.393949425Z [err]  2026-07-07 21:52:18,520 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:52:28.677754134Z [err]  2026-07-07 21:52:28,676 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:52:48.294561387Z [err]  2026-07-07 21:52:38,823 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:52:48.983072190Z [err]  2026-07-07 21:52:48,974 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:53:08.869964398Z [err]  2026-07-07 21:52:59,126 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:53:09.274806270Z [err]  2026-07-07 21:53:09,273 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:53:29.291460682Z [err]  2026-07-07 21:53:19,421 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:53:29.583885724Z [err]  2026-07-07 21:53:29,580 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:53:49.568606254Z [err]  2026-07-07 21:53:39,727 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:53:49.884718233Z [err]  2026-07-07 21:53:49,883 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:54:09.998715990Z [err]  2026-07-07 21:54:00,031 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:54:10.198509045Z [err]  2026-07-07 21:54:10,188 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:54:30.250961649Z [err]  2026-07-07 21:54:20,333 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:54:30.482030690Z [err]  2026-07-07 21:54:30,478 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:54:50.476765587Z [err]  2026-07-07 21:54:40,625 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:54:50.799877580Z [err]  2026-07-07 21:54:50,774 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:55:10.782588977Z [err]  2026-07-07 21:55:00,926 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:55:11.089451431Z [err]  2026-07-07 21:55:11,082 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:55:31.114420275Z [err]  2026-07-07 21:55:21,227 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:55:31.378325682Z [err]  2026-07-07 21:55:31,372 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:55:51.388970810Z [err]  2026-07-07 21:55:41,517 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:55:51.722903570Z [err]  2026-07-07 21:55:51,667 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:56:11.718152608Z [err]  2026-07-07 21:56:01,821 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:56:11.970338546Z [err]  2026-07-07 21:56:11,968 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:56:31.963784451Z [err]  2026-07-07 21:56:22,120 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:56:32.328115173Z [err]  2026-07-07 21:56:32,272 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:56:52.298946047Z [err]  2026-07-07 21:56:42,421 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:56:52.581739336Z [err]  2026-07-07 21:56:52,568 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:57:12.583409542Z [err]  2026-07-07 21:57:02,719 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:57:13.115031984Z [err]  2026-07-07 21:57:12,870 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:57:23.102271335Z [err]  2026-07-07 21:57:23,020 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:57:43.107111059Z [err]  2026-07-07 21:57:33,167 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:57:43.331947494Z [err]  2026-07-07 21:57:43,323 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:58:03.222809168Z [err]  2026-07-07 21:57:53,470 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:58:03.679013835Z [err]  2026-07-07 21:58:03,617 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:58:23.690364868Z [err]  2026-07-07 21:58:13,762 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:58:23.917319730Z [err]  2026-07-07 21:58:23,911 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:58:43.909955831Z [err]  2026-07-07 21:58:34,063 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:58:44.211061357Z [err]  2026-07-07 21:58:44,210 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:58:49.491372485Z [err]  2026-07-07 21:58:49,331 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:58:49.775151959Z [err]  2026-07-07 21:58:49,771 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/sendMessage "HTTP/1.1 400 Bad Request"
+2026-07-07T21:58:49.775157289Z [err]  2026-07-07 21:58:49,772 - telegram.ext.Application - ERROR - No error handlers are registered, logging exception.
+2026-07-07T21:58:49.775160299Z [err]  Traceback (most recent call last):
+2026-07-07T21:58:49.775163489Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_application.py", line 1315, in process_update
+2026-07-07T21:58:49.775166339Z [err]      await coroutine
+2026-07-07T21:58:49.775169409Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_handlers/basehandler.py", line 159, in handle_update
+2026-07-07T21:58:49.775171949Z [err]      return await self.callback(update, context)
+2026-07-07T21:58:49.775174439Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:58:49.775177329Z [err]    File "/app/bot.py", line 108, in start
+2026-07-07T21:58:49.775180959Z [err]      await update.message.reply_text(
+2026-07-07T21:58:49.775183589Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_message.py", line 2228, in reply_text
+2026-07-07T21:58:49.775185979Z [err]      return await self.get_bot().send_message(
+2026-07-07T21:58:49.775188569Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:58:49.775190769Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_extbot.py", line 3150, in send_message
+2026-07-07T21:58:49.775193029Z [err]      return await super().send_message(
+2026-07-07T21:58:49.775195559Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:58:49.775198089Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 1138, in send_message
+2026-07-07T21:58:49.775201339Z [err]      return await self._send_message(
+2026-07-07T21:58:49.775203799Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:58:49.776063493Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_extbot.py", line 638, in _send_message
+2026-07-07T21:58:49.776068843Z [err]      result = await super()._send_message(
+2026-07-07T21:58:49.776073422Z [err]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:58:49.776076692Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 828, in _send_message
+2026-07-07T21:58:49.776080502Z [err]      result = await self._post(
+2026-07-07T21:58:49.776084052Z [err]               ^^^^^^^^^^^^^^^^^
+2026-07-07T21:58:49.776087972Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 712, in _post
+2026-07-07T21:58:49.776091282Z [err]      return await self._do_post(
+2026-07-07T21:58:49.776099822Z [err]             ^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:58:49.776103792Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/ext/_extbot.py", line 378, in _do_post
+2026-07-07T21:58:49.776107692Z [err]      return await super()._do_post(
+2026-07-07T21:58:49.776111442Z [err]             ^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:58:49.776115132Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/_bot.py", line 741, in _do_post
+2026-07-07T21:58:49.776118802Z [err]      result = await request.post(
+2026-07-07T21:58:49.776122492Z [err]               ^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:58:49.776125892Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/request/_baserequest.py", line 198, in post
+2026-07-07T21:58:49.776130282Z [err]      result = await self._request_wrapper(
+2026-07-07T21:58:49.776133792Z [err]               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-07T21:58:49.776137052Z [err]    File "/opt/venv/lib/python3.11/site-packages/telegram/request/_baserequest.py", line 375, in _request_wrapper
+2026-07-07T21:58:49.776140932Z [err]      raise exception
+2026-07-07T21:58:49.776143892Z [err]  telegram.error.BadRequest: Inline keyboard button web app url 'web-production-2bc2a.up.railway.app' is invalid: only https links are allowed
+2026-07-07T21:58:59.566439754Z [err]  2026-07-07 21:58:59,486 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:59:19.524510540Z [err]  2026-07-07 21:59:09,644 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:59:19.792624442Z [err]  2026-07-07 21:59:19,791 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:59:39.731124442Z [err]  2026-07-07 21:59:29,942 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:59:40.099380660Z [err]  2026-07-07 21:59:40,096 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T21:59:59.990837301Z [err]  2026-07-07 21:59:50,241 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
+2026-07-07T22:00:00.409866482Z [err]  2026-07-07 22:00:00,390 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8752583041:AAFngG-oGoboou7Kc4NLJN3fYlZpityaR6I/getUpdates "HTTP/1.1 200 OK"
