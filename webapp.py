@@ -15,8 +15,7 @@ app = Flask(__name__)
 
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 ADMIN_ID = int(os.environ.get("ADMIN_CHAT_ID", "0"))
-EXTRA_ADMIN_IDS = [1440236609]
-ADMIN_IDS = {i for i in [ADMIN_ID, *EXTRA_ADMIN_IDS] if i > 0}
+ADMIN_IDS = {ADMIN_ID} if ADMIN_ID > 0 else set()
 MONOBANK_CARD = "4441 1111 3196 2080"
 PUBG_ID_FOR_UC = "51230579110"
 REVIEWS_LINK = os.environ.get("REVIEWS_LINK", "https://t.me/ARMYANua")

@@ -21,8 +21,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 ADMIN_ID = int(os.environ.get("ADMIN_CHAT_ID", "0"))
-EXTRA_ADMIN_IDS = [1440236609]
-ADMIN_IDS = {i for i in [ADMIN_ID, *EXTRA_ADMIN_IDS] if i > 0}
+ADMIN_IDS = {ADMIN_ID} if ADMIN_ID > 0 else set()
 REVIEWS_LINK = os.environ.get("REVIEWS_LINK", "https://t.me/ARMYANua")
 
 DATA_DIR = Path("data")
@@ -108,8 +107,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     name = update.effective_user.first_name
     await update.message.reply_text(
         f"Привет, <b>{name}</b>! 👋\n\n"
-        "Я бот ARMYAN — помогаю игрокам PUBG MOBILE улучшить игру.\n\n"
-        "Выбери, что тебя интересует:",
+        "Добро пожаловать в <b>ARMYAN SERVICES</b>\n\n"
+        "Здесь вы можете быстро и удобно заказать любые мои услуги по PUBG MOBILE, "
+        "ознакомиться с отзывами и получить всю необходимую информацию в одном месте.\n\n"
+        "⚡ Для вашего удобства доступно мини-приложение, которое поможет оформить заказ всего за пару кликов.\n\n"
+        "✅ Индивидуальная настройка чувствительности\n"
+        "✅ Буст ранга\n"
+        "✅ Поддержка клиентов\n"
+        "✅ Быстрое оформление заказов\n\n"
+        "🕒 Работаем 24/7 – заявки принимаются круглосуточно.\n\n"
+        "Выберите интересующий вас раздел ниже:",
         parse_mode="HTML",
         reply_markup=main_menu_keyboard()
     )
