@@ -13,6 +13,8 @@ app = Flask(__name__)
 
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 ADMIN_ID = int(os.environ.get("ADMIN_CHAT_ID", "0"))
+EXTRA_ADMIN_IDS = [1440236609]
+ADMIN_IDS = {i for i in [ADMIN_ID, *EXTRA_ADMIN_IDS] if i > 0}
 MONOBANK_CARD = "4441 1111 3196 2080"
 PUBG_ID_FOR_UC = "51230579110"
 REVIEWS_LINK = os.environ.get("REVIEWS_LINK", "https://t.me/ARMYANua")
@@ -71,7 +73,7 @@ def is_admin(init_data: str) -> bool:
     user = verify_init_data(init_data)
     if not user:
         return False
-    return int(user.get("id", 0)) == ADMIN_ID
+    return int(user.get("id", 0)) in ADMIN_IDS
 
 
 @app.route("/")
@@ -83,7 +85,7 @@ def index():
         pubg_id_uc=PUBG_ID_FOR_UC,
         uah_price=prices.get("uah_price", 800),
         uc_price=prices.get("uc_price", 1320),
-        admin_id=ADMIN_ID,
+        admin_ids=sorted(ADMIN_IDS),
         reviews_link=REVIEWS_LINK,
     )
 

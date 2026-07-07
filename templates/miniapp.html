@@ -736,11 +736,11 @@
   const tg = window.Telegram?.WebApp;
   if (tg) { tg.ready(); tg.expand(); }
 
-  const ADMIN_ID = {{ admin_id }};
+  const ADMIN_IDS = {{ admin_ids | tojson }};
   const initData = tg?.initData || "";
   const tgUser = tg?.initDataUnsafe?.user || null;
   const currentUserId = tgUser?.id || 0;
-  const isAdmin = ADMIN_ID > 0 && currentUserId === ADMIN_ID;
+  const isAdmin = currentUserId > 0 && ADMIN_IDS.includes(currentUserId);
 
   let selectedPay = null;
   let currentAdminTab = 'orders';
