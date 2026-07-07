@@ -729,13 +729,11 @@
     try {
       const res = await fetch('/api/order', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Init-Data': initData },
         body: JSON.stringify({
           payment_type: selectedPay,
           tg_tag: tgTag,
           pubg_id: pubgId,
-          user_name: tgUser ? (tgUser.first_name + (tgUser.last_name ? ' ' + tgUser.last_name : '')) : 'Неизвестно',
-          user_id: currentUserId,
         }),
       });
       const data = await res.json();

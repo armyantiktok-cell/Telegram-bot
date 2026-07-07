@@ -1,0 +1,1 @@
+- [telegram package conflict](telegram-package-conflict.md) — pip installs can shadow python-telegram-bot with a stale `telegram` dir; remove and force-reinstall.

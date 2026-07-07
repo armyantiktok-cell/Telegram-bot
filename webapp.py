@@ -35,6 +35,9 @@ def save_json(path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+INIT_DATA_MAX_AGE = 6 * 3600  # 6 часов
+
+
 def verify_init_data(init_data: str):
     if not init_data or not BOT_TOKEN:
         return None
@@ -54,6 +57,9 @@ def verify_init_data(init_data: str):
         ).hexdigest()
         if not hmac.compare_digest(expected_hash, received_hash):
             return None
+        auth_date = int(params.get("auth_date", "0"))
+        if auth_date <= 0 or time.time() - auth_date > INIT_DATA_MAX_AGE:
+            return None
         user_str = params.get("user", "{}")
         return json.loads(user_str)
     except Exception:
@@ -65,13 +71,6 @@ def is_admin(init_data: str) -> bool:
     if not user:
         return False
     return int(user.get("id", 0)) == ADMIN_ID
-
-
-def get_init_data_from_request():
-    return (
-        request.headers.get("X-Init-Data", "")
-        or request.json.get("init_data", "") if request.is_json else ""
-    )
 
 
 @app.route("/")
@@ -128,22 +127,34 @@ def update_order_status(order_id):
     if new_status not in ("new", "in_progress", "done", "cancelled"):
         return jsonify({"ok": False, "error": "Неверный статус"}), 400
     orders = load_json(ORDERS_FILE, [])
+    found = False
     for o in orders:
         if o.get("id") == order_id:
             o["status"] = new_status
+            found = True
             break
+    if not found:
+        return jsonify({"ok": False, "error": "Заказ не найден"}), 404
     save_json(ORDERS_FILE, orders)
     return jsonify({"ok": True})
 
 
 @app.route("/api/order", methods=["POST"])
 def create_order():
+    init_data = request.headers.get("X-Init-Data", "")
+    tg_user = verify_init_data(init_data)
+    if not tg_user:
+        return jsonify({"ok": False, "error": "Открой приложение через Telegram"}), 401
+
     data = request.get_json(silent=True) or {}
     payment_type = data.get("payment_type", "—")
     tg_tag = data.get("tg_tag", "—").strip()
     pubg_id = data.get("pubg_id", "").strip()
-    user_name = data.get("user_name", "—")
-    user_id = str(data.get("user_id", "—"))
+    user_name = (
+        f"{tg_user.get('first_name', '')} {tg_user.get('last_name', '')}".strip()
+        or "Неизвестно"
+    )
+    user_id = str(tg_user.get("id", "—"))
 
     if not tg_tag or tg_tag == "—":
         return jsonify({"ok": False, "error": "Telegram тег обязателен"}), 400
