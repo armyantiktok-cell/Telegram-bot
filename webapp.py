@@ -1,10 +1,12 @@
 import os
+import fcntl
 import hmac
 import hashlib
 import json
 import time
 import uuid
 import httpx
+from contextlib import contextmanager
 from pathlib import Path
 from urllib.parse import parse_qsl
 from flask import Flask, render_template, request, jsonify
@@ -25,6 +27,19 @@ ORDERS_FILE = DATA_DIR / "orders.json"
 PRICES_FILE = DATA_DIR / "prices.json"
 
 
+ORDERS_LOCK_FILE = DATA_DIR / "orders.lock"
+
+
+@contextmanager
+def orders_lock():
+    with open(ORDERS_LOCK_FILE, "w") as lf:
+        fcntl.flock(lf, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lf, fcntl.LOCK_UN)
+
+
 def load_json(path, default):
     if path.exists():
         try:
@@ -35,7 +50,9 @@ def load_json(path, default):
 
 
 def save_json(path, data):
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.replace(path)
 
 
 INIT_DATA_MAX_AGE = 6 * 3600  # 6 часов
@@ -162,16 +179,17 @@ def update_order_status(order_id):
     new_status = data.get("status", "")
     if new_status not in ("new", "in_progress", "done", "cancelled"):
         return jsonify({"ok": False, "error": "Неверный статус"}), 400
-    orders = load_json(ORDERS_FILE, [])
-    found = False
-    for o in orders:
-        if o.get("id") == order_id:
-            o["status"] = new_status
-            found = True
-            break
-    if not found:
-        return jsonify({"ok": False, "error": "Заказ не найден"}), 404
-    save_json(ORDERS_FILE, orders)
+    with orders_lock():
+        orders = load_json(ORDERS_FILE, [])
+        found = False
+        for o in orders:
+            if o.get("id") == order_id:
+                o["status"] = new_status
+                found = True
+                break
+        if not found:
+            return jsonify({"ok": False, "error": "Заказ не найден"}), 404
+        save_json(ORDERS_FILE, orders)
     return jsonify({"ok": True})
 
 
@@ -214,9 +232,10 @@ def create_order():
         "status": "new",
     }
 
-    orders = load_json(ORDERS_FILE, [])
-    orders.append(order)
-    save_json(ORDERS_FILE, orders)
+    with orders_lock():
+        orders = load_json(ORDERS_FILE, [])
+        orders.append(order)
+        save_json(ORDERS_FILE, orders)
 
     if ADMIN_ID and BOT_TOKEN:
         lines = [

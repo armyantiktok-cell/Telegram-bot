@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "id": "2bcfc340",
+    "timestamp": 1783446428,
+    "user_name": "...",
+    "user_id": "8744758676",
+    "tg_tag": "Оаоата",
+    "pubg_id": "Оаьаьаь",
+    "payment_type": "UAH",
+    "price_label": "800 грн (Monobank)",
+    "status": "cancelled"
+  },
+  {
+    "id": "299c3bdf",
+    "timestamp": 1783446586,
+    "user_name": "ㅤ𝐀𝐑𝐌𝐘𝐀𝐍",
+    "user_id": "6008445782",
+    "tg_tag": "@ARMYANua",
+    "pubg_id": "86276287",
+    "payment_type": "UAH",
+    "price_label": "800 грн (Monobank)",
+    "status": "done"
+  }
+]

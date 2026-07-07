@@ -1,5 +1,11 @@
+import fcntl
+import json
 import logging
 import os
+import time
+import uuid
+from contextlib import contextmanager
+from pathlib import Path
 from telegram import (
     Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove, WebAppInfo
 )
@@ -15,7 +21,62 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 ADMIN_ID = int(os.environ.get("ADMIN_CHAT_ID", "0"))
+EXTRA_ADMIN_IDS = [1440236609]
+ADMIN_IDS = {i for i in [ADMIN_ID, *EXTRA_ADMIN_IDS] if i > 0}
 REVIEWS_LINK = os.environ.get("REVIEWS_LINK", "https://t.me/ARMYANua")
+
+DATA_DIR = Path("data")
+DATA_DIR.mkdir(exist_ok=True)
+ORDERS_FILE = DATA_DIR / "orders.json"
+ORDERS_LOCK_FILE = DATA_DIR / "orders.lock"
+
+
+@contextmanager
+def _orders_lock():
+    with open(ORDERS_LOCK_FILE, "w") as lf:
+        fcntl.flock(lf, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lf, fcntl.LOCK_UN)
+
+
+def _load_orders():
+    if ORDERS_FILE.exists():
+        try:
+            return json.loads(ORDERS_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return []
+
+
+def _save_orders(orders):
+    tmp = ORDERS_FILE.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(orders, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.replace(ORDERS_FILE)
+
+
+def save_order(order):
+    with _orders_lock():
+        orders = _load_orders()
+        orders.append(order)
+        _save_orders(orders)
+
+
+def set_order_status(order_id, status):
+    """Возвращает 'updated', 'already' или 'missing'."""
+    with _orders_lock():
+        orders = _load_orders()
+        for o in orders:
+            if o.get("id") == order_id:
+                if o.get("status") in ("done", "cancelled"):
+                    return "already"
+                o["status"] = status
+                _save_orders(orders)
+                return "updated"
+        return "missing"
+
+
 _domain = os.environ.get("REPLIT_DOMAINS", "")
 WEBAPP_URL = f"https://{_domain}" if _domain else ""
 
@@ -212,17 +273,39 @@ async def _finalize_payment(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=main_menu_keyboard()
     )
 
+    order_id = uuid.uuid4().hex[:12].upper()
+    price_label = "800 грн (Monobank)" if payment_type == "UAH" else "1320 UC"
+    amount = "800 грн" if payment_type == "UAH" else "1320 UC"
+
+    save_order({
+        "id": order_id,
+        "timestamp": int(time.time()),
+        "user_name": user.full_name,
+        "user_id": str(user.id),
+        "tg_tag": tg_tag,
+        "pubg_id": pubg_id if pubg_id != "—" else "",
+        "payment_type": payment_type,
+        "price_label": price_label,
+        "status": "new",
+    })
+
     if ADMIN_ID:
         caption_lines = [
-            f"🆕 <b>Новая заявка!</b>",
-            f"👤 Клиент: {user.full_name} (@{user.username or '—'}, ID: {user.id})",
-            f"💰 Способ оплаты: <b>{'800 грн (Monobank)' if payment_type == 'UAH' else '1320 UC'}</b>",
-            f"✈️ Telegram: <code>{tg_tag}</code>",
+            "💰 <b>ОПЛАТА (Bot)!</b>",
+            f"🆔 <code>{order_id}</code>",
+            f"👤 @{user.username or '—'} (ID: <code>{user.id}</code>)",
+            f"🎁 Настройка чувствительности — {price_label}",
         ]
         if pubg_id and pubg_id != "—" and payment_type == "UAH":
-            caption_lines.append(f"🆔 PUBG ID: <code>{pubg_id}</code>")
+            caption_lines.append(f"🎮 PUBG ID: <code>{pubg_id}</code>")
+        caption_lines.append(f"✈️ Тег: <code>{tg_tag}</code>")
+        caption_lines.append(f"💵 Сумма: <b>{amount}</b>")
 
         caption = "\n".join(caption_lines)
+        keyboard = InlineKeyboardMarkup([[
+            InlineKeyboardButton("✅ Готово", callback_data=f"adm:done:{user.id}:{order_id}"),
+            InlineKeyboardButton("❌ Отклонить", callback_data=f"adm:rej:{user.id}:{order_id}"),
+        ]])
 
         try:
             if screenshot:
@@ -230,18 +313,69 @@ async def _finalize_payment(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     chat_id=ADMIN_ID,
                     photo=screenshot,
                     caption=caption,
-                    parse_mode="HTML"
+                    parse_mode="HTML",
+                    reply_markup=keyboard
                 )
             else:
                 await context.bot.send_message(
                     chat_id=ADMIN_ID,
                     text=caption,
-                    parse_mode="HTML"
+                    parse_mode="HTML",
+                    reply_markup=keyboard
                 )
         except Exception as e:
             logger.error(f"Не удалось отправить уведомление администратору: {e}")
 
     context.user_data.clear()
+
+
+async def admin_decision(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if query.from_user.id not in ADMIN_IDS:
+        await query.answer("⛔ Нет доступа", show_alert=True)
+        return
+
+    try:
+        _, action, client_id, order_id = query.data.split(":")
+    except ValueError:
+        await query.answer("Ошибка данных")
+        return
+
+    done = action == "done"
+    result = set_order_status(order_id, "done" if done else "cancelled")
+    if result == "already":
+        await query.answer("⚠️ Заказ уже обработан", show_alert=True)
+        return
+    if result == "missing":
+        logger.warning(f"Заказ {order_id} не найден в orders.json")
+
+    stamp = "\n\n✅ <b>ВЫПОЛНЕНО</b>" if done else "\n\n❌ <b>ОТКЛОНЕНО</b>"
+
+    try:
+        if query.message.photo:
+            await query.edit_message_caption(
+                caption=(query.message.caption_html or "") + stamp,
+                parse_mode="HTML"
+            )
+        else:
+            await query.edit_message_text(
+                text=(query.message.text_html or "") + stamp,
+                parse_mode="HTML"
+            )
+    except Exception as e:
+        logger.error(f"Не удалось обновить сообщение заказа: {e}")
+
+    client_text = (
+        f"✅ Твой заказ <code>{order_id}</code> выполнен! Спасибо за покупку! 🎯"
+        if done else
+        f"❌ Твой заказ <code>{order_id}</code> отклонён. Если это ошибка — напиши @ARMYAN_help"
+    )
+    try:
+        await context.bot.send_message(chat_id=int(client_id), text=client_text, parse_mode="HTML")
+    except Exception as e:
+        logger.error(f"Не удалось уведомить клиента {client_id}: {e}")
+
+    await query.answer("Статус обновлён ✅")
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -363,6 +497,7 @@ def main() -> None:
         per_message=False,
     )
 
+    application.add_handler(CallbackQueryHandler(admin_decision, pattern="^adm:"), group=-1)
     application.add_handler(CommandHandler("start", start))
     application.add_handler(payment_conv)
     application.add_handler(CallbackQueryHandler(back_to_menu, pattern="^back_to_menu$"))
