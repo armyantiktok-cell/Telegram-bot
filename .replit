@@ -37,18 +37,14 @@ outputType = "console"
 name = "Mini App"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python webapp.py"
 waitForPort = 5000
 
-[workflows.workflow.metadata]
-outputType = "webview"
-
 [[ports]]
 localPort = 5000
-externalPort = 80
-
-[[ports]]
-localPort = 23636
 externalPort = 80

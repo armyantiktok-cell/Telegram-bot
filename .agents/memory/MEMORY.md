@@ -1,1 +1,2 @@
 - [telegram package conflict](telegram-package-conflict.md) — pip installs can shadow python-telegram-bot with a stale `telegram` dir; remove and force-reinstall.
+- [duplicate external port 80](replit-port-conflict.md) — mockup sandbox can add a stale port→80 mapping causing 502 on public URL; fix via configureWorkflow re-run.
