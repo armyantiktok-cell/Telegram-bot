@@ -18,7 +18,7 @@ ADMIN_ID = int(os.environ.get("ADMIN_CHAT_ID", "0"))
 ADMIN_IDS = {ADMIN_ID} if ADMIN_ID > 0 else set()
 MONOBANK_CARD = "4441 1111 3196 2080"
 PUBG_ID_FOR_UC = "51230579110"
-REVIEWS_LINK = os.environ.get("REVIEWS_LINK", "https://t.me/ARMYANua")
+REVIEWS_LINK = os.environ.get("REVIEWS_LINK", "https://t.me/armyanfeedback")
 
 DATA_DIR = Path("data")
 DATA_DIR.mkdir(exist_ok=True)
