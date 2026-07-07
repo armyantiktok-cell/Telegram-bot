@@ -25,10 +25,10 @@ PUBG_ID_FOR_UC = "51230579110"
 (
     CHOOSING_PAYMENT,
     WAITING_UAH_SCREENSHOT,
-    WAITING_UAH_DISCORD,
+    WAITING_UAH_TG,
     WAITING_UAH_PUBG_ID,
     WAITING_UC_SCREENSHOT,
-    WAITING_UC_DISCORD,
+    WAITING_UC_TG,
 ) = range(6)
 
 
@@ -39,7 +39,7 @@ def main_menu_keyboard():
     rows.append([InlineKeyboardButton("🎯 Индивидуальная настройка чувствительности", callback_data="sensitivity")])
     rows.append([InlineKeyboardButton("⭐ Отзывы", callback_data="reviews")])
     rows.append([InlineKeyboardButton("📩 Связаться со мной", callback_data="contact")])
-    rows.append([InlineKeyboardButton("❓ FAQ", callback_data="faq")])
+    rows.append([InlineKeyboardButton("❓ Частые вопросы", callback_data="faq")])
     return InlineKeyboardMarkup(rows)
 
 
@@ -155,14 +155,14 @@ async def uah_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     context.user_data["screenshot"] = update.message.photo[-1].file_id
     await update.message.reply_text(
         "✅ Скриншот получен!\n\n"
-        "📝 Теперь укажи свой <b>Discord</b> (например: username#1234 или @username):",
+        "📝 Теперь укажи свой <b>Telegram тег</b> (например: @username):",
         parse_mode="HTML"
     )
-    return WAITING_UAH_DISCORD
+    return WAITING_UAH_TG
 
 
-async def uah_discord(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    context.user_data["discord"] = update.message.text.strip()
+async def uah_tg(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    context.user_data["tg_tag"] = update.message.text.strip()
     await update.message.reply_text(
         "🎮 Отлично! Последний шаг — укажи свой <b>PUBG ID</b>:",
         parse_mode="HTML"
@@ -184,14 +184,14 @@ async def uc_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     context.user_data["screenshot"] = update.message.photo[-1].file_id
     await update.message.reply_text(
         "✅ Скриншот получен!\n\n"
-        "📝 Укажи свой <b>Discord</b> (например: username#1234 или @username):",
+        "📝 Укажи свой <b>Telegram тег</b> (например: @username):",
         parse_mode="HTML"
     )
-    return WAITING_UC_DISCORD
+    return WAITING_UC_TG
 
 
-async def uc_discord(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    context.user_data["discord"] = update.message.text.strip()
+async def uc_tg(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    context.user_data["tg_tag"] = update.message.text.strip()
     await _finalize_payment(update, context)
     return ConversationHandler.END
 
@@ -200,15 +200,14 @@ async def _finalize_payment(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     data = context.user_data
     payment_type = data.get("payment_type", "—")
-    discord = data.get("discord", "—")
+    tg_tag = data.get("tg_tag", "—")
     pubg_id = data.get("pubg_id", "—")
     screenshot = data.get("screenshot")
 
     await update.message.reply_text(
         "✅ <b>Оплата получена.</b>\n\n"
-        "В ближайшее время с вами свяжутся для согласования времени настройки.\n\n"
-        "Подготовьте Discord и устройство, на котором играете.\n"
-        "Настройка проводится в голосовом звонке Discord. 🎙️",
+        "В ближайшее время с вами свяжутся в Telegram для согласования времени настройки.\n\n"
+        "Подготовьте устройство, на котором играете. 🎙️",
         parse_mode="HTML",
         reply_markup=main_menu_keyboard()
     )
@@ -218,9 +217,9 @@ async def _finalize_payment(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"🆕 <b>Новая заявка!</b>",
             f"👤 Клиент: {user.full_name} (@{user.username or '—'}, ID: {user.id})",
             f"💰 Способ оплаты: <b>{'800 грн (Monobank)' if payment_type == 'UAH' else '1320 UC'}</b>",
-            f"🎮 Discord: <code>{discord}</code>",
+            f"✈️ Telegram: <code>{tg_tag}</code>",
         ]
-        if pubg_id and payment_type == "UAH":
+        if pubg_id and pubg_id != "—" and payment_type == "UAH":
             caption_lines.append(f"🆔 PUBG ID: <code>{pubg_id}</code>")
 
         caption = "\n".join(caption_lines)
@@ -343,8 +342,8 @@ def main() -> None:
                 MessageHandler(filters.PHOTO, uah_screenshot),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, uah_screenshot),
             ],
-            WAITING_UAH_DISCORD: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, uah_discord),
+            WAITING_UAH_TG: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, uah_tg),
             ],
             WAITING_UAH_PUBG_ID: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, uah_pubg_id),
@@ -353,8 +352,8 @@ def main() -> None:
                 MessageHandler(filters.PHOTO, uc_screenshot),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, uc_screenshot),
             ],
-            WAITING_UC_DISCORD: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, uc_discord),
+            WAITING_UC_TG: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, uc_tg),
             ],
         },
         fallbacks=[

@@ -1,47 +1,187 @@
 import os
+import hmac
+import hashlib
+import json
+import time
+import uuid
 import httpx
+from pathlib import Path
+from urllib.parse import parse_qsl
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-ADMIN_ID = os.environ.get("ADMIN_CHAT_ID", "")
+ADMIN_ID = int(os.environ.get("ADMIN_CHAT_ID", "0"))
 MONOBANK_CARD = "4441 1111 3196 2080"
 PUBG_ID_FOR_UC = "51230579110"
+
+DATA_DIR = Path("data")
+DATA_DIR.mkdir(exist_ok=True)
+ORDERS_FILE = DATA_DIR / "orders.json"
+PRICES_FILE = DATA_DIR / "prices.json"
+
+
+def load_json(path, default):
+    if path.exists():
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return default
+
+
+def save_json(path, data):
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def verify_init_data(init_data: str):
+    if not init_data or not BOT_TOKEN:
+        return None
+    try:
+        params = dict(parse_qsl(init_data, keep_blank_values=True))
+        received_hash = params.pop("hash", None)
+        if not received_hash:
+            return None
+        data_check_string = "\n".join(
+            f"{k}={v}" for k, v in sorted(params.items())
+        )
+        secret_key = hmac.new(
+            b"WebAppData", BOT_TOKEN.encode(), hashlib.sha256
+        ).digest()
+        expected_hash = hmac.new(
+            secret_key, data_check_string.encode(), hashlib.sha256
+        ).hexdigest()
+        if not hmac.compare_digest(expected_hash, received_hash):
+            return None
+        user_str = params.get("user", "{}")
+        return json.loads(user_str)
+    except Exception:
+        return None
+
+
+def is_admin(init_data: str) -> bool:
+    user = verify_init_data(init_data)
+    if not user:
+        return False
+    return int(user.get("id", 0)) == ADMIN_ID
+
+
+def get_init_data_from_request():
+    return (
+        request.headers.get("X-Init-Data", "")
+        or request.json.get("init_data", "") if request.is_json else ""
+    )
 
 
 @app.route("/")
 def index():
+    prices = load_json(PRICES_FILE, {"uah_price": 800, "uc_price": 1320})
     return render_template(
         "miniapp.html",
         monobank_card=MONOBANK_CARD,
         pubg_id_uc=PUBG_ID_FOR_UC,
+        uah_price=prices.get("uah_price", 800),
+        uc_price=prices.get("uc_price", 1320),
+        admin_id=ADMIN_ID,
     )
+
+
+@app.route("/api/prices", methods=["GET"])
+def get_prices():
+    prices = load_json(PRICES_FILE, {"uah_price": 800, "uc_price": 1320})
+    return jsonify(prices)
+
+
+@app.route("/api/prices", methods=["POST"])
+def update_prices():
+    init_data = request.headers.get("X-Init-Data", "")
+    if not is_admin(init_data):
+        return jsonify({"ok": False, "error": "Нет доступа"}), 403
+    data = request.get_json(silent=True) or {}
+    try:
+        uah = int(data.get("uah_price", 800))
+        uc = int(data.get("uc_price", 1320))
+    except (ValueError, TypeError):
+        return jsonify({"ok": False, "error": "Неверные данные"}), 400
+    prices = {"uah_price": uah, "uc_price": uc}
+    save_json(PRICES_FILE, prices)
+    return jsonify({"ok": True, "prices": prices})
+
+
+@app.route("/api/orders", methods=["GET"])
+def get_orders():
+    init_data = request.headers.get("X-Init-Data", "")
+    if not is_admin(init_data):
+        return jsonify({"ok": False, "error": "Нет доступа"}), 403
+    orders = load_json(ORDERS_FILE, [])
+    return jsonify({"ok": True, "orders": list(reversed(orders))})
+
+
+@app.route("/api/orders/<order_id>/status", methods=["POST"])
+def update_order_status(order_id):
+    init_data = request.headers.get("X-Init-Data", "")
+    if not is_admin(init_data):
+        return jsonify({"ok": False, "error": "Нет доступа"}), 403
+    data = request.get_json(silent=True) or {}
+    new_status = data.get("status", "")
+    if new_status not in ("new", "in_progress", "done", "cancelled"):
+        return jsonify({"ok": False, "error": "Неверный статус"}), 400
+    orders = load_json(ORDERS_FILE, [])
+    for o in orders:
+        if o.get("id") == order_id:
+            o["status"] = new_status
+            break
+    save_json(ORDERS_FILE, orders)
+    return jsonify({"ok": True})
 
 
 @app.route("/api/order", methods=["POST"])
 def create_order():
     data = request.get_json(silent=True) or {}
     payment_type = data.get("payment_type", "—")
-    discord = data.get("discord", "—").strip()
-    pubg_id = data.get("pubg_id", "—").strip()
+    tg_tag = data.get("tg_tag", "—").strip()
+    pubg_id = data.get("pubg_id", "").strip()
     user_name = data.get("user_name", "—")
-    user_id = data.get("user_id", "—")
+    user_id = str(data.get("user_id", "—"))
 
-    if not discord:
-        return jsonify({"ok": False, "error": "Discord обязателен"}), 400
+    if not tg_tag or tg_tag == "—":
+        return jsonify({"ok": False, "error": "Telegram тег обязателен"}), 400
+
+    prices = load_json(PRICES_FILE, {"uah_price": 800, "uc_price": 1320})
+    price_label = (
+        f"{prices['uah_price']} грн (Monobank)"
+        if payment_type == "UAH"
+        else f"{prices['uc_price']} UC"
+    )
+
+    order = {
+        "id": str(uuid.uuid4())[:8],
+        "timestamp": int(time.time()),
+        "user_name": user_name,
+        "user_id": user_id,
+        "tg_tag": tg_tag,
+        "pubg_id": pubg_id,
+        "payment_type": payment_type,
+        "price_label": price_label,
+        "status": "new",
+    }
+
+    orders = load_json(ORDERS_FILE, [])
+    orders.append(order)
+    save_json(ORDERS_FILE, orders)
 
     if ADMIN_ID and BOT_TOKEN:
         lines = [
             "🆕 <b>Новая заявка (Mini App)!</b>",
-            f"👤 Клиент: {user_name} (ID: {user_id})",
-            f"💰 Оплата: <b>{'800 грн (Monobank)' if payment_type == 'UAH' else '1320 UC'}</b>",
-            f"🎮 Discord: <code>{discord}</code>",
+            f"🆔 ID: <code>{order['id']}</code>",
+            f"👤 Клиент: {user_name} (TG ID: {user_id})",
+            f"💰 Оплата: <b>{price_label}</b>",
+            f"✈️ Telegram: <code>{tg_tag}</code>",
         ]
-        if pubg_id and pubg_id != "—" and payment_type == "UAH":
-            lines.append(f"🆔 PUBG ID: <code>{pubg_id}</code>")
+        if pubg_id and payment_type == "UAH":
+            lines.append(f"🎮 PUBG ID: <code>{pubg_id}</code>")
         lines.append("\n📸 Клиент отправит скриншот оплаты в бот.")
-
         try:
             httpx.post(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
@@ -55,7 +195,7 @@ def create_order():
         except Exception as e:
             print(f"Ошибка уведомления: {e}")
 
-    return jsonify({"ok": True})
+    return jsonify({"ok": True, "order_id": order["id"]})
 
 
 if __name__ == "__main__":

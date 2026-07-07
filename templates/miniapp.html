@@ -16,13 +16,13 @@
       max-width: 480px;
       margin: 0 auto;
       overflow-x: hidden;
+      padding-bottom: 70px;
     }
 
-    /* ─── Glow ─── */
     .glow {
       position: fixed; top: -80px; left: 50%; transform: translateX(-50%);
       width: 320px; height: 320px;
-      background: radial-gradient(circle, rgba(255,180,0,.12) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(255,180,0,.1) 0%, transparent 70%);
       pointer-events: none; z-index: 0;
     }
 
@@ -30,32 +30,53 @@
     .screen { display: none; position: relative; z-index: 1; }
     .screen.active { display: block; }
 
+    /* ─── Bottom Nav ─── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px;
+      background: #111118;
+      border-top: 1px solid rgba(255,255,255,.08);
+      display: none;
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .bottom-nav.visible { display: flex; }
+    .nav-tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 10px 4px;
+      color: #555; font-size: 10px; cursor: pointer;
+      transition: color .2s; gap: 4px; border: none; background: none;
+    }
+    .nav-tab .nav-icon { font-size: 22px; line-height: 1; }
+    .nav-tab.active { color: #ffb400; }
+    .nav-tab:active { opacity: .7; }
+
     /* ─── Header ─── */
     .header {
       background: linear-gradient(180deg, #1a1408 0%, #0a0a0f 100%);
-      padding: 24px 20px 18px;
+      padding: 20px 20px 16px;
       border-bottom: 1px solid rgba(255,180,0,.15);
     }
-    .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
     .logo-icon {
       width: 40px; height: 40px;
       background: linear-gradient(135deg, #ffb400, #ff7a00);
       border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
+      font-size: 20px; flex-shrink: 0;
     }
     .logo-text-main { font-size: 15px; font-weight: 700; color: #ffb400; letter-spacing: .5px; }
     .logo-text-sub { font-size: 11px; color: #888; letter-spacing: 1px; }
     .header h1 {
-      font-size: 24px; font-weight: 800; line-height: 1.2;
+      font-size: 22px; font-weight: 800; line-height: 1.2;
       background: linear-gradient(90deg, #fff 0%, #ffb400 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .header p { font-size: 13px; color: #aaa; margin-top: 8px; line-height: 1.5; }
+    .header p { font-size: 13px; color: #aaa; margin-top: 6px; line-height: 1.5; }
 
-    /* ─── Section ─── */
+    /* ─── Sections ─── */
     .section { padding: 16px 20px 0; }
-    .section-label { font-size: 12px; font-weight: 700; color: #666; letter-spacing: 1px; margin-bottom: 12px; }
+    .section-label { font-size: 11px; font-weight: 700; color: #555; letter-spacing: 1.2px; margin-bottom: 12px; text-transform: uppercase; }
 
     /* ─── Price Card ─── */
     .price-card {
@@ -66,13 +87,13 @@
     .price-badge {
       position: absolute; top: 0; right: 0;
       background: linear-gradient(135deg, #ffb400, #ff7a00);
-      color: #000; font-size: 11px; font-weight: 700;
+      color: #000; font-size: 10px; font-weight: 800;
       padding: 5px 14px; border-bottom-left-radius: 12px; letter-spacing: .5px;
     }
     .price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 3px; }
     .price-amount { font-size: 36px; font-weight: 900; color: #ffb400; }
     .price-currency { font-size: 20px; font-weight: 700; color: #ffb400; }
-    .price-old { font-size: 14px; color: #555; text-decoration: line-through; margin-left: 4px; }
+    .price-old { font-size: 14px; color: #555; margin-left: 4px; }
     .price-sub { font-size: 12px; color: #888; margin-bottom: 14px; }
     .price-pills { display: flex; gap: 8px; }
     .pill {
@@ -82,7 +103,7 @@
     .pill-icon { font-size: 16px; margin-bottom: 4px; }
     .pill-label { font-size: 10px; color: #aaa; line-height: 1.3; }
 
-    /* ─── Feature list ─── */
+    /* ─── Features ─── */
     .feature-list { display: flex; flex-direction: column; gap: 10px; }
     .feature-item { display: flex; align-items: flex-start; gap: 10px; }
     .check-icon {
@@ -117,20 +138,24 @@
     .review-text { font-size: 12px; color: #aaa; line-height: 1.5; }
 
     /* ─── CTA ─── */
-    .cta-wrap { padding: 20px 20px 32px; }
+    .cta-wrap { padding: 20px 20px 28px; }
     .btn {
       width: 100%; border: none; border-radius: 14px; padding: 16px;
       font-size: 16px; font-weight: 800; cursor: pointer; letter-spacing: .3px;
       transition: opacity .15s;
     }
-    .btn:active { opacity: .85; }
+    .btn:active { opacity: .8; }
     .btn-primary {
       background: linear-gradient(135deg, #ffb400, #ff7a00);
-      color: #000; box-shadow: 0 4px 24px rgba(255,180,0,.35);
+      color: #000; box-shadow: 0 4px 20px rgba(255,180,0,.3);
     }
     .btn-outline {
       background: transparent; border: 1px solid rgba(255,180,0,.4);
       color: #ffb400; font-size: 14px; padding: 12px;
+    }
+    .btn-danger {
+      background: transparent; border: 1px solid rgba(255,80,80,.4);
+      color: #ff6b6b; font-size: 14px; padding: 12px;
     }
     .btn-note { text-align: center; font-size: 12px; color: #555; margin-top: 8px; }
 
@@ -138,24 +163,21 @@
     .pay-options { display: flex; flex-direction: column; gap: 12px; }
     .pay-card {
       background: rgba(255,255,255,.03); border: 1.5px solid rgba(255,255,255,.1);
-      border-radius: 14px; padding: 16px; cursor: pointer; transition: border-color .2s;
+      border-radius: 14px; padding: 16px; cursor: pointer; transition: border-color .2s, background .2s;
     }
-    .pay-card:hover, .pay-card.selected { border-color: #ffb400; background: rgba(255,180,0,.05); }
+    .pay-card:hover, .pay-card.selected { border-color: #ffb400; background: rgba(255,180,0,.06); }
     .pay-card-top { display: flex; justify-content: space-between; align-items: center; }
     .pay-card-name { font-size: 15px; font-weight: 700; }
     .pay-card-price { font-size: 16px; font-weight: 800; color: #ffb400; }
     .pay-card-desc { font-size: 12px; color: #888; margin-top: 5px; }
 
-    /* ─── Requisites box ─── */
+    /* ─── Requisites ─── */
     .req-box {
       background: rgba(255,180,0,.06); border: 1px solid rgba(255,180,0,.2);
-      border-radius: 14px; padding: 16px; margin-bottom: 20px;
+      border-radius: 14px; padding: 16px; margin-bottom: 16px;
     }
     .req-label { font-size: 12px; color: #888; margin-bottom: 6px; }
-    .req-value {
-      font-size: 18px; font-weight: 800; color: #ffb400;
-      letter-spacing: 2px; word-break: break-all;
-    }
+    .req-value { font-size: 18px; font-weight: 800; color: #ffb400; letter-spacing: 2px; word-break: break-all; }
     .req-copy {
       display: inline-block; margin-top: 8px;
       font-size: 11px; color: #666; cursor: pointer;
@@ -170,8 +192,7 @@
       width: 100%;
       background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
       border-radius: 10px; padding: 12px 14px;
-      color: #fff; font-size: 14px; outline: none;
-      transition: border-color .2s;
+      color: #fff; font-size: 14px; outline: none; transition: border-color .2s;
     }
     .form-input:focus { border-color: rgba(255,180,0,.5); }
     .form-input::placeholder { color: #555; }
@@ -179,22 +200,13 @@
     /* ─── Notice ─── */
     .notice {
       background: rgba(255,180,0,.06); border: 1px solid rgba(255,180,0,.2);
-      border-radius: 12px; padding: 14px; margin-bottom: 18px;
+      border-radius: 12px; padding: 14px; margin-bottom: 16px;
     }
     .notice-title { font-size: 13px; font-weight: 700; color: #ffb400; margin-bottom: 5px; }
     .notice-text { font-size: 12px; color: #aaa; line-height: 1.6; }
 
-    /* ─── Back button ─── */
-    .back-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
-      border-radius: 8px; padding: 6px 12px;
-      color: #aaa; font-size: 13px; cursor: pointer; margin-bottom: 16px;
-    }
-    .back-btn:active { background: rgba(255,255,255,.1); }
-
     /* ─── Success ─── */
-    .success-wrap { padding: 60px 20px; text-align: center; }
+    .success-wrap { padding: 50px 20px; text-align: center; }
     .success-icon {
       width: 80px; height: 80px; margin: 0 auto 20px;
       background: linear-gradient(135deg, #ffb400, #ff7a00);
@@ -209,15 +221,102 @@
       font-size: 13px; color: #ccc; line-height: 1.6; text-align: left;
     }
 
-    /* ─── Error msg ─── */
+    /* ─── Error ─── */
     .error-msg { color: #ff6b6b; font-size: 12px; margin-top: 6px; display: none; }
     .error-msg.show { display: block; }
 
+    /* ─── Admin Panel ─── */
+    .admin-header {
+      background: linear-gradient(180deg, #0f0f1a 0%, #0a0a0f 100%);
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid rgba(130,80,255,.2);
+    }
+    .admin-header h2 { font-size: 20px; font-weight: 800; color: #fff; }
+    .admin-header p { font-size: 12px; color: #666; margin-top: 4px; }
+
+    .admin-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .admin-tab {
+      flex: 1; padding: 12px; text-align: center;
+      font-size: 13px; font-weight: 600; color: #555;
+      cursor: pointer; border-bottom: 2px solid transparent;
+      transition: color .2s, border-color .2s;
+    }
+    .admin-tab.active { color: #ffb400; border-bottom-color: #ffb400; }
+
+    .admin-content { padding: 16px 20px; }
+    .admin-section { display: none; }
+    .admin-section.active { display: block; }
+
+    /* Orders list */
+    .order-card {
+      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px; padding: 14px; margin-bottom: 12px;
+    }
+    .order-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .order-id { font-size: 11px; color: #555; font-family: monospace; }
+    .order-date { font-size: 11px; color: #555; }
+    .order-name { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .order-detail { font-size: 12px; color: #888; margin-bottom: 3px; }
+    .order-tg { font-size: 12px; color: #5ba3f5; }
+
+    .status-badge {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px; margin-bottom: 10px;
+    }
+    .status-new { background: rgba(255,180,0,.15); color: #ffb400; border: 1px solid rgba(255,180,0,.3); }
+    .status-in_progress { background: rgba(91,163,245,.15); color: #5ba3f5; border: 1px solid rgba(91,163,245,.3); }
+    .status-done { background: rgba(80,200,120,.15); color: #50c878; border: 1px solid rgba(80,200,120,.3); }
+    .status-cancelled { background: rgba(255,80,80,.12); color: #ff6b6b; border: 1px solid rgba(255,80,80,.2); }
+
+    .status-select {
+      width: 100%; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px; padding: 8px 12px; color: #fff; font-size: 13px;
+      outline: none; cursor: pointer;
+    }
+
+    /* Prices editor */
+    .price-editor { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; }
+    .price-editor-row { }
+    .price-editor-label { font-size: 13px; color: #ccc; font-weight: 600; margin-bottom: 8px; }
+    .price-editor-input {
+      width: 100%; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px; padding: 14px; color: #fff; font-size: 22px; font-weight: 800;
+      outline: none; transition: border-color .2s; text-align: center;
+    }
+    .price-editor-input:focus { border-color: rgba(255,180,0,.5); }
+
+    .saved-toast {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      background: #1a2a1a; border: 1px solid #50c878;
+      color: #50c878; font-size: 13px; font-weight: 600;
+      padding: 10px 20px; border-radius: 20px; z-index: 999;
+      opacity: 0; transition: opacity .3s; pointer-events: none;
+    }
+    .saved-toast.show { opacity: 1; }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: #444; }
+    .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state-text { font-size: 14px; }
+
     .spacer { height: 16px; }
+    .spacer-sm { height: 8px; }
   </style>
 </head>
 <body>
 <div class="glow"></div>
+
+<!-- ═══════════════ BOTTOM NAV ═══════════════ -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="nav-tab active" id="nav-shop" onclick="navTo('shop')">
+    <span class="nav-icon">🛍️</span>Магазин
+  </button>
+  <button class="nav-tab" id="nav-orders" onclick="navTo('orders')">
+    <span class="nav-icon">📦</span>Заказы
+  </button>
+  <button class="nav-tab" id="nav-prices" onclick="navTo('prices')">
+    <span class="nav-icon">💰</span>Цены
+  </button>
+</nav>
 
 <!-- ═══════════════ SCREEN: HOME ═══════════════ -->
 <div class="screen active" id="screen-home">
@@ -230,16 +329,16 @@
       </div>
     </div>
     <h1>Настройка чувствительности под тебя</h1>
-    <p>Индивидуально через Discord в голосовом звонке — под твой девайс и стиль игры</p>
+    <p>Индивидуально под твой девайс и стиль игры</p>
   </div>
 
   <div class="section">
     <div class="price-card">
       <div class="price-badge">ХИТ</div>
       <div class="price-row">
-        <span class="price-amount">800</span>
+        <span class="price-amount" id="home-uah-price">{{ uah_price }}</span>
         <span class="price-currency">грн</span>
-        <span class="price-old">или 1320 UC</span>
+        <span class="price-old">или <span id="home-uc-price">{{ uc_price }}</span> UC</span>
       </div>
       <div class="price-sub">Разовая настройка • Без подписки</div>
       <div class="price-pills">
@@ -251,9 +350,8 @@
   </div>
 
   <div class="section">
-    <div class="section-label">ЧТО ВХОДИТ</div>
+    <div class="section-label">Что входит</div>
     <div class="feature-list">
-      <div class="feature-item"><div class="check-icon">✓</div><div class="feature-text">Настройка через Discord в голосовом звонке</div></div>
       <div class="feature-item"><div class="check-icon">✓</div><div class="feature-text">Индивидуально под твоё устройство и стиль игры</div></div>
       <div class="feature-item"><div class="check-icon">✓</div><div class="feature-text">Подходит для iPhone, iPad, Android-смартфонов и планшетов</div></div>
       <div class="feature-item"><div class="check-icon">✓</div><div class="feature-text">С гироскопом или без — не важно</div></div>
@@ -262,23 +360,23 @@
   </div>
 
   <div class="section">
-    <div class="section-label">КАК ЭТО РАБОТАЕТ</div>
+    <div class="section-label">Как это работает</div>
     <div class="steps">
       <div class="step"><div class="step-icon">💳</div><div class="step-title">Оплата</div><div class="step-desc">Гривны или UC</div></div>
       <div class="step"><div class="step-icon">📅</div><div class="step-title">Договор</div><div class="step-desc">Согласуем время</div></div>
-      <div class="step"><div class="step-icon">🎙️</div><div class="step-title">Discord</div><div class="step-desc">Настройка в звонке</div></div>
+      <div class="step"><div class="step-icon">🎙️</div><div class="step-title">Настройка</div><div class="step-desc">Голосовой звонок</div></div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-label">ОТЗЫВЫ ИГРОКОВ</div>
+    <div class="section-label">Отзывы игроков</div>
     <div class="review-list">
       <div class="review-card">
         <div class="review-top">
           <div><div class="review-name">Artem_Pro</div><div class="review-rank">Платина II</div></div>
           <div class="stars">⭐⭐⭐⭐⭐</div>
         </div>
-        <div class="review-text">Убойная настройка, рейдж реально стал стабильнее. Советую 🔥</div>
+        <div class="review-text">Убойная настройка, реально стал стабильнее. Советую 🔥</div>
       </div>
       <div class="review-card">
         <div class="review-top">
@@ -298,7 +396,7 @@
   </div>
 
   <div class="cta-wrap">
-    <button class="btn btn-primary" onclick="goTo('screen-pay')">Заказать настройку</button>
+    <button class="btn btn-primary" onclick="goTo('screen-pay')">Заказать настройку 🎯</button>
     <div class="btn-note">⚠️ Сначала оплата — потом согласование времени</div>
   </div>
 </div>
@@ -309,7 +407,7 @@
     <div class="logo-row">
       <div class="logo-icon">💳</div>
       <div>
-        <div class="logo-text-main">ВЫБОР ОПЛАТЫ</div>
+        <div class="logo-text-main">Выбор оплаты</div>
         <div class="logo-text-sub">ШАГ 1 ИЗ 3</div>
       </div>
     </div>
@@ -321,14 +419,14 @@
       <div class="pay-card" id="pay-uah" onclick="selectPay('UAH')">
         <div class="pay-card-top">
           <span class="pay-card-name">💳 Гривнами</span>
-          <span class="pay-card-price">800 грн</span>
+          <span class="pay-card-price" id="pay-uah-label">{{ uah_price }} грн</span>
         </div>
         <div class="pay-card-desc">Monobank • Перевод на карту</div>
       </div>
       <div class="pay-card" id="pay-uc" onclick="selectPay('UC')">
         <div class="pay-card-top">
           <span class="pay-card-name">💎 UC</span>
-          <span class="pay-card-price">1320 UC</span>
+          <span class="pay-card-price" id="pay-uc-label">{{ uc_price }} UC</span>
         </div>
         <div class="pay-card-desc">Пополнение UC на PUBG ID</div>
       </div>
@@ -347,18 +445,18 @@
     <div class="logo-row">
       <div class="logo-icon">💳</div>
       <div>
-        <div class="logo-text-main">ОПЛАТА ГРИВНАМИ</div>
+        <div class="logo-text-main">Оплата гривнами</div>
         <div class="logo-text-sub">ШАГ 2 ИЗ 3</div>
       </div>
     </div>
-    <h1>Переведи 800 грн</h1>
+    <h1>Переведи <span id="req-uah-amount">{{ uah_price }}</span> грн</h1>
   </div>
   <div class="section">
     <div class="spacer"></div>
     <div class="req-box">
       <div class="req-label">Monobank — номер карты</div>
-      <div class="req-value" id="card-number">{{ monobank_card }}</div>
-      <div class="req-copy" onclick="copyCard()">📋 Скопировать</div>
+      <div class="req-value">{{ monobank_card }}</div>
+      <div class="req-copy" onclick="copyText('{{ monobank_card }}', this)">📋 Скопировать</div>
     </div>
     <div class="notice">
       <div class="notice-title">⚠️ Важно</div>
@@ -378,21 +476,21 @@
 <!-- ═══════════════ SCREEN: REQUISITES UC ═══════════════ -->
 <div class="screen" id="screen-req-uc">
   <div class="header">
-    <div class="logo-icon" style="display:inline-flex">💎</div>
-    <div class="logo-row" style="margin-top:8px">
+    <div class="logo-row">
+      <div class="logo-icon">💎</div>
       <div>
-        <div class="logo-text-main">ОПЛАТА UC</div>
+        <div class="logo-text-main">Оплата UC</div>
         <div class="logo-text-sub">ШАГ 2 ИЗ 3</div>
       </div>
     </div>
-    <h1>Пополни 1320 UC</h1>
+    <h1>Пополни <span id="req-uc-amount">{{ uc_price }}</span> UC</h1>
   </div>
   <div class="section">
     <div class="spacer"></div>
     <div class="req-box">
       <div class="req-label">PUBG ID для пополнения</div>
-      <div class="req-value" id="pubg-id-display">{{ pubg_id_uc }}</div>
-      <div class="req-copy" onclick="copyPubgId()">📋 Скопировать</div>
+      <div class="req-value">{{ pubg_id_uc }}</div>
+      <div class="req-copy" onclick="copyText('{{ pubg_id_uc }}', this)">📋 Скопировать</div>
     </div>
     <div class="notice">
       <div class="notice-title">⚠️ Важно</div>
@@ -415,7 +513,7 @@
     <div class="logo-row">
       <div class="logo-icon">📝</div>
       <div>
-        <div class="logo-text-main">ДАННЫЕ ДЛЯ НАСТРОЙКИ</div>
+        <div class="logo-text-main">Данные для настройки</div>
         <div class="logo-text-sub">ШАГ 3 ИЗ 3</div>
       </div>
     </div>
@@ -425,26 +523,26 @@
     <div class="spacer"></div>
 
     <div class="form-group">
-      <label class="form-label">🎮 Discord</label>
-      <input class="form-input" id="input-discord" type="text" placeholder="username или username#1234" />
-      <div class="error-msg" id="err-discord">Введи Discord</div>
+      <label class="form-label">✈️ Telegram тег</label>
+      <input class="form-input" id="input-tg" type="text" placeholder="@username" autocomplete="off" />
+      <div class="error-msg" id="err-tg">Введи свой Telegram тег</div>
     </div>
 
     <div class="form-group" id="pubg-id-group">
-      <label class="form-label">🆔 PUBG ID <span style="color:#666;font-weight:400">(для UAH оплаты)</span></label>
-      <input class="form-input" id="input-pubgid" type="text" placeholder="Твой PUBG ID" />
+      <label class="form-label">🆔 PUBG ID <span style="color:#666;font-weight:400">(для оплаты гривнами)</span></label>
+      <input class="form-input" id="input-pubgid" type="text" placeholder="Твой PUBG ID" autocomplete="off" />
     </div>
 
     <div class="notice">
       <div class="notice-title">📸 Не забудь про скриншот!</div>
       <div class="notice-text">
-        После отправки формы — напиши нам в бот и пришли скриншот оплаты / пополнения UC. Это обязательно для подтверждения.
+        После отправки формы — напиши в бот и пришли скриншот оплаты / пополнения UC. Это обязательно для подтверждения.
       </div>
     </div>
   </div>
   <div class="cta-wrap">
     <button class="btn btn-primary" id="submit-btn" onclick="submitOrder()">Отправить заявку 🚀</button>
-    <div class="error-msg show" id="err-submit" style="display:none;text-align:center;margin-top:10px"></div>
+    <div class="error-msg" id="err-submit" style="text-align:center;margin-top:10px"></div>
     <div class="spacer"></div>
     <button class="btn btn-outline" onclick="goBackFromForm()">← Назад</button>
   </div>
@@ -460,31 +558,106 @@
     </div>
     <div class="success-warn">
       📸 <b>Осталось одно:</b> открой бота и пришли скриншот оплаты / пополнения UC. Без скриншота настройка не начнётся.<br><br>
-      🎙️ <b>Подготовь Discord</b> и устройство, на котором играешь. Настройка пройдёт в голосовом звонке.
+      🎙️ Настройка пройдёт в голосовом звонке — подготовь устройство, на котором играешь.
     </div>
-    <button class="btn btn-primary" onclick="closeApp()">Готово</button>
+    <button class="btn btn-primary" onclick="closeApp()">Готово ✓</button>
   </div>
 </div>
+
+<!-- ═══════════════ SCREEN: ADMIN ORDERS ═══════════════ -->
+<div class="screen" id="screen-admin-orders">
+  <div class="admin-header">
+    <h2>⚙️ Админ-панель</h2>
+    <p>Управление заказами и ценами</p>
+  </div>
+  <div class="admin-tabs">
+    <div class="admin-tab active" id="atab-orders" onclick="switchAdminTab('orders')">📦 Заказы</div>
+    <div class="admin-tab" id="atab-prices" onclick="switchAdminTab('prices')">💰 Цены</div>
+  </div>
+
+  <div class="admin-content">
+    <!-- Orders section -->
+    <div class="admin-section active" id="asec-orders">
+      <div id="orders-list">
+        <div class="empty-state">
+          <div class="empty-state-icon">📭</div>
+          <div class="empty-state-text">Загрузка заказов...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prices section -->
+    <div class="admin-section" id="asec-prices">
+      <div class="price-editor">
+        <div class="price-editor-row">
+          <div class="price-editor-label">💳 Цена гривнами (UAH)</div>
+          <input class="price-editor-input" id="edit-uah-price" type="number" value="{{ uah_price }}" min="1" />
+        </div>
+        <div class="price-editor-row">
+          <div class="price-editor-label">💎 Цена в UC</div>
+          <input class="price-editor-input" id="edit-uc-price" type="number" value="{{ uc_price }}" min="1" />
+        </div>
+        <button class="btn btn-primary" onclick="savePrices()">💾 Сохранить цены</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="saved-toast" id="saved-toast">✅ Сохранено!</div>
 
 <script>
   const tg = window.Telegram?.WebApp;
   if (tg) { tg.ready(); tg.expand(); }
 
+  const ADMIN_ID = {{ admin_id }};
+  const initData = tg?.initData || "";
+  const tgUser = tg?.initDataUnsafe?.user || null;
+  const currentUserId = tgUser?.id || 0;
+  const isAdmin = ADMIN_ID > 0 && currentUserId === ADMIN_ID;
+
   let selectedPay = null;
+  let currentAdminTab = 'orders';
+  let currentNavSection = 'shop';
 
-  const MONOBANK_CARD = "{{ monobank_card }}";
-  const PUBG_ID_UC   = "{{ pubg_id_uc }}";
+  // ─── Init ───
+  window.addEventListener('DOMContentLoaded', () => {
+    if (isAdmin) {
+      document.getElementById('bottom-nav').classList.add('visible');
+    }
+    refreshPrices();
+  });
 
-  function goTo(screenId) {
+  // ─── Navigation ───
+  function navTo(section) {
+    currentNavSection = section;
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('nav-' + (section === 'shop' ? 'shop' : section === 'orders' ? 'orders' : 'prices')).classList.add('active');
+
+    if (section === 'shop') {
+      showScreen('screen-home');
+    } else if (section === 'orders') {
+      showScreen('screen-admin-orders');
+      switchAdminTab('orders');
+      loadOrders();
+    } else if (section === 'prices') {
+      showScreen('screen-admin-orders');
+      switchAdminTab('prices');
+    }
+  }
+
+  function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
     window.scrollTo(0, 0);
   }
 
-  function selectPay(type) {
-    selectedPay = type;
-    document.getElementById('pay-uah').classList.toggle('selected', type === 'UAH');
-    document.getElementById('pay-uc').classList.toggle('selected', type === 'UC');
+  function goTo(screenId) {
+    showScreen(screenId);
+    if (screenId === 'screen-form') {
+      document.getElementById('pubg-id-group').style.display =
+        selectedPay === 'UAH' ? 'block' : 'none';
+    }
   }
 
   function goToRequisites() {
@@ -496,83 +669,198 @@
     goTo(selectedPay === 'UAH' ? 'screen-req-uah' : 'screen-req-uc');
   }
 
-  function copyCard() {
-    navigator.clipboard.writeText(MONOBANK_CARD).then(() => {
-      const el = document.querySelector('.req-copy');
+  function selectPay(type) {
+    selectedPay = type;
+    document.getElementById('pay-uah').classList.toggle('selected', type === 'UAH');
+    document.getElementById('pay-uc').classList.toggle('selected', type === 'UC');
+  }
+
+  function closeApp() {
+    if (tg) tg.close();
+  }
+
+  // ─── Copy ───
+  function copyText(text, el) {
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = el.textContent;
       el.textContent = '✅ Скопировано!';
-      setTimeout(() => el.textContent = '📋 Скопировать', 2000);
+      setTimeout(() => el.textContent = orig, 2000);
     });
   }
 
-  function copyPubgId() {
-    navigator.clipboard.writeText(PUBG_ID_UC).then(() => {
-      const els = document.querySelectorAll('.req-copy');
-      els.forEach(el => {
-        el.textContent = '✅ Скопировано!';
-        setTimeout(() => el.textContent = '📋 Скопировать', 2000);
-      });
-    });
+  // ─── Prices (live refresh) ───
+  async function refreshPrices() {
+    try {
+      const res = await fetch('/api/prices');
+      const p = await res.json();
+      const uah = p.uah_price || 800;
+      const uc = p.uc_price || 1320;
+
+      document.getElementById('home-uah-price').textContent = uah;
+      document.getElementById('home-uc-price').textContent = uc;
+      document.getElementById('pay-uah-label').textContent = uah + ' грн';
+      document.getElementById('pay-uc-label').textContent = uc + ' UC';
+      document.getElementById('req-uah-amount').textContent = uah;
+      document.getElementById('req-uc-amount').textContent = uc;
+      if (isAdmin) {
+        document.getElementById('edit-uah-price').value = uah;
+        document.getElementById('edit-uc-price').value = uc;
+      }
+    } catch (e) {}
   }
 
-  function goTo(screenId) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
-    window.scrollTo(0, 0);
-    // Show PUBG ID field only for UAH
-    if (screenId === 'screen-form') {
-      document.getElementById('pubg-id-group').style.display =
-        selectedPay === 'UAH' ? 'block' : 'none';
-    }
-  }
-
+  // ─── Submit Order ───
   async function submitOrder() {
-    const discord = document.getElementById('input-discord').value.trim();
-    const errDiscord = document.getElementById('err-discord');
+    const tgTag = document.getElementById('input-tg').value.trim();
+    const errTg = document.getElementById('err-tg');
     const errSubmit = document.getElementById('err-submit');
+    const btn = document.getElementById('submit-btn');
 
-    errDiscord.classList.remove('show');
+    errTg.classList.remove('show');
     errSubmit.style.display = 'none';
 
-    if (!discord) { errDiscord.classList.add('show'); return; }
+    if (!tgTag) { errTg.classList.add('show'); return; }
 
-    const btn = document.getElementById('submit-btn');
     btn.disabled = true;
-    btn.textContent = 'Отправляем...';
+    btn.textContent = 'Отправляю...';
 
-    const user = tg?.initDataUnsafe?.user || {};
-    const payload = {
-      payment_type: selectedPay,
-      discord,
-      pubg_id: document.getElementById('input-pubgid').value.trim(),
-      user_name: user.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : 'Неизвестно',
-      user_id: user.id || '—',
-    };
+    const pubgId = document.getElementById('input-pubgid').value.trim();
 
     try {
       const res = await fetch('/api/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          payment_type: selectedPay,
+          tg_tag: tgTag,
+          pubg_id: pubgId,
+          user_name: tgUser ? (tgUser.first_name + (tgUser.last_name ? ' ' + tgUser.last_name : '')) : 'Неизвестно',
+          user_id: currentUserId,
+        }),
       });
-      const json = await res.json();
-      if (json.ok) {
+      const data = await res.json();
+      if (data.ok) {
         goTo('screen-success');
       } else {
-        errSubmit.textContent = json.error || 'Ошибка. Попробуй ещё раз.';
+        errSubmit.textContent = data.error || 'Ошибка. Попробуй ещё раз.';
         errSubmit.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Отправить заявку 🚀';
       }
     } catch (e) {
-      errSubmit.textContent = 'Нет связи. Проверь интернет.';
+      errSubmit.textContent = 'Ошибка сети. Попробуй ещё раз.';
       errSubmit.style.display = 'block';
+    } finally {
       btn.disabled = false;
       btn.textContent = 'Отправить заявку 🚀';
     }
   }
 
-  function closeApp() {
-    if (tg) { tg.close(); } else { goTo('screen-home'); }
+  // ─── Admin: tabs ───
+  function switchAdminTab(tab) {
+    currentAdminTab = tab;
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('atab-' + tab).classList.add('active');
+    document.getElementById('asec-' + tab).classList.add('active');
+  }
+
+  // ─── Admin: load orders ───
+  async function loadOrders() {
+    const list = document.getElementById('orders-list');
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⏳</div><div class="empty-state-text">Загрузка...</div></div>';
+    try {
+      const res = await fetch('/api/orders', {
+        headers: { 'X-Init-Data': initData }
+      });
+      const data = await res.json();
+      if (!data.ok) { list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔒</div><div class="empty-state-text">Нет доступа</div></div>'; return; }
+      const orders = data.orders || [];
+      if (orders.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">Заказов пока нет</div></div>';
+        return;
+      }
+      list.innerHTML = orders.map(o => renderOrder(o)).join('');
+    } catch (e) {
+      list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">❌</div><div class="empty-state-text">Ошибка загрузки</div></div>';
+    }
+  }
+
+  const STATUS_LABELS = {
+    new: '🆕 Новый',
+    in_progress: '🔄 В работе',
+    done: '✅ Выполнен',
+    cancelled: '❌ Отменён',
+  };
+
+  function renderOrder(o) {
+    const date = new Date(o.timestamp * 1000).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    return `
+      <div class="order-card" id="order-${o.id}">
+        <div class="order-top">
+          <span class="order-id">#${o.id}</span>
+          <span class="order-date">${date}</span>
+        </div>
+        <div class="order-name">${escHtml(o.user_name)}</div>
+        <div class="order-tg">✈️ ${escHtml(o.tg_tag)}</div>
+        <div class="order-detail">💰 ${escHtml(o.price_label)}</div>
+        ${o.pubg_id ? `<div class="order-detail">🎮 PUBG ID: ${escHtml(o.pubg_id)}</div>` : ''}
+        <div class="spacer-sm"></div>
+        <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status] || o.status}</span>
+        <select class="status-select" onchange="updateStatus('${o.id}', this.value)">
+          <option value="new" ${o.status==='new'?'selected':''}>🆕 Новый</option>
+          <option value="in_progress" ${o.status==='in_progress'?'selected':''}>🔄 В работе</option>
+          <option value="done" ${o.status==='done'?'selected':''}>✅ Выполнен</option>
+          <option value="cancelled" ${o.status==='cancelled'?'selected':''}>❌ Отменён</option>
+        </select>
+      </div>`;
+  }
+
+  async function updateStatus(orderId, status) {
+    try {
+      const res = await fetch(`/api/orders/${orderId}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Init-Data': initData },
+        body: JSON.stringify({ status }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast('✅ Статус обновлён');
+        loadOrders();
+      }
+    } catch (e) {}
+  }
+
+  // ─── Admin: save prices ───
+  async function savePrices() {
+    const uah = parseInt(document.getElementById('edit-uah-price').value) || 800;
+    const uc = parseInt(document.getElementById('edit-uc-price').value) || 1320;
+    try {
+      const res = await fetch('/api/prices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Init-Data': initData },
+        body: JSON.stringify({ uah_price: uah, uc_price: uc }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast('✅ Цены сохранены!');
+        refreshPrices();
+      } else {
+        showToast('❌ ' + (data.error || 'Ошибка'));
+      }
+    } catch (e) {
+      showToast('❌ Ошибка сети');
+    }
+  }
+
+  // ─── Utils ───
+  function showToast(msg) {
+    const t = document.getElementById('saved-toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 </script>
 </body>
