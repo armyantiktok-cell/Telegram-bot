@@ -276,13 +276,13 @@ async def contact_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("✉️ Написать @ARMYANua", url="https://t.me/ARMYANua")],
+        [InlineKeyboardButton("✉️ Написать @ARMYAN_help", url="https://t.me/ARMYAN_help")],
         [InlineKeyboardButton("◀️ Назад", callback_data="back_to_menu")],
     ])
     await query.edit_message_text(
         "📩 <b>Связаться со мной</b>\n\n"
         "По всем вопросам пиши напрямую:\n"
-        "Telegram: @ARMYANua",
+        "Telegram: @ARMYAN_help",
         parse_mode="HTML",
         reply_markup=keyboard
     )
