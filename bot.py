@@ -1,7 +1,7 @@
 import logging
 import os
 from telegram import (
-    Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
+    Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove, WebAppInfo
 )
 from telegram.ext import (
     Application, CommandHandler, MessageHandler, CallbackQueryHandler,
@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 ADMIN_ID = int(os.environ.get("ADMIN_CHAT_ID", "0"))
 REVIEWS_LINK = os.environ.get("REVIEWS_LINK", "https://t.me/ARMYANua")
+_domain = os.environ.get("REPLIT_DOMAINS", "")
+WEBAPP_URL = f"https://{_domain}" if _domain else ""
 
 MONOBANK_CARD = "4441 1111 3196 2080"
 PUBG_ID_FOR_UC = "51230579110"
@@ -31,12 +33,14 @@ PUBG_ID_FOR_UC = "51230579110"
 
 
 def main_menu_keyboard():
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🎯 Индивидуальная настройка чувствительности", callback_data="sensitivity")],
-        [InlineKeyboardButton("⭐ Отзывы", callback_data="reviews")],
-        [InlineKeyboardButton("📩 Связаться со мной", callback_data="contact")],
-        [InlineKeyboardButton("❓ FAQ", callback_data="faq")],
-    ])
+    rows = []
+    if WEBAPP_URL:
+        rows.append([InlineKeyboardButton("🚀 Открыть Mini App", web_app=WebAppInfo(url=WEBAPP_URL))])
+    rows.append([InlineKeyboardButton("🎯 Индивидуальная настройка чувствительности", callback_data="sensitivity")])
+    rows.append([InlineKeyboardButton("⭐ Отзывы", callback_data="reviews")])
+    rows.append([InlineKeyboardButton("📩 Связаться со мной", callback_data="contact")])
+    rows.append([InlineKeyboardButton("❓ FAQ", callback_data="faq")])
+    return InlineKeyboardMarkup(rows)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

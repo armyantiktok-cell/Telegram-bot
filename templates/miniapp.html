@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PUBG SENS PRO</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, 'Inter', 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #f0f0f0;
+      min-height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+      overflow-x: hidden;
+    }
+
+    /* ─── Glow ─── */
+    .glow {
+      position: fixed; top: -80px; left: 50%; transform: translateX(-50%);
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(255,180,0,.12) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ─── Screens ─── */
+    .screen { display: none; position: relative; z-index: 1; }
+    .screen.active { display: block; }
+
+    /* ─── Header ─── */
+    .header {
+      background: linear-gradient(180deg, #1a1408 0%, #0a0a0f 100%);
+      padding: 24px 20px 18px;
+      border-bottom: 1px solid rgba(255,180,0,.15);
+    }
+    .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, #ffb400, #ff7a00);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .logo-text-main { font-size: 15px; font-weight: 700; color: #ffb400; letter-spacing: .5px; }
+    .logo-text-sub { font-size: 11px; color: #888; letter-spacing: 1px; }
+    .header h1 {
+      font-size: 24px; font-weight: 800; line-height: 1.2;
+      background: linear-gradient(90deg, #fff 0%, #ffb400 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .header p { font-size: 13px; color: #aaa; margin-top: 8px; line-height: 1.5; }
+
+    /* ─── Section ─── */
+    .section { padding: 16px 20px 0; }
+    .section-label { font-size: 12px; font-weight: 700; color: #666; letter-spacing: 1px; margin-bottom: 12px; }
+
+    /* ─── Price Card ─── */
+    .price-card {
+      background: linear-gradient(135deg, #1c1608 0%, #141010 100%);
+      border: 1px solid rgba(255,180,0,.3);
+      border-radius: 16px; padding: 18px; position: relative; overflow: hidden;
+    }
+    .price-badge {
+      position: absolute; top: 0; right: 0;
+      background: linear-gradient(135deg, #ffb400, #ff7a00);
+      color: #000; font-size: 11px; font-weight: 700;
+      padding: 5px 14px; border-bottom-left-radius: 12px; letter-spacing: .5px;
+    }
+    .price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 3px; }
+    .price-amount { font-size: 36px; font-weight: 900; color: #ffb400; }
+    .price-currency { font-size: 20px; font-weight: 700; color: #ffb400; }
+    .price-old { font-size: 14px; color: #555; text-decoration: line-through; margin-left: 4px; }
+    .price-sub { font-size: 12px; color: #888; margin-bottom: 14px; }
+    .price-pills { display: flex; gap: 8px; }
+    .pill {
+      flex: 1; background: rgba(255,180,0,.08); border: 1px solid rgba(255,180,0,.15);
+      border-radius: 10px; padding: 10px 6px; text-align: center;
+    }
+    .pill-icon { font-size: 16px; margin-bottom: 4px; }
+    .pill-label { font-size: 10px; color: #aaa; line-height: 1.3; }
+
+    /* ─── Feature list ─── */
+    .feature-list { display: flex; flex-direction: column; gap: 10px; }
+    .feature-item { display: flex; align-items: flex-start; gap: 10px; }
+    .check-icon {
+      width: 20px; height: 20px; min-width: 20px;
+      background: rgba(255,180,0,.15); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; margin-top: 1px;
+    }
+    .feature-text { font-size: 13px; color: #ccc; line-height: 1.4; }
+
+    /* ─── Steps ─── */
+    .steps { display: flex; gap: 8px; }
+    .step {
+      flex: 1; text-align: center;
+      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px; padding: 12px 6px;
+    }
+    .step-icon { font-size: 20px; margin-bottom: 6px; }
+    .step-title { font-size: 11px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+    .step-desc { font-size: 10px; color: #666; line-height: 1.3; }
+
+    /* ─── Reviews ─── */
+    .review-list { display: flex; flex-direction: column; gap: 10px; }
+    .review-card {
+      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07);
+      border-radius: 12px; padding: 14px;
+    }
+    .review-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .review-name { font-size: 13px; font-weight: 700; color: #fff; }
+    .review-rank { font-size: 11px; color: #ffb400; }
+    .stars { font-size: 12px; }
+    .review-text { font-size: 12px; color: #aaa; line-height: 1.5; }
+
+    /* ─── CTA ─── */
+    .cta-wrap { padding: 20px 20px 32px; }
+    .btn {
+      width: 100%; border: none; border-radius: 14px; padding: 16px;
+      font-size: 16px; font-weight: 800; cursor: pointer; letter-spacing: .3px;
+      transition: opacity .15s;
+    }
+    .btn:active { opacity: .85; }
+    .btn-primary {
+      background: linear-gradient(135deg, #ffb400, #ff7a00);
+      color: #000; box-shadow: 0 4px 24px rgba(255,180,0,.35);
+    }
+    .btn-outline {
+      background: transparent; border: 1px solid rgba(255,180,0,.4);
+      color: #ffb400; font-size: 14px; padding: 12px;
+    }
+    .btn-note { text-align: center; font-size: 12px; color: #555; margin-top: 8px; }
+
+    /* ─── Payment Choice ─── */
+    .pay-options { display: flex; flex-direction: column; gap: 12px; }
+    .pay-card {
+      background: rgba(255,255,255,.03); border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: 14px; padding: 16px; cursor: pointer; transition: border-color .2s;
+    }
+    .pay-card:hover, .pay-card.selected { border-color: #ffb400; background: rgba(255,180,0,.05); }
+    .pay-card-top { display: flex; justify-content: space-between; align-items: center; }
+    .pay-card-name { font-size: 15px; font-weight: 700; }
+    .pay-card-price { font-size: 16px; font-weight: 800; color: #ffb400; }
+    .pay-card-desc { font-size: 12px; color: #888; margin-top: 5px; }
+
+    /* ─── Requisites box ─── */
+    .req-box {
+      background: rgba(255,180,0,.06); border: 1px solid rgba(255,180,0,.2);
+      border-radius: 14px; padding: 16px; margin-bottom: 20px;
+    }
+    .req-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+    .req-value {
+      font-size: 18px; font-weight: 800; color: #ffb400;
+      letter-spacing: 2px; word-break: break-all;
+    }
+    .req-copy {
+      display: inline-block; margin-top: 8px;
+      font-size: 11px; color: #666; cursor: pointer;
+      border: 1px solid #333; border-radius: 6px; padding: 4px 10px;
+    }
+    .req-copy:active { background: #222; }
+
+    /* ─── Form ─── */
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 13px; color: #ccc; font-weight: 600; margin-bottom: 6px; }
+    .form-input {
+      width: 100%;
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px; padding: 12px 14px;
+      color: #fff; font-size: 14px; outline: none;
+      transition: border-color .2s;
+    }
+    .form-input:focus { border-color: rgba(255,180,0,.5); }
+    .form-input::placeholder { color: #555; }
+
+    /* ─── Notice ─── */
+    .notice {
+      background: rgba(255,180,0,.06); border: 1px solid rgba(255,180,0,.2);
+      border-radius: 12px; padding: 14px; margin-bottom: 18px;
+    }
+    .notice-title { font-size: 13px; font-weight: 700; color: #ffb400; margin-bottom: 5px; }
+    .notice-text { font-size: 12px; color: #aaa; line-height: 1.6; }
+
+    /* ─── Back button ─── */
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px; padding: 6px 12px;
+      color: #aaa; font-size: 13px; cursor: pointer; margin-bottom: 16px;
+    }
+    .back-btn:active { background: rgba(255,255,255,.1); }
+
+    /* ─── Success ─── */
+    .success-wrap { padding: 60px 20px; text-align: center; }
+    .success-icon {
+      width: 80px; height: 80px; margin: 0 auto 20px;
+      background: linear-gradient(135deg, #ffb400, #ff7a00);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+    }
+    .success-title { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
+    .success-text { font-size: 14px; color: #888; line-height: 1.7; margin-bottom: 10px; }
+    .success-warn {
+      background: rgba(255,180,0,.08); border: 1px solid rgba(255,180,0,.2);
+      border-radius: 12px; padding: 14px; margin: 20px 0;
+      font-size: 13px; color: #ccc; line-height: 1.6; text-align: left;
+    }
+
+    /* ─── Error msg ─── */
+    .error-msg { color: #ff6b6b; font-size: 12px; margin-top: 6px; display: none; }
+    .error-msg.show { display: block; }
+
+    .spacer { height: 16px; }
+  </style>
+</head>
+<body>
+<div class="glow"></div>
+
+<!-- ═══════════════ SCREEN: HOME ═══════════════ -->
+<div class="screen active" id="screen-home">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">🎯</div>
+      <div>
+        <div class="logo-text-main">PUBG SENS PRO</div>
+        <div class="logo-text-sub">ARMYAN</div>
+      </div>
+    </div>
+    <h1>Настройка чувствительности под тебя</h1>
+    <p>Индивидуально через Discord в голосовом звонке — под твой девайс и стиль игры</p>
+  </div>
+
+  <div class="section">
+    <div class="price-card">
+      <div class="price-badge">ХИТ</div>
+      <div class="price-row">
+        <span class="price-amount">800</span>
+        <span class="price-currency">грн</span>
+        <span class="price-old">или 1320 UC</span>
+      </div>
+      <div class="price-sub">Разовая настройка • Без подписки</div>
+      <div class="price-pills">
+        <div class="pill"><div class="pill-icon">🛡️</div><div class="pill-label">Безопасно</div></div>
+        <div class="pill"><div class="pill-icon">⚡</div><div class="pill-label">20–60 мин</div></div>
+        <div class="pill"><div class="pill-icon">⭐</div><div class="pill-label">Топ результат</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">ЧТО ВХОДИТ</div>
+    <div class="feature-list">
+      <div class="feature-item"><div class="check-icon">✓</div><div class="feature-text">Настройка через Discord в голосовом звонке</div></div>
+      <div class="feature-item"><div class="check-icon">✓</div><div class="feature-text">Индивидуально под твоё устройство и стиль игры</div></div>
+      <div class="feature-item"><div class="check-icon">✓</div><div class="feature-text">Подходит для iPhone, iPad, Android-смартфонов и планшетов</div></div>
+      <div class="feature-item"><div class="check-icon">✓</div><div class="feature-text">С гироскопом или без — не важно</div></div>
+      <div class="feature-item"><div class="check-icon">✓</div><div class="feature-text">Работаем сразу после подтверждения оплаты</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">КАК ЭТО РАБОТАЕТ</div>
+    <div class="steps">
+      <div class="step"><div class="step-icon">💳</div><div class="step-title">Оплата</div><div class="step-desc">Гривны или UC</div></div>
+      <div class="step"><div class="step-icon">📅</div><div class="step-title">Договор</div><div class="step-desc">Согласуем время</div></div>
+      <div class="step"><div class="step-icon">🎙️</div><div class="step-title">Discord</div><div class="step-desc">Настройка в звонке</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">ОТЗЫВЫ ИГРОКОВ</div>
+    <div class="review-list">
+      <div class="review-card">
+        <div class="review-top">
+          <div><div class="review-name">Artem_Pro</div><div class="review-rank">Платина II</div></div>
+          <div class="stars">⭐⭐⭐⭐⭐</div>
+        </div>
+        <div class="review-text">Убойная настройка, рейдж реально стал стабильнее. Советую 🔥</div>
+      </div>
+      <div class="review-card">
+        <div class="review-top">
+          <div><div class="review-name">Kira_Mobile</div><div class="review-rank">Бриллиант</div></div>
+          <div class="stars">⭐⭐⭐⭐⭐</div>
+        </div>
+        <div class="review-text">Брала под iPhone с гироскопом. Стреляю теперь как на ПК!</div>
+      </div>
+      <div class="review-card">
+        <div class="review-top">
+          <div><div class="review-name">NightHunter77</div><div class="review-rank">Корона</div></div>
+          <div class="stars">⭐⭐⭐⭐⭐</div>
+        </div>
+        <div class="review-text">Скептически относился — результат удивил. Топчик!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-wrap">
+    <button class="btn btn-primary" onclick="goTo('screen-pay')">Заказать настройку</button>
+    <div class="btn-note">⚠️ Сначала оплата — потом согласование времени</div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: CHOOSE PAYMENT ═══════════════ -->
+<div class="screen" id="screen-pay">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">💳</div>
+      <div>
+        <div class="logo-text-main">ВЫБОР ОПЛАТЫ</div>
+        <div class="logo-text-sub">ШАГ 1 ИЗ 3</div>
+      </div>
+    </div>
+    <h1>Как хочешь оплатить?</h1>
+  </div>
+  <div class="section">
+    <div class="spacer"></div>
+    <div class="pay-options">
+      <div class="pay-card" id="pay-uah" onclick="selectPay('UAH')">
+        <div class="pay-card-top">
+          <span class="pay-card-name">💳 Гривнами</span>
+          <span class="pay-card-price">800 грн</span>
+        </div>
+        <div class="pay-card-desc">Monobank • Перевод на карту</div>
+      </div>
+      <div class="pay-card" id="pay-uc" onclick="selectPay('UC')">
+        <div class="pay-card-top">
+          <span class="pay-card-name">💎 UC</span>
+          <span class="pay-card-price">1320 UC</span>
+        </div>
+        <div class="pay-card-desc">Пополнение UC на PUBG ID</div>
+      </div>
+    </div>
+  </div>
+  <div class="cta-wrap">
+    <button class="btn btn-primary" onclick="goToRequisites()">Далее →</button>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" onclick="goTo('screen-home')">← Назад</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: REQUISITES UAH ═══════════════ -->
+<div class="screen" id="screen-req-uah">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">💳</div>
+      <div>
+        <div class="logo-text-main">ОПЛАТА ГРИВНАМИ</div>
+        <div class="logo-text-sub">ШАГ 2 ИЗ 3</div>
+      </div>
+    </div>
+    <h1>Переведи 800 грн</h1>
+  </div>
+  <div class="section">
+    <div class="spacer"></div>
+    <div class="req-box">
+      <div class="req-label">Monobank — номер карты</div>
+      <div class="req-value" id="card-number">{{ monobank_card }}</div>
+      <div class="req-copy" onclick="copyCard()">📋 Скопировать</div>
+    </div>
+    <div class="notice">
+      <div class="notice-title">⚠️ Важно</div>
+      <div class="notice-text">
+        После перевода нажми «Я оплатил» и заполни форму.<br>
+        Скриншот квитанции нужно будет прислать в бота отдельным сообщением.
+      </div>
+    </div>
+  </div>
+  <div class="cta-wrap">
+    <button class="btn btn-primary" onclick="goTo('screen-form')">✅ Я оплатил</button>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" onclick="goTo('screen-pay')">← Назад</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: REQUISITES UC ═══════════════ -->
+<div class="screen" id="screen-req-uc">
+  <div class="header">
+    <div class="logo-icon" style="display:inline-flex">💎</div>
+    <div class="logo-row" style="margin-top:8px">
+      <div>
+        <div class="logo-text-main">ОПЛАТА UC</div>
+        <div class="logo-text-sub">ШАГ 2 ИЗ 3</div>
+      </div>
+    </div>
+    <h1>Пополни 1320 UC</h1>
+  </div>
+  <div class="section">
+    <div class="spacer"></div>
+    <div class="req-box">
+      <div class="req-label">PUBG ID для пополнения</div>
+      <div class="req-value" id="pubg-id-display">{{ pubg_id_uc }}</div>
+      <div class="req-copy" onclick="copyPubgId()">📋 Скопировать</div>
+    </div>
+    <div class="notice">
+      <div class="notice-title">⚠️ Важно</div>
+      <div class="notice-text">
+        После пополнения нажми «Я оплатил» и заполни форму.<br>
+        Скриншот пополнения нужно будет прислать в бота отдельным сообщением.
+      </div>
+    </div>
+  </div>
+  <div class="cta-wrap">
+    <button class="btn btn-primary" onclick="goTo('screen-form')">✅ Я оплатил</button>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" onclick="goTo('screen-pay')">← Назад</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: FORM ═══════════════ -->
+<div class="screen" id="screen-form">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">📝</div>
+      <div>
+        <div class="logo-text-main">ДАННЫЕ ДЛЯ НАСТРОЙКИ</div>
+        <div class="logo-text-sub">ШАГ 3 ИЗ 3</div>
+      </div>
+    </div>
+    <h1>Укажи свои данные</h1>
+  </div>
+  <div class="section">
+    <div class="spacer"></div>
+
+    <div class="form-group">
+      <label class="form-label">🎮 Discord</label>
+      <input class="form-input" id="input-discord" type="text" placeholder="username или username#1234" />
+      <div class="error-msg" id="err-discord">Введи Discord</div>
+    </div>
+
+    <div class="form-group" id="pubg-id-group">
+      <label class="form-label">🆔 PUBG ID <span style="color:#666;font-weight:400">(для UAH оплаты)</span></label>
+      <input class="form-input" id="input-pubgid" type="text" placeholder="Твой PUBG ID" />
+    </div>
+
+    <div class="notice">
+      <div class="notice-title">📸 Не забудь про скриншот!</div>
+      <div class="notice-text">
+        После отправки формы — напиши нам в бот и пришли скриншот оплаты / пополнения UC. Это обязательно для подтверждения.
+      </div>
+    </div>
+  </div>
+  <div class="cta-wrap">
+    <button class="btn btn-primary" id="submit-btn" onclick="submitOrder()">Отправить заявку 🚀</button>
+    <div class="error-msg show" id="err-submit" style="display:none;text-align:center;margin-top:10px"></div>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" onclick="goBackFromForm()">← Назад</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: SUCCESS ═══════════════ -->
+<div class="screen" id="screen-success">
+  <div class="success-wrap">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Заявка принята!</div>
+    <div class="success-text">
+      Оплата получена. В ближайшее время<br>с тобой свяжутся для согласования времени.
+    </div>
+    <div class="success-warn">
+      📸 <b>Осталось одно:</b> открой бота и пришли скриншот оплаты / пополнения UC. Без скриншота настройка не начнётся.<br><br>
+      🎙️ <b>Подготовь Discord</b> и устройство, на котором играешь. Настройка пройдёт в голосовом звонке.
+    </div>
+    <button class="btn btn-primary" onclick="closeApp()">Готово</button>
+  </div>
+</div>
+
+<script>
+  const tg = window.Telegram?.WebApp;
+  if (tg) { tg.ready(); tg.expand(); }
+
+  let selectedPay = null;
+
+  const MONOBANK_CARD = "{{ monobank_card }}";
+  const PUBG_ID_UC   = "{{ pubg_id_uc }}";
+
+  function goTo(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function selectPay(type) {
+    selectedPay = type;
+    document.getElementById('pay-uah').classList.toggle('selected', type === 'UAH');
+    document.getElementById('pay-uc').classList.toggle('selected', type === 'UC');
+  }
+
+  function goToRequisites() {
+    if (!selectedPay) { alert('Выбери способ оплаты'); return; }
+    goTo(selectedPay === 'UAH' ? 'screen-req-uah' : 'screen-req-uc');
+  }
+
+  function goBackFromForm() {
+    goTo(selectedPay === 'UAH' ? 'screen-req-uah' : 'screen-req-uc');
+  }
+
+  function copyCard() {
+    navigator.clipboard.writeText(MONOBANK_CARD).then(() => {
+      const el = document.querySelector('.req-copy');
+      el.textContent = '✅ Скопировано!';
+      setTimeout(() => el.textContent = '📋 Скопировать', 2000);
+    });
+  }
+
+  function copyPubgId() {
+    navigator.clipboard.writeText(PUBG_ID_UC).then(() => {
+      const els = document.querySelectorAll('.req-copy');
+      els.forEach(el => {
+        el.textContent = '✅ Скопировано!';
+        setTimeout(() => el.textContent = '📋 Скопировать', 2000);
+      });
+    });
+  }
+
+  function goTo(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    window.scrollTo(0, 0);
+    // Show PUBG ID field only for UAH
+    if (screenId === 'screen-form') {
+      document.getElementById('pubg-id-group').style.display =
+        selectedPay === 'UAH' ? 'block' : 'none';
+    }
+  }
+
+  async function submitOrder() {
+    const discord = document.getElementById('input-discord').value.trim();
+    const errDiscord = document.getElementById('err-discord');
+    const errSubmit = document.getElementById('err-submit');
+
+    errDiscord.classList.remove('show');
+    errSubmit.style.display = 'none';
+
+    if (!discord) { errDiscord.classList.add('show'); return; }
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Отправляем...';
+
+    const user = tg?.initDataUnsafe?.user || {};
+    const payload = {
+      payment_type: selectedPay,
+      discord,
+      pubg_id: document.getElementById('input-pubgid').value.trim(),
+      user_name: user.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : 'Неизвестно',
+      user_id: user.id || '—',
+    };
+
+    try {
+      const res = await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        goTo('screen-success');
+      } else {
+        errSubmit.textContent = json.error || 'Ошибка. Попробуй ещё раз.';
+        errSubmit.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Отправить заявку 🚀';
+      }
+    } catch (e) {
+      errSubmit.textContent = 'Нет связи. Проверь интернет.';
+      errSubmit.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Отправить заявку 🚀';
+    }
+  }
+
+  function closeApp() {
+    if (tg) { tg.close(); } else { goTo('screen-home'); }
+  }
+</script>
+</body>
+</html>
