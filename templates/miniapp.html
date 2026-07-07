@@ -125,17 +125,81 @@
     .step-title { font-size: 11px; font-weight: 700; color: #fff; margin-bottom: 3px; }
     .step-desc { font-size: 10px; color: #666; line-height: 1.3; }
 
-    /* ─── Reviews ─── */
-    .review-list { display: flex; flex-direction: column; gap: 10px; }
-    .review-card {
-      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07);
-      border-radius: 12px; padding: 14px;
+    /* ─── Category Cards (shop) ─── */
+    .cat-list { display: flex; flex-direction: column; gap: 14px; }
+    .cat-card {
+      position: relative; border-radius: 18px; overflow: hidden;
+      padding: 22px 18px; cursor: pointer;
+      border: 1.5px solid rgba(255,180,0,.35);
+      background:
+        radial-gradient(circle at 85% 15%, rgba(255,122,0,.35) 0%, transparent 50%),
+        radial-gradient(circle at 15% 85%, rgba(255,180,0,.18) 0%, transparent 55%),
+        linear-gradient(135deg, #1f1708 0%, #12100c 60%, #0d0d12 100%);
+      transition: transform .15s, border-color .2s;
     }
-    .review-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
-    .review-name { font-size: 13px; font-weight: 700; color: #fff; }
-    .review-rank { font-size: 11px; color: #ffb400; }
-    .stars { font-size: 12px; }
-    .review-text { font-size: 12px; color: #aaa; line-height: 1.5; }
+    .cat-card:active { transform: scale(.98); }
+    .cat-card-title { font-size: 19px; font-weight: 800; color: #ffb400; margin-bottom: 6px; letter-spacing: .3px; }
+    .cat-card-sub { font-size: 12px; color: #bbb; line-height: 1.5; }
+    .cat-card-arrow {
+      position: absolute; top: 50%; right: 16px; transform: translateY(-50%);
+      font-size: 22px; color: rgba(255,180,0,.6);
+    }
+    .cat-card.soon {
+      border-color: rgba(130,80,255,.3); cursor: default;
+      background:
+        radial-gradient(circle at 85% 20%, rgba(130,80,255,.22) 0%, transparent 55%),
+        linear-gradient(135deg, #14101f 0%, #0d0d14 100%);
+    }
+    .cat-card.soon .cat-card-title { color: #a58aff; }
+    .soon-badge {
+      display: inline-block; font-size: 9px; font-weight: 800; letter-spacing: 1px;
+      background: rgba(130,80,255,.2); border: 1px solid rgba(130,80,255,.4);
+      color: #a58aff; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    /* ─── Popular rows ─── */
+    .pop-list { display: flex; flex-direction: column; gap: 8px; }
+    .pop-row {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: 12px 14px; cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .pop-row:active { background: rgba(255,180,0,.06); border-color: rgba(255,180,0,.3); }
+    .pop-row-icon {
+      width: 36px; height: 36px; min-width: 36px; border-radius: 10px;
+      background: rgba(255,180,0,.12); display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .pop-row-name { font-size: 13px; font-weight: 700; color: #fff; }
+    .pop-row-sub { font-size: 11px; color: #777; margin-top: 2px; }
+    .pop-row-price { margin-left: auto; font-size: 14px; font-weight: 800; color: #ffb400; white-space: nowrap; }
+
+    /* ─── Profile ─── */
+    .profile-card {
+      display: flex; align-items: center; gap: 14px;
+      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px; padding: 18px;
+    }
+    .profile-avatar {
+      width: 54px; height: 54px; min-width: 54px; border-radius: 50%;
+      background: linear-gradient(135deg, #ffb400, #ff7a00);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 800; color: #000;
+    }
+    .profile-name { font-size: 16px; font-weight: 800; color: #fff; }
+    .profile-id { font-size: 12px; color: #666; margin-top: 3px; font-family: monospace; }
+    .profile-links { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+    .profile-link {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: 14px; cursor: pointer;
+      color: #ddd; font-size: 14px; font-weight: 600;
+      text-decoration: none; transition: border-color .2s;
+    }
+    .profile-link:active { border-color: rgba(255,180,0,.4); }
+    .profile-link .pl-arrow { margin-left: auto; color: #555; }
 
     /* ─── CTA ─── */
     .cta-wrap { padding: 20px 20px 28px; }
@@ -306,20 +370,78 @@
 <div class="glow"></div>
 
 <!-- ═══════════════ BOTTOM NAV ═══════════════ -->
-<nav class="bottom-nav" id="bottom-nav">
+<nav class="bottom-nav visible" id="bottom-nav">
   <button class="nav-tab active" id="nav-shop" onclick="navTo('shop')">
     <span class="nav-icon">🛍️</span>Магазин
   </button>
-  <button class="nav-tab" id="nav-orders" onclick="navTo('orders')">
+  <button class="nav-tab" id="nav-orders" onclick="navTo('orders')" style="display:none">
     <span class="nav-icon">📦</span>Заказы
   </button>
-  <button class="nav-tab" id="nav-prices" onclick="navTo('prices')">
+  <button class="nav-tab" id="nav-prices" onclick="navTo('prices')" style="display:none">
     <span class="nav-icon">💰</span>Цены
+  </button>
+  <button class="nav-tab" id="nav-profile" onclick="navTo('profile')">
+    <span class="nav-icon">👤</span>Профиль
   </button>
 </nav>
 
-<!-- ═══════════════ SCREEN: HOME ═══════════════ -->
-<div class="screen active" id="screen-home">
+<!-- ═══════════════ SCREEN: SHOP (catalog) ═══════════════ -->
+<div class="screen active" id="screen-shop">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">🏪</div>
+      <div>
+        <div class="logo-text-main">ARMYAN SHOP</div>
+        <div class="logo-text-sub">PUBG MOBILE • УСЛУГИ</div>
+      </div>
+    </div>
+    <h1>Магазин услуг</h1>
+    <p>Выбери категорию — всё для твоей игры</p>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Выбери категорию</div>
+    <div class="cat-list">
+      <div class="cat-card" onclick="goTo('screen-home')">
+        <div class="cat-card-title">🎯 Настройка чувствительности</div>
+        <div class="cat-card-sub">Индивидуально • Голосовой звонок • iPhone / iPad / Android</div>
+        <div class="cat-card-arrow">›</div>
+      </div>
+      <div class="cat-card soon">
+        <div class="soon-badge">Скоро</div>
+        <div class="cat-card-title">✨ Новые услуги</div>
+        <div class="cat-card-sub">Ассортимент расширяется — следи за обновлениями</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Популярное</div>
+    <div class="pop-list">
+      <div class="pop-row" onclick="goTo('screen-home')">
+        <div class="pop-row-icon">🎯</div>
+        <div>
+          <div class="pop-row-name">Настройка чувствительности</div>
+          <div class="pop-row-sub">Разовая • 20–60 мин</div>
+        </div>
+        <div class="pop-row-price"><span id="shop-uah-price">{{ uah_price }}</span> грн</div>
+      </div>
+      <div class="pop-row" onclick="selectPay('UC'); goTo('screen-home')">
+        <div class="pop-row-icon">💎</div>
+        <div>
+          <div class="pop-row-name">Оплата в UC</div>
+          <div class="pop-row-sub">Настройка за UC на PUBG ID</div>
+        </div>
+        <div class="pop-row-price"><span id="shop-uc-price">{{ uc_price }}</span> UC</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+</div>
+
+<!-- ═══════════════ SCREEN: SERVICE (sensitivity) ═══════════════ -->
+<div class="screen" id="screen-home">
   <div class="header">
     <div class="logo-row">
       <div class="logo-icon">🎯</div>
@@ -368,36 +490,40 @@
     </div>
   </div>
 
-  <div class="section">
-    <div class="section-label">Отзывы игроков</div>
-    <div class="review-list">
-      <div class="review-card">
-        <div class="review-top">
-          <div><div class="review-name">Artem_Pro</div><div class="review-rank">Платина II</div></div>
-          <div class="stars">⭐⭐⭐⭐⭐</div>
-        </div>
-        <div class="review-text">Убойная настройка, реально стал стабильнее. Советую 🔥</div>
-      </div>
-      <div class="review-card">
-        <div class="review-top">
-          <div><div class="review-name">Kira_Mobile</div><div class="review-rank">Бриллиант</div></div>
-          <div class="stars">⭐⭐⭐⭐⭐</div>
-        </div>
-        <div class="review-text">Брала под iPhone с гироскопом. Стреляю теперь как на ПК!</div>
-      </div>
-      <div class="review-card">
-        <div class="review-top">
-          <div><div class="review-name">NightHunter77</div><div class="review-rank">Корона</div></div>
-          <div class="stars">⭐⭐⭐⭐⭐</div>
-        </div>
-        <div class="review-text">Скептически относился — результат удивил. Топчик!</div>
-      </div>
-    </div>
-  </div>
-
   <div class="cta-wrap">
     <button class="btn btn-primary" onclick="goTo('screen-pay')">Заказать настройку 🎯</button>
     <div class="btn-note">⚠️ Сначала оплата — потом согласование времени</div>
+    <div class="spacer"></div>
+    <a class="btn btn-outline" style="display:block;text-align:center;text-decoration:none" href="{{ reviews_link }}" target="_blank" rel="noopener noreferrer">⭐ Отзывы клиентов</a>
+    <div class="spacer-sm"></div>
+    <button class="btn btn-outline" onclick="goTo('screen-shop')">← В магазин</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: PROFILE ═══════════════ -->
+<div class="screen" id="screen-profile">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">👤</div>
+      <div>
+        <div class="logo-text-main">Профиль</div>
+        <div class="logo-text-sub">ARMYAN SHOP</div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="spacer"></div>
+    <div class="profile-card">
+      <div class="profile-avatar" id="profile-avatar">?</div>
+      <div>
+        <div class="profile-name" id="profile-name">Гость</div>
+        <div class="profile-id" id="profile-uid"></div>
+      </div>
+    </div>
+    <div class="profile-links">
+      <a class="profile-link" href="https://t.me/ARMYANua" target="_blank" rel="noopener noreferrer">✈️ Связаться с админом <span class="pl-arrow">›</span></a>
+      <a class="profile-link" href="{{ reviews_link }}" target="_blank" rel="noopener noreferrer">⭐ Отзывы клиентов <span class="pl-arrow">›</span></a>
+    </div>
   </div>
 </div>
 
@@ -623,19 +749,31 @@
   // ─── Init ───
   window.addEventListener('DOMContentLoaded', () => {
     if (isAdmin) {
-      document.getElementById('bottom-nav').classList.add('visible');
+      document.getElementById('nav-orders').style.display = '';
+      document.getElementById('nav-prices').style.display = '';
     }
+    initProfile();
     refreshPrices();
   });
+
+  function initProfile() {
+    const name = tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') : 'Гость';
+    document.getElementById('profile-name').textContent = name || 'Гость';
+    document.getElementById('profile-avatar').textContent = (name || '?').charAt(0).toUpperCase();
+    document.getElementById('profile-uid').textContent = tgUser?.username ? '@' + tgUser.username : (currentUserId ? 'ID: ' + currentUserId : '');
+  }
 
   // ─── Navigation ───
   function navTo(section) {
     currentNavSection = section;
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('nav-' + (section === 'shop' ? 'shop' : section === 'orders' ? 'orders' : 'prices')).classList.add('active');
+    const tab = document.getElementById('nav-' + section);
+    if (tab) tab.classList.add('active');
 
     if (section === 'shop') {
-      showScreen('screen-home');
+      showScreen('screen-shop');
+    } else if (section === 'profile') {
+      showScreen('screen-profile');
     } else if (section === 'orders') {
       showScreen('screen-admin-orders');
       switchAdminTab('orders');
@@ -698,6 +836,8 @@
 
       document.getElementById('home-uah-price').textContent = uah;
       document.getElementById('home-uc-price').textContent = uc;
+      document.getElementById('shop-uah-price').textContent = uah;
+      document.getElementById('shop-uc-price').textContent = uc;
       document.getElementById('pay-uah-label').textContent = uah + ' грн';
       document.getElementById('pay-uc-label').textContent = uc + ' UC';
       document.getElementById('req-uah-amount').textContent = uah;

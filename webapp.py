@@ -15,6 +15,7 @@ BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 ADMIN_ID = int(os.environ.get("ADMIN_CHAT_ID", "0"))
 MONOBANK_CARD = "4441 1111 3196 2080"
 PUBG_ID_FOR_UC = "51230579110"
+REVIEWS_LINK = os.environ.get("REVIEWS_LINK", "https://t.me/ARMYANua")
 
 DATA_DIR = Path("data")
 DATA_DIR.mkdir(exist_ok=True)
@@ -83,6 +84,7 @@ def index():
         uah_price=prices.get("uah_price", 800),
         uc_price=prices.get("uc_price", 1320),
         admin_id=ADMIN_ID,
+        reviews_link=REVIEWS_LINK,
     )
 
 
