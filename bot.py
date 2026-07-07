@@ -98,7 +98,7 @@ def main_menu_keyboard():
         rows.append([InlineKeyboardButton("🚀 Открыть Mini App", web_app=WebAppInfo(url=WEBAPP_URL))])
     rows.append([InlineKeyboardButton("🎯 Индивидуальная настройка чувствительности", callback_data="sensitivity")])
     rows.append([InlineKeyboardButton("⭐ Отзывы", callback_data="reviews")])
-    rows.append([InlineKeyboardButton("📩 Связаться со мной", callback_data="contact")])
+    rows.append([InlineKeyboardButton("📩 Поддержка", callback_data="contact")])
     rows.append([InlineKeyboardButton("❓ Частые вопросы", callback_data="faq")])
     return InlineKeyboardMarkup(rows)
 
