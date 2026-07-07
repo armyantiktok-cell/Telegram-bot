@@ -11,3 +11,5 @@ dist/
 build/
 .pytest_cache/
 .mypy_cache/
+data/orders.lock
+*.json.tmp
