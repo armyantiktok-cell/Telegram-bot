@@ -90,6 +90,38 @@ def index():
     )
 
 
+@app.after_request
+def add_no_cache_headers(response):
+    if response.mimetype == "text/html":
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
+
+@app.route("/api/me", methods=["GET"])
+def get_me():
+    init_data = request.headers.get("X-Init-Data", "")
+    user = verify_init_data(init_data)
+    if not user:
+        return jsonify({"ok": False, "is_admin": False}), 401
+    return jsonify({
+        "ok": True,
+        "is_admin": int(user.get("id", 0)) in ADMIN_IDS,
+    })
+
+
+@app.route("/api/my_orders", methods=["GET"])
+def get_my_orders():
+    init_data = request.headers.get("X-Init-Data", "")
+    user = verify_init_data(init_data)
+    if not user:
+        return jsonify({"ok": False, "error": "Открой приложение через Telegram"}), 401
+    uid = str(user.get("id", ""))
+    orders = [o for o in load_json(ORDERS_FILE, []) if o.get("user_id") == uid]
+    return jsonify({"ok": True, "orders": list(reversed(orders))})
+
+
 @app.route("/api/prices", methods=["GET"])
 def get_prices():
     prices = load_json(PRICES_FILE, {"uah_price": 800, "uc_price": 1320})

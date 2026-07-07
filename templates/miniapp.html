@@ -374,14 +374,14 @@
   <button class="nav-tab active" id="nav-shop" onclick="navTo('shop')">
     <span class="nav-icon">🛍️</span>Магазин
   </button>
-  <button class="nav-tab" id="nav-orders" onclick="navTo('orders')" style="display:none">
+  <button class="nav-tab" id="nav-orders" onclick="navTo('orders')">
     <span class="nav-icon">📦</span>Заказы
-  </button>
-  <button class="nav-tab" id="nav-prices" onclick="navTo('prices')" style="display:none">
-    <span class="nav-icon">💰</span>Цены
   </button>
   <button class="nav-tab" id="nav-profile" onclick="navTo('profile')">
     <span class="nav-icon">👤</span>Профиль
+  </button>
+  <button class="nav-tab" id="nav-admin" onclick="navTo('admin')" style="display:none">
+    <span class="nav-icon">⚙️</span>Админ
   </button>
 </nav>
 
@@ -523,6 +523,28 @@
     <div class="profile-links">
       <a class="profile-link" href="https://t.me/ARMYANua" target="_blank" rel="noopener noreferrer">✈️ Связаться с админом <span class="pl-arrow">›</span></a>
       <a class="profile-link" href="{{ reviews_link }}" target="_blank" rel="noopener noreferrer">⭐ Отзывы клиентов <span class="pl-arrow">›</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: MY ORDERS ═══════════════ -->
+<div class="screen" id="screen-my-orders">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">📦</div>
+      <div>
+        <div class="logo-text-main">Мои заказы</div>
+        <div class="logo-text-sub">ARMYAN SHOP</div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="spacer"></div>
+    <div id="my-orders-list">
+      <div class="empty-state">
+        <div class="empty-state-icon">⏳</div>
+        <div class="empty-state-text">Загрузка...</div>
+      </div>
     </div>
   </div>
 </div>
@@ -749,12 +771,21 @@
   // ─── Init ───
   window.addEventListener('DOMContentLoaded', () => {
     if (isAdmin) {
-      document.getElementById('nav-orders').style.display = '';
-      document.getElementById('nav-prices').style.display = '';
+      document.getElementById('nav-admin').style.display = '';
     }
+    checkAdmin();
     initProfile();
     refreshPrices();
   });
+
+  async function checkAdmin() {
+    if (!initData) return;
+    try {
+      const res = await fetch('/api/me', { headers: { 'X-Init-Data': initData } });
+      const data = await res.json();
+      document.getElementById('nav-admin').style.display = data.is_admin ? '' : 'none';
+    } catch (e) {}
+  }
 
   function initProfile() {
     const name = tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') : 'Гость';
@@ -775,12 +806,12 @@
     } else if (section === 'profile') {
       showScreen('screen-profile');
     } else if (section === 'orders') {
+      showScreen('screen-my-orders');
+      loadMyOrders();
+    } else if (section === 'admin') {
       showScreen('screen-admin-orders');
       switchAdminTab('orders');
       loadOrders();
-    } else if (section === 'prices') {
-      showScreen('screen-admin-orders');
-      switchAdminTab('prices');
     }
   }
 
@@ -842,10 +873,8 @@
       document.getElementById('pay-uc-label').textContent = uc + ' UC';
       document.getElementById('req-uah-amount').textContent = uah;
       document.getElementById('req-uc-amount').textContent = uc;
-      if (isAdmin) {
-        document.getElementById('edit-uah-price').value = uah;
-        document.getElementById('edit-uc-price').value = uc;
-      }
+      document.getElementById('edit-uah-price').value = uah;
+      document.getElementById('edit-uc-price').value = uc;
     } catch (e) {}
   }
 
@@ -920,6 +949,47 @@
     } catch (e) {
       list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">❌</div><div class="empty-state-text">Ошибка загрузки</div></div>';
     }
+  }
+
+  // ─── My orders (all users) ───
+  async function loadMyOrders() {
+    const list = document.getElementById('my-orders-list');
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⏳</div><div class="empty-state-text">Загрузка...</div></div>';
+    if (!initData) {
+      list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✈️</div><div class="empty-state-text">Открой приложение через Telegram</div></div>';
+      return;
+    }
+    try {
+      const res = await fetch('/api/my_orders', { headers: { 'X-Init-Data': initData } });
+      const data = await res.json();
+      if (!data.ok) {
+        list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✈️</div><div class="empty-state-text">Открой приложение через Telegram</div></div>';
+        return;
+      }
+      const orders = data.orders || [];
+      if (orders.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">У тебя пока нет заказов</div></div>';
+        return;
+      }
+      list.innerHTML = orders.map(o => renderMyOrder(o)).join('');
+    } catch (e) {
+      list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">❌</div><div class="empty-state-text">Ошибка загрузки</div></div>';
+    }
+  }
+
+  function renderMyOrder(o) {
+    const date = new Date(o.timestamp * 1000).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    return `
+      <div class="order-card">
+        <div class="order-top">
+          <span class="order-id">#${o.id}</span>
+          <span class="order-date">${date}</span>
+        </div>
+        <div class="order-name">🎯 Настройка чувствительности</div>
+        <div class="order-detail">💰 ${escHtml(o.price_label)}</div>
+        <div class="spacer-sm"></div>
+        <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status] || o.status}</span>
+      </div>`;
   }
 
   const STATUS_LABELS = {
