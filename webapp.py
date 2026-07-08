@@ -324,11 +324,40 @@ def create_order():
     user_id = str(tg_user.get("id", "—"))
 
     prices = load_json(PRICES_FILE, {"uah_price": 800, "uc_price": 1320})
-    price_label = (
-        f"{prices['uah_price']} грн (Monobank)"
-        if payment_type == "UAH"
-        else f"{prices['uc_price']} UC"
+
+    # ── Промокод ──────────────────────────────────────────────────────────────
+    promo_code = (
+        request.form.get("promo_code", "").strip().upper()
+        if request.content_type and "multipart/form-data" in request.content_type
+        else (request.get_json(silent=True) or {}).get("promo_code", "").strip().upper()
     )
+    promo_discount = 0
+    if promo_code:
+        with get_db() as conn:
+            prow = conn.execute(
+                "SELECT discount, expires_at, used FROM wheel_promos WHERE code = ?",
+                (promo_code,),
+            ).fetchone()
+        if prow and not prow["used"] and prow["expires_at"] >= datetime.now().isoformat():
+            promo_discount = prow["discount"]
+        else:
+            promo_code = ""   # невалидный — игнорируем
+
+    base_uah = prices["uah_price"]
+    base_uc  = prices["uc_price"]
+    final_uah = round(base_uah * (1 - promo_discount / 100)) if promo_discount else base_uah
+    final_uc  = round(base_uc  * (1 - promo_discount / 100)) if promo_discount else base_uc
+
+    if payment_type == "UAH":
+        price_label = (
+            f"{final_uah} грн (Monobank, скидка {promo_discount}%)"
+            if promo_discount else f"{base_uah} грн (Monobank)"
+        )
+    else:
+        price_label = (
+            f"{final_uc} UC (скидка {promo_discount}%)"
+            if promo_discount else f"{base_uc} UC"
+        )
 
     order = {
         "id": str(uuid.uuid4())[:8],
@@ -341,11 +370,26 @@ def create_order():
         "price_label": price_label,
         "status": "new",
     }
+    if promo_code:
+        order["promo_code"] = promo_code
+        order["promo_discount"] = promo_discount
 
     with orders_lock():
         orders = load_json(ORDERS_FILE, [])
         orders.append(order)
         save_json(ORDERS_FILE, orders)
+
+    # Помечаем промокод как использованный
+    if promo_code:
+        try:
+            with get_db() as conn:
+                conn.execute(
+                    "UPDATE wheel_promos SET used = 1 WHERE code = ?",
+                    (promo_code,),
+                )
+                conn.commit()
+        except Exception as e:
+            print(f"[promo] Ошибка пометки промокода: {e}")
 
     if ADMIN_ID and BOT_TOKEN:
         caption_lines = [
@@ -357,6 +401,8 @@ def create_order():
         ]
         if pubg_id and payment_type == "UAH":
             caption_lines.append(f"🎮 PUBG ID: <code>{pubg_id}</code>")
+        if promo_code:
+            caption_lines.append(f"🎟 Промокод: <code>{promo_code}</code> (−{promo_discount}%)")
         caption = "\n".join(caption_lines)
         try:
             if screenshot_file:
@@ -376,6 +422,30 @@ def create_order():
             print(f"Ошибка уведомления: {e}")
 
     return jsonify({"ok": True, "order_id": order["id"]})
+
+
+# ─── Promo Validate ──────────────────────────────────────────────────────────
+
+@app.route("/api/promo/validate", methods=["GET"])
+def promo_validate():
+    code = request.args.get("code", "").strip().upper()
+    if not code:
+        return jsonify({"ok": False, "error": "Введи промокод"}), 400
+
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT discount, expires_at, used FROM wheel_promos WHERE code = ?",
+            (code,),
+        ).fetchone()
+
+    if not row:
+        return jsonify({"ok": False, "error": "Промокод не найден"}), 404
+    if row["used"]:
+        return jsonify({"ok": False, "error": "Промокод уже использован"}), 400
+    if row["expires_at"] < datetime.now().isoformat():
+        return jsonify({"ok": False, "error": "Срок действия истёк"}), 400
+
+    return jsonify({"ok": True, "code": code, "discount": row["discount"]})
 
 
 # ─── Wheel API ───────────────────────────────────────────────────────────────

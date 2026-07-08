@@ -387,6 +387,33 @@
     .spacer { height: 16px; }
     .spacer-sm { height: 8px; }
 
+    /* ─── Promo Code Input ─── */
+    .promo-feedback {
+      font-size: 12px; margin-top: 6px; font-weight: 600; display: none;
+    }
+    .promo-feedback.valid   { display: block; color: #00ffc4; }
+    .promo-feedback.invalid { display: block; color: #ff6b6b; }
+    .promo-feedback.loading { display: block; color: rgba(255,255,255,.45); }
+
+    .promo-calc {
+      background: rgba(0,255,196,.06); border: 1px solid rgba(0,255,196,.2);
+      border-radius: 12px; padding: 14px; margin-top: 12px; display: none;
+    }
+    .promo-calc.show { display: block; }
+    .promo-calc-title {
+      font-size: 11px; font-weight: 700; color: rgba(0,255,196,.8);
+      letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px;
+    }
+    .promo-calc-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; margin-bottom: 6px;
+    }
+    .promo-calc-row:last-child { margin-bottom: 0; }
+    .promo-calc-label { color: rgba(255,255,255,.65); }
+    .promo-calc-prices { display: flex; align-items: center; gap: 8px; }
+    .promo-calc-old { text-decoration: line-through; color: rgba(255,255,255,.35); font-size: 12px; }
+    .promo-calc-new { font-weight: 800; color: #00ffc4; }
+
     /* ─── Wheel Screen ─── */
     .wheel-header {
       background: linear-gradient(180deg, #1a0a2e 0%, #0a0a0a 100%);
@@ -618,7 +645,7 @@
   </div>
 
   <div class="cta-wrap">
-    <button class="btn btn-primary" onclick="goTo('screen-pay')">Заказать настройку 🎯</button>
+    <button class="btn btn-primary" onclick="openPayScreen()">Заказать настройку 🎯</button>
     <div class="btn-note">⚠️ Сначала оплата — потом согласование времени</div>
     <div class="spacer"></div>
     <a class="btn btn-outline" style="display:block;text-align:center;text-decoration:none" href="{{ reviews_link }}" target="_blank" rel="noopener noreferrer">⭐ Отзывы клиентов</a>
@@ -707,6 +734,35 @@
       </div>
     </div>
   </div>
+
+  <!-- Промокод -->
+  <div class="section" style="margin-top:4px">
+    <div class="section-label">Промокод</div>
+    <input class="form-input" id="promo-input" type="text"
+           placeholder="Введи промокод (необязательно)"
+           oninput="onPromoInput(this.value)"
+           autocomplete="off"
+           style="text-transform:uppercase;letter-spacing:1.5px" />
+    <div class="promo-feedback" id="promo-feedback"></div>
+    <div class="promo-calc" id="promo-calc">
+      <div class="promo-calc-title">✂️ Итоговые цены со скидкой</div>
+      <div class="promo-calc-row">
+        <span class="promo-calc-label">💳 Гривны</span>
+        <span class="promo-calc-prices">
+          <span class="promo-calc-old" id="pc-uah-old"></span>
+          <span class="promo-calc-new" id="pc-uah-new"></span>
+        </span>
+      </div>
+      <div class="promo-calc-row">
+        <span class="promo-calc-label">💎 UC</span>
+        <span class="promo-calc-prices">
+          <span class="promo-calc-old" id="pc-uc-old"></span>
+          <span class="promo-calc-new" id="pc-uc-new"></span>
+        </span>
+      </div>
+    </div>
+  </div>
+
   <div class="cta-wrap">
     <button class="btn btn-primary" onclick="goToRequisites()">Далее →</button>
     <div class="spacer"></div>
@@ -958,6 +1014,9 @@
   let selectedPay = null;
   let currentAdminTab = 'orders';
   let currentNavSection = 'shop';
+  let basePrices = { uah: 800, uc: 1320 };
+  let appliedPromo = null;   // { code, discount } или null
+  let promoDebounce = null;
 
   // ─── Init ───
   window.addEventListener('DOMContentLoaded', () => {
@@ -1054,19 +1113,104 @@
       const res = await fetch('/api/prices');
       const p = await res.json();
       const uah = p.uah_price || 800;
-      const uc = p.uc_price || 1320;
+      const uc  = p.uc_price  || 1320;
+
+      basePrices = { uah, uc };
 
       document.getElementById('home-uah-price').textContent = uah;
-      document.getElementById('home-uc-price').textContent = uc;
+      document.getElementById('home-uc-price').textContent  = uc;
       document.getElementById('shop-uah-price').textContent = uah;
-      document.getElementById('shop-uc-price').textContent = uc;
-      document.getElementById('pay-uah-label').textContent = uah + ' грн';
-      document.getElementById('pay-uc-label').textContent = uc + ' UC';
-      document.getElementById('req-uah-amount').textContent = uah;
-      document.getElementById('req-uc-amount').textContent = uc;
+      document.getElementById('shop-uc-price').textContent  = uc;
       document.getElementById('edit-uah-price').value = uah;
-      document.getElementById('edit-uc-price').value = uc;
+      document.getElementById('edit-uc-price').value  = uc;
+
+      // Цены на экране оплаты обновляем через applyPromoDisplay (учтёт скидку)
+      applyPromoDisplay();
     } catch (e) {}
+  }
+
+  // ─── Promo code ───
+  function onPromoInput(raw) {
+    const code = raw.trim().toUpperCase();
+    clearTimeout(promoDebounce);
+
+    if (!code) {
+      resetPromo();
+      return;
+    }
+
+    setPromoFeedback('loading', '⏳ Проверяю...');
+
+    promoDebounce = setTimeout(() => validatePromoCode(code), 600);
+  }
+
+  async function validatePromoCode(code) {
+    try {
+      const res  = await fetch(`/api/promo/validate?code=${encodeURIComponent(code)}`);
+      const data = await res.json();
+      if (data.ok) {
+        appliedPromo = { code: data.code, discount: data.discount };
+        setPromoFeedback('valid', `✅ Скидка ${data.discount}% применена!`);
+        applyPromoDisplay();
+      } else {
+        appliedPromo = null;
+        setPromoFeedback('invalid', '❌ ' + (data.error || 'Промокод недействителен'));
+        applyPromoDisplay();
+      }
+    } catch (e) {
+      setPromoFeedback('invalid', '❌ Ошибка проверки. Попробуй ещё раз.');
+    }
+  }
+
+  function setPromoFeedback(state, msg) {
+    const el = document.getElementById('promo-feedback');
+    el.className = 'promo-feedback ' + state;
+    el.textContent = msg;
+  }
+
+  function resetPromo() {
+    appliedPromo = null;
+    const fb = document.getElementById('promo-feedback');
+    fb.className = 'promo-feedback';
+    fb.textContent = '';
+    document.getElementById('promo-calc').classList.remove('show');
+    applyPromoDisplay();
+  }
+
+  function applyPromoDisplay() {
+    const disc   = appliedPromo ? appliedPromo.discount / 100 : 0;
+    const uahFin = disc ? Math.round(basePrices.uah * (1 - disc)) : basePrices.uah;
+    const ucFin  = disc ? Math.round(basePrices.uc  * (1 - disc)) : basePrices.uc;
+
+    // Карточки выбора оплаты
+    document.getElementById('pay-uah-label').innerHTML = disc
+      ? `<s style="color:rgba(255,255,255,.35);font-size:12px">${basePrices.uah}</s> ${uahFin} грн`
+      : `${basePrices.uah} грн`;
+    document.getElementById('pay-uc-label').innerHTML = disc
+      ? `<s style="color:rgba(255,255,255,.35);font-size:12px">${basePrices.uc}</s> ${ucFin} UC`
+      : `${basePrices.uc} UC`;
+
+    // Суммы на экранах реквизитов
+    document.getElementById('req-uah-amount').textContent = uahFin;
+    document.getElementById('req-uc-amount').textContent  = ucFin;
+
+    // Калькулятор скидки
+    if (disc) {
+      document.getElementById('pc-uah-old').textContent = basePrices.uah + ' грн';
+      document.getElementById('pc-uah-new').textContent = uahFin + ' грн';
+      document.getElementById('pc-uc-old').textContent  = basePrices.uc  + ' UC';
+      document.getElementById('pc-uc-new').textContent  = ucFin  + ' UC';
+      document.getElementById('promo-calc').classList.add('show');
+    } else {
+      document.getElementById('promo-calc').classList.remove('show');
+    }
+  }
+
+  // Сброс промокода при переходе на экран оплаты
+  function openPayScreen() {
+    document.getElementById('promo-input').value = '';
+    resetPromo();
+    goTo('screen-pay');
   }
 
   // ─── File picker ───
@@ -1105,6 +1249,7 @@
       fd.append('payment_type', selectedPay);
       fd.append('tg_tag', tgTag);
       fd.append('screenshot', screenshotFile);
+      if (appliedPromo) fd.append('promo_code', appliedPromo.code);
 
       const res = await fetch('/api/order', {
         method: 'POST',
