@@ -302,16 +302,23 @@ def create_order():
         return jsonify({"ok": False, "error": "Открой приложение через Telegram"}), 401
 
     # поддерживаем и multipart/form-data (с файлом), и application/json
-    if request.content_type and "multipart/form-data" in request.content_type:
+    is_multipart = request.content_type and "multipart/form-data" in request.content_type
+    if is_multipart:
         payment_type = request.form.get("payment_type", "—")
         tg_tag = request.form.get("tg_tag", "—").strip()
         pubg_id = request.form.get("pubg_id", "").strip()
+        service_type = request.form.get("service_type", "sensitivity")
+        boost_option = request.form.get("boost_option", "")
+        client_price_label = request.form.get("price_label", "")
         screenshot_file = request.files.get("screenshot")
     else:
         data = request.get_json(silent=True) or {}
         payment_type = data.get("payment_type", "—")
         tg_tag = data.get("tg_tag", "—").strip()
         pubg_id = data.get("pubg_id", "").strip()
+        service_type = data.get("service_type", "sensitivity")
+        boost_option = data.get("boost_option", "")
+        client_price_label = data.get("price_label", "")
         screenshot_file = None
 
     if not tg_tag or tg_tag == "—":
@@ -323,12 +330,64 @@ def create_order():
     )
     user_id = str(tg_user.get("id", "—"))
 
+    # ── Буст ранга: фиксированная цена, промокоды не применяются ─────────────
+    if service_type == "boost":
+        price_label = client_price_label or boost_option or "Буст ранга"
+        promo_code = ""
+        promo_discount = 0
+        order = {
+            "id": str(uuid.uuid4())[:8],
+            "timestamp": int(time.time()),
+            "user_name": user_name,
+            "user_id": user_id,
+            "tg_tag": tg_tag,
+            "pubg_id": "",
+            "payment_type": "UAH",
+            "price_label": price_label,
+            "service_type": "boost",
+            "boost_option": boost_option,
+            "status": "new",
+        }
+
+        with orders_lock():
+            orders = load_json(ORDERS_FILE, [])
+            orders.append(order)
+            save_json(ORDERS_FILE, orders)
+
+        if ADMIN_ID and BOT_TOKEN:
+            caption = (
+                "🆕 <b>Новая заявка — Буст ранга!</b>\n"
+                f"🆔 ID: <code>{order['id']}</code>\n"
+                f"👤 Клиент: {user_name} (TG ID: {user_id})\n"
+                f"🎮 Услуга: <b>{price_label}</b>\n"
+                f"✈️ Telegram: <code>{tg_tag}</code>"
+            )
+            try:
+                if screenshot_file:
+                    httpx.post(
+                        f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
+                        data={"chat_id": ADMIN_ID, "caption": caption, "parse_mode": "HTML"},
+                        files={"photo": (screenshot_file.filename, screenshot_file.read(), screenshot_file.content_type)},
+                        timeout=20,
+                    )
+                else:
+                    httpx.post(
+                        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                        json={"chat_id": ADMIN_ID, "text": caption, "parse_mode": "HTML"},
+                        timeout=10,
+                    )
+            except Exception as e:
+                print(f"Ошибка уведомления (boost): {e}")
+
+        return jsonify({"ok": True, "order_id": order["id"]})
+
+    # ── Настройка чувствительности ────────────────────────────────────────────
     prices = load_json(PRICES_FILE, {"uah_price": 800, "uc_price": 1320})
 
     # ── Промокод ──────────────────────────────────────────────────────────────
     promo_code = (
         request.form.get("promo_code", "").strip().upper()
-        if request.content_type and "multipart/form-data" in request.content_type
+        if is_multipart
         else (request.get_json(silent=True) or {}).get("promo_code", "").strip().upper()
     )
     promo_discount = 0
@@ -368,6 +427,7 @@ def create_order():
         "pubg_id": pubg_id,
         "payment_type": payment_type,
         "price_label": price_label,
+        "service_type": "sensitivity",
         "status": "new",
     }
     if promo_code:

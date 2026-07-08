@@ -676,6 +676,11 @@
         <div class="cat-card-sub">Индивидуально • Голосовой звонок • iPhone / iPad / Android</div>
         <div class="cat-card-arrow">›</div>
       </div>
+      <div class="cat-card" onclick="goTo('screen-boost')">
+        <div class="cat-card-title">🎮 Буст ранга</div>
+        <div class="cat-card-sub">Легенда Ultimate • Завоеватель • Быстро и безопасно</div>
+        <div class="cat-card-arrow">›</div>
+      </div>
       <div class="cat-card soon">
         <div class="soon-badge">Скоро</div>
         <div class="cat-card-title">✨ Новые услуги</div>
@@ -702,6 +707,14 @@
           <div class="pop-row-sub">Настройка за UC на PUBG ID</div>
         </div>
         <div class="pop-row-price"><span id="shop-uc-price">{{ uc_price }}</span> UC</div>
+      </div>
+      <div class="pop-row" onclick="goTo('screen-boost')">
+        <div class="pop-row-icon">🎮</div>
+        <div>
+          <div class="pop-row-name">Буст ранга</div>
+          <div class="pop-row-sub">Завоеватель / Легенда Ultimate</div>
+        </div>
+        <div class="pop-row-price">от 100$</div>
       </div>
     </div>
   </div>
@@ -766,6 +779,184 @@
     <a class="btn btn-outline" style="display:block;text-align:center;text-decoration:none" href="{{ reviews_link }}" target="_blank" rel="noopener noreferrer">⭐ Отзывы клиентов</a>
     <div class="spacer-sm"></div>
     <button class="btn btn-outline" onclick="goTo('screen-shop')">← В магазин</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: BOOST (описание) ═══════════════ -->
+<div class="screen" id="screen-boost">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">🎮</div>
+      <div>
+        <div class="logo-text-main">Буст ранга</div>
+        <div class="logo-text-sub">ARMYAN SERVICES</div>
+      </div>
+    </div>
+    <h1>Буст ранга PUBG MOBILE</h1>
+    <p>Выполним буст быстро, безопасно и профессионально</p>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Преимущества</div>
+    <div class="feature-list">
+      <div class="feature-item"><div class="check-icon">✅</div><div class="feature-text">Вход через QR-код — без передачи пароля</div></div>
+      <div class="feature-item"><div class="check-icon">✅</div><div class="feature-text">Быстрое выполнение заказа</div></div>
+      <div class="feature-item"><div class="check-icon">✅</div><div class="feature-text">Опытные игроки с высоким K/D</div></div>
+      <div class="feature-item"><div class="check-icon">✅</div><div class="feature-text">Полная конфиденциальность</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Выберите режим буста</div>
+    <div class="cat-list">
+      <div class="cat-card" onclick="selectBoostMode('legend')">
+        <div class="cat-card-title">1️⃣ Легенда Ultimate Royale</div>
+        <div class="cat-card-sub">Легенда → Ultimate &nbsp;•&nbsp; <b style="color:#00ffc4">200$</b></div>
+        <div class="cat-card-arrow">›</div>
+      </div>
+      <div class="cat-card" onclick="selectBoostMode('conqueror')">
+        <div class="cat-card-title">2️⃣ Завоеватель</div>
+        <div class="cat-card-sub">Соло / Дуо / Сквады &nbsp;•&nbsp; <b style="color:#00ffc4">от 100$</b></div>
+        <div class="cat-card-arrow">›</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-wrap">
+    <button class="btn btn-outline" onclick="goTo('screen-shop')">← В магазин</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: BOOST CONQUEROR (выбор подрежима) ═══════════════ -->
+<div class="screen" id="screen-boost-conqueror">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">🏆</div>
+      <div>
+        <div class="logo-text-main">Завоеватель</div>
+        <div class="logo-text-sub">ВЫБЕРИТЕ РЕЖИМ</div>
+      </div>
+    </div>
+    <h1>Выберите режим игры</h1>
+  </div>
+
+  <div class="section">
+    <div class="spacer"></div>
+    <div class="cat-list">
+      <div class="cat-card" onclick="selectConquerorMode('solo')">
+        <div class="cat-card-title">👤 Соло</div>
+        <div class="cat-card-sub"><b style="color:#00ffc4">100$</b></div>
+        <div class="cat-card-arrow">›</div>
+      </div>
+      <div class="cat-card" onclick="selectConquerorMode('duo')">
+        <div class="cat-card-title">👥 Дуо</div>
+        <div class="cat-card-sub"><b style="color:#00ffc4">150$</b></div>
+        <div class="cat-card-arrow">›</div>
+      </div>
+      <div class="cat-card" onclick="selectConquerorMode('squad')">
+        <div class="cat-card-title">👨‍👨‍👦 Сквады</div>
+        <div class="cat-card-sub"><b style="color:#00ffc4">200$</b></div>
+        <div class="cat-card-arrow">›</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-wrap">
+    <button class="btn btn-outline" onclick="goTo('screen-boost')">← Назад</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: BOOST REQUISITES ═══════════════ -->
+<div class="screen" id="screen-boost-req">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">💳</div>
+      <div>
+        <div class="logo-text-main">Оплата буста</div>
+        <div class="logo-text-sub">ШАГ 1 ИЗ 2</div>
+      </div>
+    </div>
+    <h1>Переведи <span id="boost-req-amount">—</span></h1>
+    <p id="boost-req-label" style="margin-top:6px;font-size:13px;color:rgba(0,255,196,.8)"></p>
+  </div>
+  <div class="section">
+    <div class="spacer"></div>
+    <div class="req-box">
+      <div class="req-label">💳 Monobank — номер карты</div>
+      <div class="req-value">{{ monobank_card }}</div>
+      <div class="req-copy" onclick="copyText('{{ monobank_card }}', this)">📋 Скопировать</div>
+    </div>
+    <div class="notice">
+      <div class="notice-title">⚠️ Важно</div>
+      <div class="notice-text">
+        После перевода нажми «Я оплатил» и прикрепи скриншот квитанции.
+      </div>
+    </div>
+  </div>
+  <div class="cta-wrap">
+    <button class="btn btn-primary" onclick="goTo('screen-boost-form')">✅ Я оплатил</button>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" id="boost-req-back-btn" onclick="goBoostReqBack()">← Назад</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: BOOST FORM ═══════════════ -->
+<div class="screen" id="screen-boost-form">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">📝</div>
+      <div>
+        <div class="logo-text-main">Данные для буста</div>
+        <div class="logo-text-sub">ШАГ 2 ИЗ 2</div>
+      </div>
+    </div>
+    <h1>Укажи свои данные</h1>
+  </div>
+  <div class="section">
+    <div class="spacer"></div>
+    <div class="notice" style="margin-bottom:16px">
+      <div class="notice-title">🏆 Ваш заказ</div>
+      <div class="notice-text" id="boost-form-summary">—</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">✈️ Telegram тег</label>
+      <input class="form-input" id="boost-input-tg" type="text" placeholder="@username" autocomplete="off" />
+      <div class="error-msg" id="boost-err-tg">Введи свой Telegram тег</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">📸 Скриншот оплаты <span style="color:#ff6b6b;font-weight:700">*</span></label>
+      <label id="boost-upload-label" style="
+        display:flex;align-items:center;justify-content:center;gap:10px;
+        width:100%;min-height:80px;border:1.5px dashed rgba(0,255,196,.35);
+        border-radius:12px;cursor:pointer;background:rgba(0,255,196,.04);
+        font-size:14px;color:#fff;transition:border-color .2s;
+      ">
+        <span id="boost-upload-text">📎 Прикрепить фото</span>
+        <input type="file" id="boost-input-screenshot" accept="image/*" style="display:none" onchange="onBoostFileSelected(this)" />
+      </label>
+      <div class="error-msg" id="boost-err-screenshot">Прикрепи скриншот оплаты</div>
+    </div>
+  </div>
+  <div class="cta-wrap">
+    <button class="btn btn-primary" id="boost-submit-btn" onclick="submitBoostOrder()">Отправить заявку 🚀</button>
+    <div class="error-msg" id="boost-err-submit" style="text-align:center;margin-top:10px"></div>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" onclick="goTo('screen-boost-req')">← Назад</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: BOOST SUCCESS ═══════════════ -->
+<div class="screen" id="screen-boost-success">
+  <div class="success-wrap">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Заявка успешно создана!</div>
+    <div class="success-text">
+      Наш менеджер проверит оплату и свяжется с вами в ближайшее время.
+    </div>
+    <div class="success-warn">
+      📱 Для выполнения заказа потребуется вход через QR-код PUBG MOBILE — это обеспечивает максимальную безопасность вашего аккаунта. Пароль передавать не нужно.
+    </div>
+    <button class="btn btn-primary" onclick="closeApp()">Готово ✓</button>
   </div>
 </div>
 
@@ -1455,7 +1646,7 @@
           <span class="order-id">#${o.id}</span>
           <span class="order-date">${date}</span>
         </div>
-        <div class="order-name">🎯 Настройка чувствительности</div>
+        <div class="order-name">${o.service_type === 'boost' ? '🎮 Буст ранга' : '🎯 Настройка чувствительности'}</div>
         <div class="order-detail">💰 ${escHtml(o.price_label)}</div>
         <div class="spacer-sm"></div>
         <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status] || o.status}</span>
@@ -1789,6 +1980,114 @@
     };
     update();
     wheelCooldownInterval = setInterval(update, 1000);
+  }
+
+
+  // ═══════════════ BOOST LOGIC ═══════════════
+
+  let boostSelected = null;
+
+  const BOOST_OPTIONS = {
+    legend:          { label: 'Легенда → Ultimate Royale', price: '200$' },
+    conqueror_solo:  { label: 'Завоеватель (Соло)',            price: '100$' },
+    conqueror_duo:   { label: 'Завоеватель (Дуо)',             price: '150$' },
+    conqueror_squad: { label: 'Завоеватель (Сквады)',          price: '200$' },
+  };
+
+  };
+
+  function selectBoostMode(mode) {
+    if (mode === 'legend') {
+      boostSelected = { key: 'legend', ...BOOST_OPTIONS.legend };
+      updateBoostReqScreen();
+      goTo('screen-boost-req');
+    } else {
+      goTo('screen-boost-conqueror');
+    }
+  }
+
+  function selectConquerorMode(sub) {
+    const key = 'conqueror_' + sub;
+    boostSelected = { key, ...BOOST_OPTIONS[key] };
+    updateBoostReqScreen();
+    goTo('screen-boost-req');
+  }
+
+  function updateBoostReqScreen() {
+    if (!boostSelected) return;
+    document.getElementById('boost-req-amount').textContent = boostSelected.price;
+    document.getElementById('boost-req-label').textContent = '🏆 ' + boostSelected.label;
+    document.getElementById('boost-form-summary').textContent =
+      boostSelected.label + ' — ' + boostSelected.price;
+  }
+
+  function goBoostReqBack() {
+    if (!boostSelected) { goTo('screen-boost'); return; }
+    if (boostSelected.key === 'legend') {
+      goTo('screen-boost');
+    } else {
+      goTo('screen-boost-conqueror');
+    }
+  }
+
+  function onBoostFileSelected(input) {
+    const label = document.getElementById('boost-upload-label');
+    const text  = document.getElementById('boost-upload-text');
+    if (input.files && input.files[0]) {
+      text.textContent = '✅ ' + input.files[0].name;
+      label.style.borderColor = 'rgba(0,255,196,.7)';
+      label.style.background  = 'rgba(0,255,196,.08)';
+      document.getElementById('boost-err-screenshot').classList.remove('show');
+    }
+  }
+
+  async function submitBoostOrder() {
+    const tgTag          = document.getElementById('boost-input-tg').value.trim();
+    const screenshotFile = document.getElementById('boost-input-screenshot').files[0];
+    const errTg          = document.getElementById('boost-err-tg');
+    const errScreenshot  = document.getElementById('boost-err-screenshot');
+    const errSubmit      = document.getElementById('boost-err-submit');
+    const btn            = document.getElementById('boost-submit-btn');
+
+    errTg.classList.remove('show');
+    errScreenshot.classList.remove('show');
+    errSubmit.style.display = 'none';
+
+    if (!tgTag)          { errTg.classList.add('show');         return; }
+    if (!screenshotFile) { errScreenshot.classList.add('show'); return; }
+    if (!boostSelected)  { errSubmit.textContent = 'Выберите услугу'; errSubmit.style.display = 'block'; return; }
+
+    btn.disabled    = true;
+    btn.textContent = 'Отправляю...';
+
+    try {
+      const fd = new FormData();
+      fd.append('service_type', 'boost');
+      fd.append('boost_option', boostSelected.key);
+      fd.append('payment_type', 'UAH');
+      fd.append('price_label',  boostSelected.label + ' — ' + boostSelected.price);
+      fd.append('tg_tag',       tgTag);
+      fd.append('screenshot',   screenshotFile);
+
+      const res  = await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'X-Init-Data': initData },
+        body: fd,
+      });
+      const data = await res.json();
+      if (data.ok) {
+        goTo('screen-boost-success');
+      } else {
+        errSubmit.textContent = data.error || 'Ошибка. Попробуй ещё раз.';
+        errSubmit.style.display = 'block';
+      }
+    } catch (e) {
+      errSubmit.textContent = 'Ошибка сети. Попробуй ещё раз.';
+      errSubmit.style.display = 'block';
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = 'Отправить заявку 🚀';
+    }
   }
 
   function renderActivePromos(promos) {
