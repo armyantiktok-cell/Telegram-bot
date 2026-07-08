@@ -905,13 +905,10 @@
     btn.disabled = true;
     btn.textContent = 'Отправляю...';
 
-    const pubgId = document.getElementById('input-pubgid').value.trim();
-
     try {
       const fd = new FormData();
       fd.append('payment_type', selectedPay);
       fd.append('tg_tag', tgTag);
-      fd.append('pubg_id', pubgId);
       fd.append('screenshot', screenshotFile);
 
       const res = await fetch('/api/order', {
