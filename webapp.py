@@ -1,3 +1,4 @@
+import io
 import os
 import fcntl
 import hmac
@@ -15,7 +16,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from urllib.parse import parse_qsl
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 
 app = Flask(__name__)
 
@@ -275,6 +276,44 @@ def get_my_orders():
     uid = str(user.get("id", ""))
     orders = [o for o in load_json(ORDERS_FILE, []) if o.get("user_id") == uid]
     return jsonify({"ok": True, "orders": list(reversed(orders))})
+
+
+@app.route("/api/admin/db-backup", methods=["GET"])
+def admin_db_backup():
+    """Отдаёт текущий файл БД. Защита: Authorization: Bearer <BOT_TOKEN>."""
+    auth = request.headers.get("Authorization", "")
+    expected = f"Bearer {BOT_TOKEN}" if BOT_TOKEN else ""
+    if not BOT_TOKEN or auth != expected:
+        return jsonify({"ok": False, "error": "Unauthorized"}), 403
+    if not DB_FILE.exists():
+        return jsonify({"ok": False, "error": "DB not found"}), 404
+    # Создаём безопасную копию через SQLite backup API
+    buf = io.BytesIO()
+    src = sqlite3.connect(str(DB_FILE))
+    dst = sqlite3.connect(":memory:")
+    src.backup(dst)
+    src.close()
+    # Сохраняем in-memory DB в буфер
+    tmp_conn = dst
+    raw = b""
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
+        tmp_path = tmp.name
+    dst_file = sqlite3.connect(tmp_path)
+    tmp_conn.backup(dst_file)
+    dst_file.close()
+    tmp_conn.close()
+    with open(tmp_path, "rb") as f:
+        raw = f.read()
+    os.unlink(tmp_path)
+    ts = time.strftime("%Y-%m-%d_%H-%M")
+    buf = io.BytesIO(raw)
+    buf.seek(0)
+    return send_file(
+        buf,
+        mimetype="application/octet-stream",
+        as_attachment=True,
+        download_name=f"miniapp_{ts}.db",
+    )
 
 
 @app.route("/api/prices", methods=["GET"])

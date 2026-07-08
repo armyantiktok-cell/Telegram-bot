@@ -1,4 +1,5 @@
 import fcntl
+import io
 import json
 import logging
 import os
@@ -491,22 +492,85 @@ async def unknown_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 WAITING_DB_FILE = 10  # состояние ConversationHandler для /importdb
 
 
+async def _fetch_db_bytes() -> tuple[bytes, str] | None:
+    """Запрашивает файл БД у webapp. Возвращает (bytes, filename) или None."""
+    import httpx
+    token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    webapp_url = WEBAPP_URL.rstrip("/")
+    if not webapp_url:
+        return None
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.get(
+                f"{webapp_url}/api/admin/db-backup",
+                headers={"Authorization": f"Bearer {token}"},
+                follow_redirects=True,
+            )
+        if resp.status_code == 200:
+            cd = resp.headers.get("content-disposition", "")
+            fname = "miniapp_backup.db"
+            if "filename=" in cd:
+                fname = cd.split("filename=")[-1].strip().strip('"')
+            return resp.content, fname
+    except Exception as e:
+        logger.error(f"[backup] Ошибка запроса к webapp: {e}")
+    return None
+
+
 async def cmd_backup(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """/backup — сразу отправляет текущий файл БД."""
+    """/backup — запрашивает файл БД у webapp и отправляет его."""
     if update.effective_user.id not in ADMIN_IDS:
         return
-    if not DB_FILE.exists():
-        await update.message.reply_text("❌ База данных не найдена (data/miniapp.db).")
-        return
-    size_kb = DB_FILE.stat().st_size // 1024
-    ts = time.strftime("%Y-%m-%d_%H_%M")
-    with open(DB_FILE, "rb") as f:
-        await update.message.reply_document(
-            document=f,
-            filename=f"miniapp_{ts}.db",
-            caption=f"📦 <b>Текущая база данных</b>\n💾 Размер: {size_kb} KB",
+    msg = await update.message.reply_text("⏳ Запрашиваю базу данных...")
+    result = await _fetch_db_bytes()
+    if not result:
+        await msg.edit_text(
+            "❌ Не удалось получить файл БД.\n"
+            "Убедись что переменная <code>WEBAPP_URL</code> задана в боте.",
             parse_mode="HTML",
         )
+        return
+    data, fname = result
+    size_kb = len(data) // 1024
+    ts = time.strftime("%Y-%m-%d %H:%M")
+    await msg.delete()
+    await update.message.reply_document(
+        document=io.BytesIO(data),
+        filename=fname,
+        caption=(
+            f"📦 <b>База данных — бэкап</b>\n"
+            f"📅 {ts}\n"
+            f"💾 Размер: {size_kb} KB"
+        ),
+        parse_mode="HTML",
+    )
+
+
+async def auto_backup_job(context: ContextTypes.DEFAULT_TYPE):
+    """Авто-бекап: каждый час отправляет файл БД администратору."""
+    if not ADMIN_ID:
+        return
+    result = await _fetch_db_bytes()
+    if not result:
+        logger.warning("[auto-backup] Не удалось получить файл БД у webapp.")
+        return
+    data, fname = result
+    size_kb = len(data) // 1024
+    ts = time.strftime("%Y-%m-%d %H:%M")
+    try:
+        await context.bot.send_document(
+            chat_id=ADMIN_ID,
+            document=io.BytesIO(data),
+            filename=fname,
+            caption=(
+                f"🔄 <b>Авто-бэкап базы данных</b>\n"
+                f"📅 {ts}\n"
+                f"💾 Размер: {size_kb} KB"
+            ),
+            parse_mode="HTML",
+        )
+    except Exception as e:
+        logger.error(f"[auto-backup] Ошибка отправки: {e}")
 
 
 async def cmd_importdb_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -665,6 +729,16 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(contact_handler, pattern="^contact$"))
     application.add_handler(CallbackQueryHandler(faq_handler, pattern="^faq$"))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, unknown_text))
+
+    # Авто-бэкап каждый час
+    if ADMIN_ID and WEBAPP_URL:
+        application.job_queue.run_repeating(
+            auto_backup_job,
+            interval=3600,
+            first=60,   # первый запуск через 1 мин после старта
+            name="auto_backup",
+        )
+        logger.info("Авто-бэкап запланирован каждые 60 мин.")
 
     logger.info("Бот ARMYAN запускается...")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
