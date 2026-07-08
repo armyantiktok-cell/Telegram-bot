@@ -382,11 +382,53 @@ def create_order():
     )
     user_id = str(tg_user.get("id", "—"))
 
-    # ── Буст ранга: фиксированная цена, промокоды не применяются ─────────────
+    # ── Буст ранга ────────────────────────────────────────────────────────────
     if service_type == "boost":
-        price_label = client_price_label or boost_option or "Буст ранга"
-        promo_code = ""
+        BOOST_OPTION_LABELS = {
+            "legend":          "Легенда → Ultimate Royale",
+            "conqueror_solo":  "Завоеватель (Соло)",
+            "conqueror_duo":   "Завоеватель (Дуо)",
+            "conqueror_squad": "Завоеватель (Сквады)",
+        }
+        BOOST_OPTION_PRICE_KEYS = {
+            "legend":          "boost_legend",
+            "conqueror_solo":  "boost_conqueror_solo",
+            "conqueror_duo":   "boost_conqueror_duo",
+            "conqueror_squad": "boost_conqueror_squad",
+        }
+
+        boost_prices = load_prices()
+        boost_currency = boost_prices.get("currency", "UAH")
+        boost_cur_sym  = CURRENCY_SYMBOLS.get(boost_currency, "грн")
+        base_price = boost_prices.get(BOOST_OPTION_PRICE_KEYS.get(boost_option, ""), 0)
+        boost_label = BOOST_OPTION_LABELS.get(boost_option, boost_option or "Буст ранга")
+
+        # ── Промокод для буста ──────────────────────────────────────────────
+        promo_code = (
+            request.form.get("promo_code", "").strip().upper()
+            if is_multipart
+            else (request.get_json(silent=True) or {}).get("promo_code", "").strip().upper()
+        )
         promo_discount = 0
+        if promo_code:
+            with get_db() as conn:
+                prow = conn.execute(
+                    "SELECT discount, expires_at, used FROM wheel_promos WHERE code = ?",
+                    (promo_code,),
+                ).fetchone()
+            if prow and not prow["used"] and prow["expires_at"] >= datetime.now().isoformat():
+                promo_discount = prow["discount"]
+            else:
+                promo_code = ""
+
+        if promo_discount and base_price:
+            final_price = round(base_price * (1 - promo_discount / 100))
+            price_label = f"{boost_label} — {final_price} {boost_cur_sym} (скидка {promo_discount}%)"
+        elif base_price:
+            price_label = f"{boost_label} — {base_price} {boost_cur_sym}"
+        else:
+            price_label = client_price_label or boost_label
+
         order = {
             "id": str(uuid.uuid4())[:8],
             "timestamp": int(time.time()),
@@ -400,18 +442,29 @@ def create_order():
             "boost_option": boost_option,
             "status": "new",
         }
+        if promo_code:
+            order["promo_code"]    = promo_code
+            order["promo_discount"] = promo_discount
 
         with orders_lock():
             orders = load_json(ORDERS_FILE, [])
             orders.append(order)
             save_json(ORDERS_FILE, orders)
 
+        # Отмечаем промокод использованным
+        if promo_code:
+            with get_db() as conn:
+                conn.execute("UPDATE wheel_promos SET used = 1 WHERE code = ?", (promo_code,))
+                conn.commit()
+
         if ADMIN_ID and BOT_TOKEN:
+            promo_line = f"\n🎟️ Промокод: <code>{promo_code}</code> (-{promo_discount}%)" if promo_code else ""
             caption = (
                 "🆕 <b>Новая заявка — Буст ранга!</b>\n"
                 f"🆔 ID: <code>{order['id']}</code>\n"
                 f"👤 Клиент: {user_name} (TG ID: {user_id})\n"
-                f"🎮 Услуга: <b>{price_label}</b>\n"
+                f"🎮 Услуга: <b>{price_label}</b>"
+                f"{promo_line}\n"
                 f"✈️ Telegram: <code>{tg_tag}</code>"
             )
             try:

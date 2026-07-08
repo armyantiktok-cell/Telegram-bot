@@ -894,7 +894,29 @@
       <div class="req-value">{{ monobank_card }}</div>
       <div class="req-copy" onclick="copyText('{{ monobank_card }}', this)">📋 Скопировать</div>
     </div>
-    <div class="notice">
+
+    <!-- Промокод для буста -->
+    <div style="margin-top:16px">
+      <div class="section-label">Промокод (необязательно)</div>
+      <input class="form-input" id="boost-promo-input" type="text"
+             placeholder="Введи промокод"
+             oninput="onBoostPromoInput(this.value)"
+             autocomplete="off"
+             style="text-transform:uppercase;letter-spacing:1.5px" />
+      <div class="promo-feedback" id="boost-promo-feedback"></div>
+      <div class="promo-calc" id="boost-promo-calc">
+        <div class="promo-calc-title">✂️ Итоговая цена со скидкой</div>
+        <div class="promo-calc-row">
+          <span class="promo-calc-label">💳 Сумма к оплате</span>
+          <span class="promo-calc-prices">
+            <span class="promo-calc-old" id="bpc-old"></span>
+            <span class="promo-calc-new" id="bpc-new"></span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice" style="margin-top:16px">
       <div class="notice-title">⚠️ Важно</div>
       <div class="notice-text">
         После перевода нажми «Я оплатил» и прикрепи скриншот квитанции.
@@ -2056,6 +2078,8 @@
   // ═══════════════ BOOST LOGIC ═══════════════
 
   let boostSelected = null;
+  let boostAppliedPromo = null;
+  let boostPromoTimer   = null;
 
   const BOOST_OPTIONS = {
     legend:          { label: 'Легенда → Ultimate Royale', price: '{{ boost_legend_label }}' },
@@ -2063,8 +2087,27 @@
     conqueror_duo:   { label: 'Завоеватель (Дуо)',         price: '{{ boost_duo_label }}' },
     conqueror_squad: { label: 'Завоеватель (Сквады)',      price: '{{ boost_squad_label }}' },
   };
+  const BOOST_PRICES_NUM = {
+    legend:          {{ boost_legend_price }},
+    conqueror_solo:  {{ boost_solo_price }},
+    conqueror_duo:   {{ boost_duo_price }},
+    conqueror_squad: {{ boost_squad_price }},
+  };
+  const BOOST_CUR_SYM = '{{ cur_sym }}';
+
+  function resetBoostPromo() {
+    boostAppliedPromo = null;
+    clearTimeout(boostPromoTimer);
+    const inp = document.getElementById('boost-promo-input');
+    if (inp) inp.value = '';
+    const fb  = document.getElementById('boost-promo-feedback');
+    if (fb)  fb.className = 'promo-feedback';
+    const calc = document.getElementById('boost-promo-calc');
+    if (calc) calc.classList.remove('show');
+  }
 
   function selectBoostMode(mode) {
+    resetBoostPromo();
     if (mode === 'legend') {
       boostSelected = { key: 'legend', ...BOOST_OPTIONS.legend };
       updateBoostReqScreen();
@@ -2075,6 +2118,7 @@
   }
 
   function selectConquerorMode(sub) {
+    resetBoostPromo();
     const key = 'conqueror_' + sub;
     boostSelected = { key, ...BOOST_OPTIONS[key] };
     updateBoostReqScreen();
@@ -2083,10 +2127,59 @@
 
   function updateBoostReqScreen() {
     if (!boostSelected) return;
-    document.getElementById('boost-req-amount').textContent = boostSelected.price;
-    document.getElementById('boost-req-label').textContent = '🏆 ' + boostSelected.label;
+    let displayPrice = boostSelected.price;
+    if (boostAppliedPromo) {
+      const baseNum = BOOST_PRICES_NUM[boostSelected.key] || 0;
+      const discNum = Math.round(baseNum * (1 - boostAppliedPromo.discount / 100));
+      displayPrice = discNum + ' ' + BOOST_CUR_SYM;
+    }
+    document.getElementById('boost-req-amount').textContent = displayPrice;
+    document.getElementById('boost-req-label').textContent  = '🏆 ' + boostSelected.label;
     document.getElementById('boost-form-summary').textContent =
-      boostSelected.label + ' — ' + boostSelected.price;
+      boostSelected.label + ' — ' + displayPrice;
+  }
+
+  function onBoostPromoInput(raw) {
+    clearTimeout(boostPromoTimer);
+    boostAppliedPromo = null;
+    updateBoostReqScreen();
+    const code = raw.trim().toUpperCase();
+    const fb   = document.getElementById('boost-promo-feedback');
+    const calc = document.getElementById('boost-promo-calc');
+    if (!code) { fb.className = 'promo-feedback'; calc.classList.remove('show'); return; }
+    if (code.length < 4) return;
+    fb.className   = 'promo-feedback loading';
+    fb.textContent = '⏳ Проверяем...';
+    boostPromoTimer = setTimeout(async () => {
+      try {
+        const res  = await fetch('/api/check_promo', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ code }),
+        });
+        const data = await res.json();
+        if (data.valid) {
+          boostAppliedPromo = { code: data.code, discount: data.discount };
+          fb.className   = 'promo-feedback valid';
+          fb.textContent = `✅ Промокод применён — скидка ${data.discount}%!`;
+          updateBoostReqScreen();
+          const baseNum = boostSelected ? (BOOST_PRICES_NUM[boostSelected.key] || 0) : 0;
+          const discNum = Math.round(baseNum * (1 - data.discount / 100));
+          document.getElementById('bpc-old').textContent = baseNum + ' ' + BOOST_CUR_SYM;
+          document.getElementById('bpc-new').textContent = discNum + ' ' + BOOST_CUR_SYM;
+          calc.classList.add('show');
+        } else {
+          boostAppliedPromo = null;
+          fb.className   = 'promo-feedback invalid';
+          fb.textContent = data.error || '❌ Промокод недействителен';
+          calc.classList.remove('show');
+          updateBoostReqScreen();
+        }
+      } catch (e) {
+        fb.className   = 'promo-feedback invalid';
+        fb.textContent = '❌ Ошибка сети';
+      }
+    }, 600);
   }
 
   function goBoostReqBack() {
@@ -2136,6 +2229,7 @@
       fd.append('price_label',  boostSelected.label + ' — ' + boostSelected.price);
       fd.append('tg_tag',       tgTag);
       fd.append('screenshot',   screenshotFile);
+      if (boostAppliedPromo) fd.append('promo_code', boostAppliedPromo.code);
 
       const res  = await fetch('/api/order', {
         method: 'POST',
