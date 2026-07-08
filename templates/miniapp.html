@@ -2152,13 +2152,9 @@
     fb.textContent = '⏳ Проверяем...';
     boostPromoTimer = setTimeout(async () => {
       try {
-        const res  = await fetch('/api/check_promo', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ code }),
-        });
+        const res  = await fetch(`/api/promo/validate?code=${encodeURIComponent(code)}`);
         const data = await res.json();
-        if (data.valid) {
+        if (data.ok) {
           boostAppliedPromo = { code: data.code, discount: data.discount };
           fb.className   = 'promo-feedback valid';
           fb.textContent = `✅ Промокод применён — скидка ${data.discount}%!`;
