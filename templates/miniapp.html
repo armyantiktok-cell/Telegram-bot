@@ -674,11 +674,6 @@
       <div class="error-msg" id="err-tg">Введи свой Telegram тег</div>
     </div>
 
-    <div class="form-group" id="pubg-id-group">
-      <label class="form-label">🆔 PUBG ID <span style="color:#666;font-weight:400">(для оплаты гривнами)</span></label>
-      <input class="form-input" id="input-pubgid" type="text" placeholder="Твой PUBG ID" autocomplete="off" />
-    </div>
-
     <div class="form-group">
       <label class="form-label">📸 Скриншот оплаты <span style="color:#ff6b6b;font-weight:700">*</span></label>
       <label id="upload-label" style="
@@ -828,10 +823,6 @@
 
   function goTo(screenId) {
     showScreen(screenId);
-    if (screenId === 'screen-form') {
-      document.getElementById('pubg-id-group').style.display =
-        selectedPay === 'UAH' ? 'block' : 'none';
-    }
   }
 
   function goToRequisites() {
