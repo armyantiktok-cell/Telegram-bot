@@ -414,104 +414,219 @@
     .promo-calc-old { text-decoration: line-through; color: rgba(255,255,255,.35); font-size: 12px; }
     .promo-calc-new { font-weight: 800; color: #00ffc4; }
 
-    /* ─── Wheel Screen ─── */
-    .wheel-header {
-      background: linear-gradient(180deg, #1a0a2e 0%, #0a0a0a 100%);
+    /* ─── Case Opening Screen ─── */
+    .case-header {
       padding: 20px 20px 16px;
-      border-bottom: 1px solid rgba(180,100,255,.2);
+      border-bottom: 1px solid rgba(0,255,196,.1);
       text-align: center;
     }
-    .wheel-header h1 {
+    .case-header h1 {
       font-size: 22px; font-weight: 800; line-height: 1.2;
-      background: linear-gradient(90deg, #fff 0%, #c084fc 100%);
+      background: linear-gradient(90deg, #e0e0e0 0%, #00ffc4 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       font-family: 'Chakra Petch', sans-serif;
     }
-    .wheel-header p { font-size: 13px; color: rgba(255,255,255,.7); margin-top: 6px; }
+    .case-header p { font-size: 13px; color: rgba(255,255,255,.55); margin-top: 6px; }
 
-    .wheel-wrap {
-      display: flex; flex-direction: column; align-items: center;
-      padding: 24px 20px 0;
+    /* ── Strip ── */
+    .case-strip-outer {
+      position: relative; overflow: hidden;
+      margin: 20px 0 0; height: 130px;
+      background: #0d0d0d;
+      border-top: 1px solid rgba(0,255,196,.08);
+      border-bottom: 1px solid rgba(0,255,196,.08);
     }
-    .wheel-pointer {
-      font-size: 32px; line-height: 1; margin-bottom: -6px; z-index: 2;
-      filter: drop-shadow(0 0 8px rgba(192,132,252,.8));
+    .case-strip-outer::before,
+    .case-strip-outer::after {
+      content: ''; position: absolute; top: 0; bottom: 0;
+      width: 90px; z-index: 4; pointer-events: none;
     }
-    .wheel-canvas-wrap {
-      position: relative; width: 280px; height: 280px;
+    .case-strip-outer::before { left: 0;  background: linear-gradient(90deg, #0a0a0a 40%, transparent); }
+    .case-strip-outer::after  { right: 0; background: linear-gradient(-90deg, #0a0a0a 40%, transparent); }
+
+    /* Center pointer */
+    .case-pointer {
+      position: absolute; top: 0; bottom: 0;
+      left: 50%; transform: translateX(-50%);
+      width: 3px; z-index: 10; pointer-events: none;
     }
-    #wheel-canvas {
-      width: 280px; height: 280px; display: block;
-      filter: drop-shadow(0 0 20px rgba(192,132,252,.4));
+    .case-pointer-line {
+      position: absolute; inset: 0;
+      background: #00ffc4;
+      box-shadow: 0 0 8px #00ffc4, 0 0 22px rgba(0,255,196,.55);
+    }
+    .case-pointer-top {
+      position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 10px solid transparent; border-right: 10px solid transparent;
+      border-top: 15px solid #00ffc4;
+      filter: drop-shadow(0 0 5px #00ffc4);
+    }
+    .case-pointer-bottom {
+      position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 10px solid transparent; border-right: 10px solid transparent;
+      border-bottom: 15px solid #00ffc4;
+      filter: drop-shadow(0 0 5px #00ffc4);
     }
 
-    .wheel-btn-wrap { padding: 20px 20px 0; width: 100%; }
-    .btn-wheel {
+    /* Scrolling strip */
+    .case-strip {
+      display: flex; align-items: stretch;
+      position: absolute; top: 0; left: 0; height: 100%;
+      will-change: transform;
+    }
+
+    /* Individual card */
+    .case-card {
+      flex: none; width: 96px; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      border-right: 1px solid rgba(255,255,255,.05);
+      background: #131313;
+      position: relative; overflow: hidden; gap: 5px;
+      box-sizing: border-box;
+    }
+    .case-card::after {
+      content: ''; position: absolute; bottom: 0; left: 10%; right: 10%;
+      height: 3px; border-radius: 2px 2px 0 0;
+      background: rgba(255,255,255,.07);
+    }
+    .case-card-pct {
+      font-size: 26px; font-weight: 900; line-height: 1;
+      font-family: 'Chakra Petch', sans-serif;
+    }
+    .case-card-badge {
+      font-size: 9px; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; opacity: .7;
+    }
+
+    /* Rarity tiers */
+    .case-card[data-rarity="none"] { background: #101010; }
+    .case-card[data-rarity="none"] .case-card-pct   { color: rgba(224,224,224,.25); }
+    .case-card[data-rarity="none"] .case-card-badge  { color: rgba(224,224,224,.3);  }
+    .case-card[data-rarity="none"]::after            { background: rgba(255,255,255,.05); }
+
+    .case-card[data-rarity="d5"]  { background: linear-gradient(180deg,#161916,#111); }
+    .case-card[data-rarity="d5"]  .case-card-pct   { color: rgba(224,224,224,.6); }
+    .case-card[data-rarity="d5"]  .case-card-badge  { color: rgba(224,224,224,.5); }
+    .case-card[data-rarity="d5"]::after             { background: rgba(224,224,224,.12); }
+
+    .case-card[data-rarity="d10"] { background: linear-gradient(180deg,#0f1e1a,#111); }
+    .case-card[data-rarity="d10"] .case-card-pct   { color: rgba(0,255,196,.7); }
+    .case-card[data-rarity="d10"] .case-card-badge  { color: rgba(0,255,196,.5); }
+    .case-card[data-rarity="d10"]::after            { background: rgba(0,255,196,.18); }
+
+    .case-card[data-rarity="d15"] { background: linear-gradient(180deg,#0b2019,#111); }
+    .case-card[data-rarity="d15"] .case-card-pct   { color: rgba(0,255,196,.85); }
+    .case-card[data-rarity="d15"] .case-card-badge  { color: rgba(0,255,196,.6);  }
+    .case-card[data-rarity="d15"]::after            { background: rgba(0,255,196,.28); }
+
+    .case-card[data-rarity="d20"] { background: linear-gradient(180deg,#082a1e,#0d0d0d); }
+    .case-card[data-rarity="d20"] .case-card-pct   { color: rgba(0,255,196,.95); }
+    .case-card[data-rarity="d20"] .case-card-badge  { color: rgba(0,255,196,.75); }
+    .case-card[data-rarity="d20"]::after            { background: rgba(0,255,196,.38); }
+
+    .case-card[data-rarity="d25"] {
+      background: linear-gradient(180deg,#062e1d,#0a0a0a);
+      box-shadow: inset 0 0 20px rgba(0,255,196,.06);
+    }
+    .case-card[data-rarity="d25"] .case-card-pct   { color: #00ffc4; text-shadow: 0 0 12px rgba(0,255,196,.6); }
+    .case-card[data-rarity="d25"] .case-card-badge  { color: rgba(0,255,196,.8); }
+    .case-card[data-rarity="d25"]::after            { background: #00ffc4; box-shadow: 0 0 6px rgba(0,255,196,.6); }
+
+    /* Win highlight */
+    .case-card.win {
+      border: 2px solid #00ffc4 !important;
+      box-shadow: 0 0 0 1px rgba(0,255,196,.2), 0 0 28px rgba(0,255,196,.45),
+                  inset 0 0 24px rgba(0,255,196,.1) !important;
+      animation: caseWinPulse 1.3s ease-in-out infinite alternate;
+    }
+    @keyframes caseWinPulse {
+      0%   { box-shadow: 0 0 14px rgba(0,255,196,.35), inset 0 0 14px rgba(0,255,196,.07); }
+      100% { box-shadow: 0 0 36px rgba(0,255,196,.7),  inset 0 0 30px rgba(0,255,196,.18); }
+    }
+
+    /* Open button */
+    .btn-case {
       width: 100%; border: none; border-radius: 14px; padding: 16px;
-      font-size: 16px; font-weight: 800; cursor: pointer; letter-spacing: .3px;
-      background: linear-gradient(135deg, #c084fc, #7c3aed);
-      color: #fff; box-shadow: 0 4px 20px rgba(124,58,237,.4);
-      transition: opacity .15s;
+      font-size: 16px; font-weight: 800; cursor: pointer; letter-spacing: .6px;
+      background: linear-gradient(135deg, #00ffc4 0%, #00c896 100%);
+      color: #0a0a0a; box-shadow: 0 4px 24px rgba(0,255,196,.32);
+      transition: opacity .15s, transform .1s;
+      font-family: 'Chakra Petch', sans-serif;
     }
-    .btn-wheel:active { opacity: .8; }
-    .btn-wheel:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-case:active  { opacity: .85; transform: scale(.98); }
+    .btn-case:disabled { opacity: .42; cursor: not-allowed; transform: none; }
 
-    .wheel-cooldown {
-      text-align: center; font-size: 13px; color: rgba(255,255,255,.6);
+    /* Cooldown */
+    .case-cooldown {
+      text-align: center; font-size: 13px; color: rgba(255,255,255,.5);
       padding: 10px 20px; display: none;
     }
-    .wheel-cooldown.show { display: block; }
-    .wheel-cooldown b { color: #c084fc; }
+    .case-cooldown.show { display: block; }
+    .case-cooldown b { color: #00ffc4; }
 
     /* Result modal */
-    .wheel-result {
+    .case-result {
       display: none; position: fixed; inset: 0; z-index: 200;
-      background: rgba(0,0,0,.85);
-      align-items: center; justify-content: center;
-      padding: 20px;
+      background: rgba(0,0,0,.88);
+      align-items: center; justify-content: center; padding: 20px;
     }
-    .wheel-result.show { display: flex; }
-    .wheel-result-card {
-      background: linear-gradient(135deg, #1a0a2e 0%, #130d20 100%);
-      border: 1.5px solid rgba(192,132,252,.4);
+    .case-result.show { display: flex; animation: caseModalIn .35s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes caseModalIn {
+      from { opacity: 0; transform: scale(.88); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .case-result-card {
+      background: #131313; border: 1.5px solid rgba(0,255,196,.22);
       border-radius: 24px; padding: 32px 24px; max-width: 340px; width: 100%;
-      text-align: center; position: relative;
+      text-align: center;
+      box-shadow: 0 0 50px rgba(0,255,196,.08), 0 24px 60px rgba(0,0,0,.7);
     }
-    .result-icon { font-size: 56px; margin-bottom: 12px; }
-    .result-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px;
-      font-family: 'Chakra Petch', sans-serif; }
-    .result-sub { font-size: 14px; color: rgba(255,255,255,.7); margin-bottom: 20px; line-height: 1.5; }
+    .case-result-icon { font-size: 56px; margin-bottom: 12px;
+      animation: caseIconIn .5s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes caseIconIn {
+      from { transform: scale(.3) rotate(-20deg); opacity: 0; }
+      to   { transform: scale(1)  rotate(0deg);   opacity: 1; }
+    }
+    .case-result-title {
+      font-size: 24px; font-weight: 800; color: #e0e0e0; margin-bottom: 8px;
+      font-family: 'Chakra Petch', sans-serif;
+    }
+    .case-result-title.win { color: #00ffc4; text-shadow: 0 0 20px rgba(0,255,196,.4); }
+    .case-result-sub { font-size: 13px; color: rgba(255,255,255,.6); margin-bottom: 20px; line-height: 1.6; }
 
-    .promo-box {
-      background: rgba(192,132,252,.1); border: 1.5px solid rgba(192,132,252,.4);
+    .case-promo-box {
+      background: rgba(0,255,196,.06); border: 1.5px solid rgba(0,255,196,.22);
       border-radius: 14px; padding: 16px; margin-bottom: 20px;
     }
-    .promo-label { font-size: 11px; font-weight: 700; color: rgba(192,132,252,.8);
+    .case-promo-label { font-size: 11px; font-weight: 700; color: rgba(0,255,196,.65);
       letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
-    .promo-code {
-      font-size: 22px; font-weight: 800; color: #c084fc; letter-spacing: 3px;
+    .case-promo-code {
+      font-size: 20px; font-weight: 800; color: #00ffc4; letter-spacing: 3px;
       font-family: monospace; word-break: break-all;
     }
-    .promo-expires { font-size: 11px; color: rgba(255,255,255,.5); margin-top: 6px; }
-    .promo-copy {
-      display: inline-block; margin-top: 10px; font-size: 12px;
-      color: #c084fc; cursor: pointer; border: 1px solid rgba(192,132,252,.3);
+    .case-promo-expires { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 6px; }
+    .case-promo-copy {
+      display: inline-block; margin-top: 10px; font-size: 12px; font-weight: 600;
+      color: #00ffc4; cursor: pointer; border: 1px solid rgba(0,255,196,.28);
       border-radius: 6px; padding: 5px 14px;
     }
-    .promo-copy:active { background: rgba(192,132,252,.1); }
+    .case-promo-copy:active { background: rgba(0,255,196,.1); }
 
     /* Active promos list */
-    .promo-list { display: flex; flex-direction: column; gap: 10px; padding: 0 20px; }
-    .promo-item {
-      background: rgba(192,132,252,.07); border: 1px solid rgba(192,132,252,.25);
+    .case-promo-list { display: flex; flex-direction: column; gap: 10px; }
+    .case-promo-item {
+      background: rgba(0,255,196,.04); border: 1px solid rgba(0,255,196,.16);
       border-radius: 12px; padding: 14px;
     }
-    .promo-item-code { font-size: 16px; font-weight: 800; color: #c084fc;
+    .case-promo-item-code { font-size: 16px; font-weight: 800; color: #00ffc4;
       font-family: monospace; letter-spacing: 2px; }
-    .promo-item-info { font-size: 12px; color: rgba(255,255,255,.6); margin-top: 4px; }
-    .promo-item-copy {
-      display: inline-block; margin-top: 8px; font-size: 11px;
-      color: #c084fc; cursor: pointer; border: 1px solid rgba(192,132,252,.3);
+    .case-promo-item-info { font-size: 12px; color: rgba(255,255,255,.5); margin-top: 4px; }
+    .case-promo-item-copy {
+      display: inline-block; margin-top: 8px; font-size: 11px; font-weight: 600;
+      color: #00ffc4; cursor: pointer; border: 1px solid rgba(0,255,196,.28);
       border-radius: 6px; padding: 3px 10px;
     }
   </style>
@@ -895,41 +1010,44 @@
   </div>
 </div>
 
-<!-- ═══════════════ SCREEN: WHEEL ═══════════════ -->
+<!-- ═══════════════ SCREEN: CASE OPENING ═══════════════ -->
 <div class="screen" id="screen-wheel">
-  <div class="wheel-header">
-    <h1>🎡 Колесо фортуны</h1>
-    <p>Один бесплатный запуск каждые 24 часа</p>
+  <div class="case-header">
+    <h1>🎁 Открытие кейса</h1>
+    <p>Одно бесплатное открытие каждые 24 часа</p>
   </div>
 
-  <div class="wheel-wrap">
-    <div class="wheel-pointer">▼</div>
-    <div class="wheel-canvas-wrap">
-      <canvas id="wheel-canvas" width="560" height="560"></canvas>
+  <!-- Scrolling strip -->
+  <div class="case-strip-outer" id="case-strip-outer">
+    <div class="case-strip" id="case-strip"></div>
+    <div class="case-pointer">
+      <div class="case-pointer-top"></div>
+      <div class="case-pointer-line"></div>
+      <div class="case-pointer-bottom"></div>
     </div>
   </div>
 
-  <div class="wheel-btn-wrap">
-    <button class="btn-wheel" id="wheel-spin-btn" onclick="wheelSpin()">🎡 Крутить!</button>
+  <div style="padding:20px 20px 0">
+    <button class="btn-case" id="wheel-spin-btn" onclick="wheelSpin()">🎁 Открыть кейс</button>
   </div>
-  <div class="wheel-cooldown" id="wheel-cooldown">
-    ⏳ Следующий запуск через <b id="wheel-timer">—</b>
+  <div class="case-cooldown" id="wheel-cooldown">
+    ⏳ Следующее открытие через <b id="wheel-timer">—</b>
   </div>
 
   <div class="section" style="margin-top:20px">
-    <div class="section-label" style="color:rgba(192,132,252,.8)">Шансы выигрыша</div>
-    <div style="display:flex;flex-direction:column;gap:6px">
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.7)"><span>❌ Без выигрыша</span><span>40%</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.7)"><span>🟢 Скидка 5%</span><span>25%</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.7)"><span>🟩 Скидка 10%</span><span>15%</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.7)"><span>🔵 Скидка 15%</span><span>10%</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.7)"><span>💜 Скидка 20%</span><span>7%</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.7)"><span>🌟 Скидка 25%</span><span>3%</span></div>
+    <div class="section-label" style="color:rgba(0,255,196,.65)">Шансы выпадения</div>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(224,224,224,.3)"><span>— Без выигрыша</span><span>40%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(224,224,224,.6)"><span>Скидка 5%</span><span>25%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(0,255,196,.65)"><span>Скидка 10%</span><span>15%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(0,255,196,.82)"><span>Скидка 15%</span><span>10%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(0,255,196,.92)"><span>Скидка 20%</span><span>7%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#00ffc4;font-weight:700"><span>✦ Скидка 25%</span><span>3%</span></div>
     </div>
   </div>
 
   <div class="section" style="margin-top:20px">
-    <div class="section-label" style="color:rgba(192,132,252,.8)">Мои активные промокоды</div>
+    <div class="section-label" style="color:rgba(0,255,196,.65)">Мои активные промокоды</div>
     <div id="wheel-promos-list">
       <div class="empty-state" style="padding:20px 0">
         <div class="empty-state-icon">🎟</div>
@@ -941,19 +1059,20 @@
   <div class="spacer"></div>
 </div>
 
-<!-- Wheel result modal -->
-<div class="wheel-result" id="wheel-result-modal">
-  <div class="wheel-result-card">
-    <div class="result-icon" id="result-icon">🎡</div>
-    <div class="result-title" id="result-title">—</div>
-    <div class="result-sub" id="result-sub">—</div>
-    <div class="promo-box" id="result-promo-box" style="display:none">
-      <div class="promo-label">Твой промокод</div>
-      <div class="promo-code" id="result-promo-code">—</div>
-      <div class="promo-expires" id="result-promo-expires">—</div>
-      <div class="promo-copy" onclick="copyPromoCode()">📋 Скопировать</div>
+<!-- Case result modal -->
+<div class="case-result" id="wheel-result-modal">
+  <div class="case-result-card">
+    <div class="case-result-icon" id="result-icon">🎁</div>
+    <div class="case-result-title" id="result-title">—</div>
+    <div class="case-result-sub" id="result-sub">—</div>
+    <div class="case-promo-box" id="result-promo-box" style="display:none">
+      <div class="case-promo-label">Твой промокод</div>
+      <div class="case-promo-code" id="result-promo-code">—</div>
+      <div class="case-promo-expires" id="result-promo-expires">—</div>
+      <div class="case-promo-copy" onclick="copyPromoCode()">📋 Скопировать</div>
     </div>
-    <button class="btn btn-primary" onclick="closeWheelResult()" style="background:linear-gradient(135deg,#c084fc,#7c3aed);box-shadow:0 4px 20px rgba(124,58,237,.4)">
+    <button class="btn btn-primary" onclick="closeWheelResult()"
+      style="background:linear-gradient(135deg,#00ffc4,#00c896);color:#0a0a0a;box-shadow:0 4px 20px rgba(0,255,196,.32)">
       Отлично! ✓
     </button>
   </div>
@@ -1422,122 +1541,86 @@
     return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  // ═══════════════ WHEEL ═══════════════
+  // ═══════════════ CASE OPENING (CS:GO style) ═══════════════
 
-  const WHEEL_SEGS = [
-    { label: 'Без выигрыша', emoji: '❌', color: '#2a2a3a', textColor: '#aaa' },
-    { label: 'Скидка 5%',    emoji: '🟢', color: '#0d3322', textColor: '#4ade80' },
-    { label: 'Скидка 10%',   emoji: '🟩', color: '#0a2e1e', textColor: '#00ffc4' },
-    { label: 'Скидка 15%',   emoji: '🔵', color: '#0a1e30', textColor: '#60a5fa' },
-    { label: 'Скидка 20%',   emoji: '💜', color: '#1a0a2e', textColor: '#c084fc' },
-    { label: 'Скидка 25%',   emoji: '🌟', color: '#2e1f00', textColor: '#fbbf24' },
+  const CARD_W     = 96;    // ширина одной карточки (px), совпадает с CSS
+  const STRIP_LEN  = 60;    // сколько карточек строим
+  const WIN_POS    = 48;    // индекс выигрышной карточки в ленте
+
+  const CASE_ITEMS = [
+    { pct: '—',   badge: 'БЕЗ ПРИЗА', rarity: 'none', discount: 0  },
+    { pct: '5%',  badge: 'СКИДКА',    rarity: 'd5',   discount: 5  },
+    { pct: '10%', badge: 'СКИДКА',    rarity: 'd10',  discount: 10 },
+    { pct: '15%', badge: 'СКИДКА',    rarity: 'd15',  discount: 15 },
+    { pct: '20%', badge: 'СКИДКА',    rarity: 'd20',  discount: 20 },
+    { pct: '25%', badge: 'СКИДКА',    rarity: 'd25',  discount: 25 },
   ];
-  const SEG_COUNT = WHEEL_SEGS.length;
-  const SEG_ANGLE = (2 * Math.PI) / SEG_COUNT;   // 60°
 
-  let wheelAngle = 0;          // текущий угол (радианы)
   let wheelSpinning = false;
   let wheelCooldownInterval = null;
   let currentPromoCode = null;
 
-  function initWheel() {
-    drawWheel(wheelAngle);
+  // Случайный индекс по тем же шансам, что и на сервере (для заполнения фона ленты)
+  function randomItemIdx() {
+    const r = Math.random() * 100;
+    if (r < 40) return 0;
+    if (r < 65) return 1;
+    if (r < 80) return 2;
+    if (r < 90) return 3;
+    if (r < 97) return 4;
+    return 5;
   }
 
-  function drawWheel(angle) {
-    const canvas = document.getElementById('wheel-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
-    const cx = W / 2, cy = H / 2;
-    const R = W / 2 - 12;
-
-    ctx.clearRect(0, 0, W, H);
-
-    // Тень под колесом
-    ctx.save();
-    ctx.shadowColor = 'rgba(192,132,252,0.35)';
-    ctx.shadowBlur = 40;
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, 0, 2 * Math.PI);
-    ctx.fillStyle = '#111';
-    ctx.fill();
-    ctx.restore();
-
-    for (let i = 0; i < SEG_COUNT; i++) {
-      const startA = angle + i * SEG_ANGLE - Math.PI / 2;
-      const endA   = startA + SEG_ANGLE;
-      const seg    = WHEEL_SEGS[i];
-
-      // Сегмент
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, R, startA, endA);
-      ctx.closePath();
-      ctx.fillStyle = seg.color;
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // Текст
-      ctx.save();
-      const midA = startA + SEG_ANGLE / 2;
-      const tx = cx + (R * 0.65) * Math.cos(midA);
-      const ty = cy + (R * 0.65) * Math.sin(midA);
-      ctx.translate(tx, ty);
-      ctx.rotate(midA + Math.PI / 2);
-      ctx.fillStyle = seg.textColor;
-      ctx.font = 'bold 22px Inter, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'bottom';
-      ctx.fillText(seg.emoji, 0, 0);
-      ctx.font = 'bold 18px Chakra Petch, sans-serif';
-      ctx.textBaseline = 'top';
-      const shortLabel = seg.label.replace('Без выигрыша', '✕').replace('Скидка ', '');
-      ctx.fillText(shortLabel, 0, 4);
-      ctx.restore();
+  function buildStrip(winIdx) {
+    const strip = document.getElementById('case-strip');
+    strip.innerHTML = '';
+    for (let i = 0; i < STRIP_LEN; i++) {
+      const idx  = (i === WIN_POS) ? winIdx : randomItemIdx();
+      const item = CASE_ITEMS[idx];
+      const el   = document.createElement('div');
+      el.className = 'case-card';
+      el.dataset.rarity = item.rarity;
+      if (i === WIN_POS) el.dataset.win = '1';
+      el.innerHTML =
+        `<div class="case-card-pct">${item.pct}</div>` +
+        `<div class="case-card-badge">${item.badge}</div>`;
+      strip.appendChild(el);
     }
-
-    // Центральный круг
-    ctx.beginPath();
-    ctx.arc(cx, cy, 28, 0, 2 * Math.PI);
-    const grad = ctx.createRadialGradient(cx, cy, 4, cx, cy, 28);
-    grad.addColorStop(0, '#c084fc');
-    grad.addColorStop(1, '#7c3aed');
-    ctx.fillStyle = grad;
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Иконка в центре
-    ctx.font = '20px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('🎡', cx, cy);
   }
 
-  // Easing: ease-out cubic
-  function easeOut(t) {
-    return 1 - Math.pow(1 - t, 3);
+  // Инициализация — показываем нейтральную ленту
+  function initWheel() {
+    buildStrip(0);
+    const outer = document.getElementById('case-strip-outer');
+    const W     = outer.offsetWidth;
+    const strip = document.getElementById('case-strip');
+    // Карточка 3 по центру (видно немного до и после)
+    strip.style.transition = 'none';
+    strip.style.transform  = `translateX(${W / 2 - 3 * CARD_W - CARD_W / 2}px)`;
   }
 
-  function animateSpin(targetAngle, duration, onDone) {
-    const startAngle = wheelAngle;
-    const startTime = performance.now();
+  // Ease-out quint — медленное торможение, как в CS:GO
+  function easeOutQuint(t) {
+    return 1 - Math.pow(1 - t, 5);
+  }
 
+  function animateStrip(fromX, toX, duration, onDone) {
+    const start = performance.now();
+    const strip = document.getElementById('case-strip');
     function frame(now) {
-      const elapsed = now - startTime;
-      const t = Math.min(elapsed / duration, 1);
-      wheelAngle = startAngle + (targetAngle - startAngle) * easeOut(t);
-      drawWheel(wheelAngle);
+      const t  = Math.min((now - start) / duration, 1);
+      const et = easeOutQuint(t);
+      strip.style.transform = `translateX(${fromX + (toX - fromX) * et}px)`;
       if (t < 1) {
         requestAnimationFrame(frame);
       } else {
-        wheelAngle = targetAngle % (2 * Math.PI);
-        drawWheel(wheelAngle);
-        onDone();
+        strip.style.transform = `translateX(${toX}px)`;
+        // Подсветить выигрышную карточку
+        const winCard = strip.querySelector('[data-win="1"]');
+        if (winCard) {
+          requestAnimationFrame(() => winCard.classList.add('win'));
+        }
+        setTimeout(onDone, 700);
       }
     }
     requestAnimationFrame(frame);
@@ -1545,15 +1628,15 @@
 
   async function wheelSpin() {
     if (wheelSpinning) return;
-    if (!initData) {
-      showToast('❌ Открой приложение через Telegram');
-      return;
-    }
+    if (!initData) { showToast('❌ Открой приложение через Telegram'); return; }
 
     wheelSpinning = true;
     const btn = document.getElementById('wheel-spin-btn');
     btn.disabled = true;
-    btn.textContent = '⏳ Крутится...';
+    btn.textContent = '⏳ Открываем...';
+
+    // Снимаем старую подсветку
+    document.querySelectorAll('.case-card.win').forEach(c => c.classList.remove('win'));
 
     // Запрос к API
     let apiResult;
@@ -1567,62 +1650,75 @@
       showToast('❌ Ошибка сети. Попробуй ещё раз.');
       wheelSpinning = false;
       btn.disabled = false;
-      btn.textContent = '🎡 Крутить!';
+      btn.textContent = '🎁 Открыть кейс';
       return;
     }
 
-    // Если API вернул ошибку — сбрасываем UI без анимации
     if (!apiResult.ok) {
       wheelSpinning = false;
       btn.disabled = false;
       if (apiResult.seconds_left) {
         applyWheelCooldown(apiResult.seconds_left);
-        btn.textContent = '⏳ Уже крутил';
+        btn.textContent = '⏳ Уже открывал';
       } else {
-        btn.textContent = '🎡 Крутить!';
+        btn.textContent = '🎁 Открыть кейс';
         showToast('❌ ' + (apiResult.error || 'Ошибка'));
       }
       return;
     }
 
-    const spinRounds = 5;
-    const ANIM_MS = 4000;
+    const winIdx = (Number.isInteger(apiResult.segment_index) &&
+                    apiResult.segment_index >= 0 &&
+                    apiResult.segment_index < CASE_ITEMS.length)
+                     ? apiResult.segment_index : 0;
 
-    // Вычисляем целевой угол
-    const segIdx = apiResult.segment_index;
-    // Стрелка сверху → 270° = -π/2. Центр сегмента segIdx = segIdx * SEG_ANGLE + SEG_ANGLE/2
-    // Нужно: angle + segIdx*SEG_ANGLE + SEG_ANGLE/2 = 3π/2  (270°)
-    const targetSegCenter = (3 * Math.PI / 2) - (segIdx * SEG_ANGLE + SEG_ANGLE / 2);
-    const targetAngle = wheelAngle + spinRounds * 2 * Math.PI + ((targetSegCenter - wheelAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+    // Строим ленту с нужной победной карточкой на позиции WIN_POS
+    buildStrip(winIdx);
 
-    animateSpin(targetAngle, ANIM_MS, () => {
+    const outer = document.getElementById('case-strip-outer');
+    const W     = outer.offsetWidth;
+    const strip = document.getElementById('case-strip');
+
+    // fromX — карточка 3 по центру (начальный вид)
+    const fromX = W / 2 - 3 * CARD_W - CARD_W / 2;
+    // toX   — победная карточка строго по центру
+    const toX   = W / 2 - WIN_POS * CARD_W - CARD_W / 2;
+
+    strip.style.transition = 'none';
+    strip.style.transform  = `translateX(${fromX}px)`;
+    strip.getBoundingClientRect(); // принудительный reflow
+
+    // Запускаем анимацию (~5 сек, CS:GO-стиль)
+    animateStrip(fromX, toX, 5200, () => {
       wheelSpinning = false;
       showWheelResult(apiResult);
-      loadWheelStatus(); // обновляем таймер и промокоды
+      loadWheelStatus();
     });
   }
 
   function showWheelResult(result) {
-    const modal = document.getElementById('wheel-result-modal');
-    const icon  = document.getElementById('result-icon');
-    const title = document.getElementById('result-title');
-    const sub   = document.getElementById('result-sub');
+    const modal     = document.getElementById('wheel-result-modal');
+    const iconEl    = document.getElementById('result-icon');
+    const titleEl   = document.getElementById('result-title');
+    const subEl     = document.getElementById('result-sub');
     const promoBox  = document.getElementById('result-promo-box');
     const promoCode = document.getElementById('result-promo-code');
     const promoExp  = document.getElementById('result-promo-expires');
 
     if (result.discount === 0) {
-      icon.textContent = '😔';
-      title.textContent = 'Не повезло...';
-      sub.textContent = 'В этот раз без выигрыша. Попробуй снова через 24 часа!';
+      iconEl.textContent = '😔';
+      titleEl.textContent = 'Не повезло...';
+      titleEl.classList.remove('win');
+      subEl.textContent = 'В этот раз без выигрыша. Попробуй снова через 24 часа!';
       promoBox.style.display = 'none';
     } else {
-      icon.textContent = '🎉';
-      title.textContent = `Скидка ${result.discount}%!`;
-      sub.textContent = `Поздравляем! Используй промокод при следующем заказе.\nПромокод также отправлен тебе в Telegram.`;
+      iconEl.textContent = '🎉';
+      titleEl.textContent = `Поздравляем! Скидка ${result.discount}%`;
+      titleEl.classList.add('win');
+      subEl.textContent = 'Промокод действует 3 дня. Используй при следующем заказе — скидка применится автоматически!';
       promoBox.style.display = 'block';
-      promoCode.textContent = result.promo.code;
-      promoExp.textContent = `Действует до: ${result.promo.expires_at}`;
+      promoCode.textContent  = result.promo.code;
+      promoExp.textContent   = `Действует до: ${result.promo.expires_at}`;
       currentPromoCode = result.promo.code;
     }
     modal.classList.add('show');
@@ -1635,7 +1731,7 @@
 
   function copyPromoCode() {
     if (!currentPromoCode) return;
-    const el = document.querySelector('.promo-copy');
+    const el = document.querySelector('.case-promo-copy');
     navigator.clipboard.writeText(currentPromoCode).then(() => {
       const orig = el.textContent;
       el.textContent = '✅ Скопировано!';
@@ -1650,30 +1746,29 @@
       const data = await res.json();
       if (!data.ok) return;
 
-      const btn = document.getElementById('wheel-spin-btn');
+      const btn        = document.getElementById('wheel-spin-btn');
       const cooldownEl = document.getElementById('wheel-cooldown');
 
       if (data.can_spin) {
         btn.disabled = false;
-        btn.textContent = '🎡 Крутить!';
+        btn.textContent = '🎁 Открыть кейс';
         cooldownEl.classList.remove('show');
         clearInterval(wheelCooldownInterval);
       } else {
         btn.disabled = true;
-        btn.textContent = '⏳ Уже крутил';
+        btn.textContent = '⏳ Уже открывал';
         applyWheelCooldown(data.seconds_left);
       }
 
-      // Промокоды
       renderActivePromos(data.promos || []);
     } catch (e) {}
   }
 
   function applyWheelCooldown(seconds) {
-    const btn = document.getElementById('wheel-spin-btn');
+    const btn        = document.getElementById('wheel-spin-btn');
     const cooldownEl = document.getElementById('wheel-cooldown');
     btn.disabled = true;
-    btn.textContent = '⏳ Уже крутил';
+    btn.textContent = '⏳ Уже открывал';
     cooldownEl.classList.add('show');
 
     clearInterval(wheelCooldownInterval);
@@ -1688,7 +1783,7 @@
         clearInterval(wheelCooldownInterval);
         cooldownEl.classList.remove('show');
         btn.disabled = false;
-        btn.textContent = '🎡 Крутить!';
+        btn.textContent = '🎁 Открыть кейс';
       }
       left--;
     };
@@ -1705,20 +1800,26 @@
       </div>`;
       return;
     }
-    el.innerHTML = `<div class="promo-list">${promos.map(p => `
-      <div class="promo-item">
-        <div class="promo-item-code">${escHtml(p.code)}</div>
-        <div class="promo-item-info">🏷 Скидка ${p.discount}% &nbsp;•&nbsp; ⏳ До ${escHtml(p.expires_at)}</div>
-        <div class="promo-item-copy" onclick="copyItemPromo('${escHtml(p.code)}', this)">📋 Скопировать</div>
+
+    el.innerHTML = `<div class="case-promo-list">${promos.map(p => `
+      <div class="case-promo-item">
+        <div class="case-promo-item-code">${escHtml(p.code)}</div>
+        <div class="case-promo-item-info">🏷 Скидка ${p.discount}% &nbsp;•&nbsp; ⏳ До ${escHtml(p.expires_at)}</div>
+        <button class="case-promo-item-copy" type="button" data-code="${escHtml(p.code)}">📋 Скопировать</button>
       </div>`).join('')}
     </div>`;
-  }
 
-  function copyItemPromo(code, el) {
-    navigator.clipboard.writeText(code).then(() => {
-      const orig = el.textContent;
-      el.textContent = '✅ Скопировано!';
-      setTimeout(() => el.textContent = orig, 2000);
+    // Привязываем события программно — без inline JS (защита от XSS)
+    el.querySelectorAll('.case-promo-item-copy').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const code = this.dataset.code;
+        if (!code) return;
+        navigator.clipboard.writeText(code).then(() => {
+          const orig = this.textContent;
+          this.textContent = '✅ Скопировано!';
+          setTimeout(() => this.textContent = orig, 2000);
+        });
+      });
     });
   }
 </script>
