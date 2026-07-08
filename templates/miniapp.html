@@ -1228,12 +1228,12 @@
   <div class="section" style="margin-top:20px">
     <div class="section-label" style="color:rgba(0,255,196,.65)">Шансы выпадения</div>
     <div style="display:flex;flex-direction:column;gap:7px">
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(224,224,224,.3)"><span>— Без выигрыша</span><span>40%</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(224,224,224,.6)"><span>Скидка 5%</span><span>25%</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(0,255,196,.65)"><span>Скидка 10%</span><span>15%</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(0,255,196,.82)"><span>Скидка 15%</span><span>10%</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(0,255,196,.92)"><span>Скидка 20%</span><span>7%</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:#00ffc4;font-weight:700"><span>✦ Скидка 25%</span><span>3%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(224,224,224,.3)"><span>— Без выигрыша</span><span>60%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(224,224,224,.6)"><span>Скидка 5%</span><span>22%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(0,255,196,.65)"><span>Скидка 10%</span><span>10%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(0,255,196,.82)"><span>Скидка 15%</span><span>5%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(0,255,196,.92)"><span>Скидка 20%</span><span>2%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#00ffc4;font-weight:700"><span>✦ Скидка 25%</span><span>1%</span></div>
     </div>
   </div>
 
@@ -1754,11 +1754,11 @@
   // Случайный индекс по тем же шансам, что и на сервере (для заполнения фона ленты)
   function randomItemIdx() {
     const r = Math.random() * 100;
-    if (r < 40) return 0;
-    if (r < 65) return 1;
-    if (r < 80) return 2;
-    if (r < 90) return 3;
-    if (r < 97) return 4;
+    if (r < 60) return 0;
+    if (r < 82) return 1;
+    if (r < 92) return 2;
+    if (r < 97) return 3;
+    if (r < 99) return 4;
     return 5;
   }
 

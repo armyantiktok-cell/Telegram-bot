@@ -39,12 +39,12 @@ BACKUP_DIR.mkdir(exist_ok=True)
 WHEEL_COOLDOWN = 24 * 3600  # 24 часа
 
 WHEEL_SEGMENTS = [
-    {"label": "Без выигрыша", "discount": 0,  "weight": 40},
-    {"label": "Скидка 5%",    "discount": 5,  "weight": 25},
-    {"label": "Скидка 10%",   "discount": 10, "weight": 15},
-    {"label": "Скидка 15%",   "discount": 15, "weight": 10},
-    {"label": "Скидка 20%",   "discount": 20, "weight": 7},
-    {"label": "Скидка 25%",   "discount": 25, "weight": 3},
+    {"label": "Без выигрыша", "discount": 0,  "weight": 60},
+    {"label": "Скидка 5%",    "discount": 5,  "weight": 22},
+    {"label": "Скидка 10%",   "discount": 10, "weight": 10},
+    {"label": "Скидка 15%",   "discount": 15, "weight": 5},
+    {"label": "Скидка 20%",   "discount": 20, "weight": 2},
+    {"label": "Скидка 25%",   "discount": 25, "weight": 1},
 ]
 
 
