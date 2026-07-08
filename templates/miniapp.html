@@ -386,6 +386,107 @@
 
     .spacer { height: 16px; }
     .spacer-sm { height: 8px; }
+
+    /* ─── Wheel Screen ─── */
+    .wheel-header {
+      background: linear-gradient(180deg, #1a0a2e 0%, #0a0a0a 100%);
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid rgba(180,100,255,.2);
+      text-align: center;
+    }
+    .wheel-header h1 {
+      font-size: 22px; font-weight: 800; line-height: 1.2;
+      background: linear-gradient(90deg, #fff 0%, #c084fc 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      font-family: 'Chakra Petch', sans-serif;
+    }
+    .wheel-header p { font-size: 13px; color: rgba(255,255,255,.7); margin-top: 6px; }
+
+    .wheel-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 24px 20px 0;
+    }
+    .wheel-pointer {
+      font-size: 32px; line-height: 1; margin-bottom: -6px; z-index: 2;
+      filter: drop-shadow(0 0 8px rgba(192,132,252,.8));
+    }
+    .wheel-canvas-wrap {
+      position: relative; width: 280px; height: 280px;
+    }
+    #wheel-canvas {
+      width: 280px; height: 280px; display: block;
+      filter: drop-shadow(0 0 20px rgba(192,132,252,.4));
+    }
+
+    .wheel-btn-wrap { padding: 20px 20px 0; width: 100%; }
+    .btn-wheel {
+      width: 100%; border: none; border-radius: 14px; padding: 16px;
+      font-size: 16px; font-weight: 800; cursor: pointer; letter-spacing: .3px;
+      background: linear-gradient(135deg, #c084fc, #7c3aed);
+      color: #fff; box-shadow: 0 4px 20px rgba(124,58,237,.4);
+      transition: opacity .15s;
+    }
+    .btn-wheel:active { opacity: .8; }
+    .btn-wheel:disabled { opacity: .5; cursor: not-allowed; }
+
+    .wheel-cooldown {
+      text-align: center; font-size: 13px; color: rgba(255,255,255,.6);
+      padding: 10px 20px; display: none;
+    }
+    .wheel-cooldown.show { display: block; }
+    .wheel-cooldown b { color: #c084fc; }
+
+    /* Result modal */
+    .wheel-result {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,.85);
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .wheel-result.show { display: flex; }
+    .wheel-result-card {
+      background: linear-gradient(135deg, #1a0a2e 0%, #130d20 100%);
+      border: 1.5px solid rgba(192,132,252,.4);
+      border-radius: 24px; padding: 32px 24px; max-width: 340px; width: 100%;
+      text-align: center; position: relative;
+    }
+    .result-icon { font-size: 56px; margin-bottom: 12px; }
+    .result-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px;
+      font-family: 'Chakra Petch', sans-serif; }
+    .result-sub { font-size: 14px; color: rgba(255,255,255,.7); margin-bottom: 20px; line-height: 1.5; }
+
+    .promo-box {
+      background: rgba(192,132,252,.1); border: 1.5px solid rgba(192,132,252,.4);
+      border-radius: 14px; padding: 16px; margin-bottom: 20px;
+    }
+    .promo-label { font-size: 11px; font-weight: 700; color: rgba(192,132,252,.8);
+      letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .promo-code {
+      font-size: 22px; font-weight: 800; color: #c084fc; letter-spacing: 3px;
+      font-family: monospace; word-break: break-all;
+    }
+    .promo-expires { font-size: 11px; color: rgba(255,255,255,.5); margin-top: 6px; }
+    .promo-copy {
+      display: inline-block; margin-top: 10px; font-size: 12px;
+      color: #c084fc; cursor: pointer; border: 1px solid rgba(192,132,252,.3);
+      border-radius: 6px; padding: 5px 14px;
+    }
+    .promo-copy:active { background: rgba(192,132,252,.1); }
+
+    /* Active promos list */
+    .promo-list { display: flex; flex-direction: column; gap: 10px; padding: 0 20px; }
+    .promo-item {
+      background: rgba(192,132,252,.07); border: 1px solid rgba(192,132,252,.25);
+      border-radius: 12px; padding: 14px;
+    }
+    .promo-item-code { font-size: 16px; font-weight: 800; color: #c084fc;
+      font-family: monospace; letter-spacing: 2px; }
+    .promo-item-info { font-size: 12px; color: rgba(255,255,255,.6); margin-top: 4px; }
+    .promo-item-copy {
+      display: inline-block; margin-top: 8px; font-size: 11px;
+      color: #c084fc; cursor: pointer; border: 1px solid rgba(192,132,252,.3);
+      border-radius: 6px; padding: 3px 10px;
+    }
   </style>
 </head>
 <body>
@@ -399,6 +500,9 @@
   </button>
   <button class="nav-tab" id="nav-orders" onclick="navTo('orders')">
     <span class="nav-icon">📦</span>Заказы
+  </button>
+  <button class="nav-tab" id="nav-wheel" onclick="navTo('wheel')">
+    <span class="nav-icon">🎡</span>Бонус
   </button>
   <button class="nav-tab" id="nav-profile" onclick="navTo('profile')">
     <span class="nav-icon">👤</span>Профиль
@@ -735,6 +839,70 @@
   </div>
 </div>
 
+<!-- ═══════════════ SCREEN: WHEEL ═══════════════ -->
+<div class="screen" id="screen-wheel">
+  <div class="wheel-header">
+    <h1>🎡 Колесо фортуны</h1>
+    <p>Один бесплатный запуск каждые 24 часа</p>
+  </div>
+
+  <div class="wheel-wrap">
+    <div class="wheel-pointer">▼</div>
+    <div class="wheel-canvas-wrap">
+      <canvas id="wheel-canvas" width="560" height="560"></canvas>
+    </div>
+  </div>
+
+  <div class="wheel-btn-wrap">
+    <button class="btn-wheel" id="wheel-spin-btn" onclick="wheelSpin()">🎡 Крутить!</button>
+  </div>
+  <div class="wheel-cooldown" id="wheel-cooldown">
+    ⏳ Следующий запуск через <b id="wheel-timer">—</b>
+  </div>
+
+  <div class="section" style="margin-top:20px">
+    <div class="section-label" style="color:rgba(192,132,252,.8)">Шансы выигрыша</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.7)"><span>❌ Без выигрыша</span><span>40%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.7)"><span>🟢 Скидка 5%</span><span>25%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.7)"><span>🟩 Скидка 10%</span><span>15%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.7)"><span>🔵 Скидка 15%</span><span>10%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.7)"><span>💜 Скидка 20%</span><span>7%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,.7)"><span>🌟 Скидка 25%</span><span>3%</span></div>
+    </div>
+  </div>
+
+  <div class="section" style="margin-top:20px">
+    <div class="section-label" style="color:rgba(192,132,252,.8)">Мои активные промокоды</div>
+    <div id="wheel-promos-list">
+      <div class="empty-state" style="padding:20px 0">
+        <div class="empty-state-icon">🎟</div>
+        <div class="empty-state-text" style="font-size:13px">Пока нет активных промокодов</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+</div>
+
+<!-- Wheel result modal -->
+<div class="wheel-result" id="wheel-result-modal">
+  <div class="wheel-result-card">
+    <div class="result-icon" id="result-icon">🎡</div>
+    <div class="result-title" id="result-title">—</div>
+    <div class="result-sub" id="result-sub">—</div>
+    <div class="promo-box" id="result-promo-box" style="display:none">
+      <div class="promo-label">Твой промокод</div>
+      <div class="promo-code" id="result-promo-code">—</div>
+      <div class="promo-expires" id="result-promo-expires">—</div>
+      <div class="promo-copy" onclick="copyPromoCode()">📋 Скопировать</div>
+    </div>
+    <button class="btn btn-primary" onclick="closeWheelResult()" style="background:linear-gradient(135deg,#c084fc,#7c3aed);box-shadow:0 4px 20px rgba(124,58,237,.4)">
+      Отлично! ✓
+    </button>
+  </div>
+</div>
+
 <!-- ═══════════════ SCREEN: ADMIN ORDERS ═══════════════ -->
 <div class="screen" id="screen-admin-orders">
   <div class="admin-header">
@@ -831,6 +999,10 @@
     } else if (section === 'orders') {
       showScreen('screen-my-orders');
       loadMyOrders();
+    } else if (section === 'wheel') {
+      showScreen('screen-wheel');
+      initWheel();
+      loadWheelStatus();
     } else if (section === 'admin') {
       showScreen('screen-admin-orders');
       switchAdminTab('orders');
@@ -1103,6 +1275,306 @@
 
   function escHtml(str) {
     return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ═══════════════ WHEEL ═══════════════
+
+  const WHEEL_SEGS = [
+    { label: 'Без выигрыша', emoji: '❌', color: '#2a2a3a', textColor: '#aaa' },
+    { label: 'Скидка 5%',    emoji: '🟢', color: '#0d3322', textColor: '#4ade80' },
+    { label: 'Скидка 10%',   emoji: '🟩', color: '#0a2e1e', textColor: '#00ffc4' },
+    { label: 'Скидка 15%',   emoji: '🔵', color: '#0a1e30', textColor: '#60a5fa' },
+    { label: 'Скидка 20%',   emoji: '💜', color: '#1a0a2e', textColor: '#c084fc' },
+    { label: 'Скидка 25%',   emoji: '🌟', color: '#2e1f00', textColor: '#fbbf24' },
+  ];
+  const SEG_COUNT = WHEEL_SEGS.length;
+  const SEG_ANGLE = (2 * Math.PI) / SEG_COUNT;   // 60°
+
+  let wheelAngle = 0;          // текущий угол (радианы)
+  let wheelSpinning = false;
+  let wheelCooldownInterval = null;
+  let currentPromoCode = null;
+
+  function initWheel() {
+    drawWheel(wheelAngle);
+  }
+
+  function drawWheel(angle) {
+    const canvas = document.getElementById('wheel-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const cx = W / 2, cy = H / 2;
+    const R = W / 2 - 12;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Тень под колесом
+    ctx.save();
+    ctx.shadowColor = 'rgba(192,132,252,0.35)';
+    ctx.shadowBlur = 40;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+    ctx.fillStyle = '#111';
+    ctx.fill();
+    ctx.restore();
+
+    for (let i = 0; i < SEG_COUNT; i++) {
+      const startA = angle + i * SEG_ANGLE - Math.PI / 2;
+      const endA   = startA + SEG_ANGLE;
+      const seg    = WHEEL_SEGS[i];
+
+      // Сегмент
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, R, startA, endA);
+      ctx.closePath();
+      ctx.fillStyle = seg.color;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Текст
+      ctx.save();
+      const midA = startA + SEG_ANGLE / 2;
+      const tx = cx + (R * 0.65) * Math.cos(midA);
+      const ty = cy + (R * 0.65) * Math.sin(midA);
+      ctx.translate(tx, ty);
+      ctx.rotate(midA + Math.PI / 2);
+      ctx.fillStyle = seg.textColor;
+      ctx.font = 'bold 22px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(seg.emoji, 0, 0);
+      ctx.font = 'bold 18px Chakra Petch, sans-serif';
+      ctx.textBaseline = 'top';
+      const shortLabel = seg.label.replace('Без выигрыша', '✕').replace('Скидка ', '');
+      ctx.fillText(shortLabel, 0, 4);
+      ctx.restore();
+    }
+
+    // Центральный круг
+    ctx.beginPath();
+    ctx.arc(cx, cy, 28, 0, 2 * Math.PI);
+    const grad = ctx.createRadialGradient(cx, cy, 4, cx, cy, 28);
+    grad.addColorStop(0, '#c084fc');
+    grad.addColorStop(1, '#7c3aed');
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Иконка в центре
+    ctx.font = '20px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🎡', cx, cy);
+  }
+
+  // Easing: ease-out cubic
+  function easeOut(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function animateSpin(targetAngle, duration, onDone) {
+    const startAngle = wheelAngle;
+    const startTime = performance.now();
+
+    function frame(now) {
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      wheelAngle = startAngle + (targetAngle - startAngle) * easeOut(t);
+      drawWheel(wheelAngle);
+      if (t < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        wheelAngle = targetAngle % (2 * Math.PI);
+        drawWheel(wheelAngle);
+        onDone();
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  async function wheelSpin() {
+    if (wheelSpinning) return;
+    if (!initData) {
+      showToast('❌ Открой приложение через Telegram');
+      return;
+    }
+
+    wheelSpinning = true;
+    const btn = document.getElementById('wheel-spin-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Крутится...';
+
+    // Запрос к API
+    let apiResult;
+    try {
+      const resp = await fetch('/api/wheel/spin', {
+        method: 'POST',
+        headers: { 'X-Init-Data': initData },
+      });
+      apiResult = await resp.json();
+    } catch (e) {
+      showToast('❌ Ошибка сети. Попробуй ещё раз.');
+      wheelSpinning = false;
+      btn.disabled = false;
+      btn.textContent = '🎡 Крутить!';
+      return;
+    }
+
+    // Если API вернул ошибку — сбрасываем UI без анимации
+    if (!apiResult.ok) {
+      wheelSpinning = false;
+      btn.disabled = false;
+      if (apiResult.seconds_left) {
+        applyWheelCooldown(apiResult.seconds_left);
+        btn.textContent = '⏳ Уже крутил';
+      } else {
+        btn.textContent = '🎡 Крутить!';
+        showToast('❌ ' + (apiResult.error || 'Ошибка'));
+      }
+      return;
+    }
+
+    const spinRounds = 5;
+    const ANIM_MS = 4000;
+
+    // Вычисляем целевой угол
+    const segIdx = apiResult.segment_index;
+    // Стрелка сверху → 270° = -π/2. Центр сегмента segIdx = segIdx * SEG_ANGLE + SEG_ANGLE/2
+    // Нужно: angle + segIdx*SEG_ANGLE + SEG_ANGLE/2 = 3π/2  (270°)
+    const targetSegCenter = (3 * Math.PI / 2) - (segIdx * SEG_ANGLE + SEG_ANGLE / 2);
+    const targetAngle = wheelAngle + spinRounds * 2 * Math.PI + ((targetSegCenter - wheelAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+
+    animateSpin(targetAngle, ANIM_MS, () => {
+      wheelSpinning = false;
+      showWheelResult(apiResult);
+      loadWheelStatus(); // обновляем таймер и промокоды
+    });
+  }
+
+  function showWheelResult(result) {
+    const modal = document.getElementById('wheel-result-modal');
+    const icon  = document.getElementById('result-icon');
+    const title = document.getElementById('result-title');
+    const sub   = document.getElementById('result-sub');
+    const promoBox  = document.getElementById('result-promo-box');
+    const promoCode = document.getElementById('result-promo-code');
+    const promoExp  = document.getElementById('result-promo-expires');
+
+    if (result.discount === 0) {
+      icon.textContent = '😔';
+      title.textContent = 'Не повезло...';
+      sub.textContent = 'В этот раз без выигрыша. Попробуй снова через 24 часа!';
+      promoBox.style.display = 'none';
+    } else {
+      icon.textContent = '🎉';
+      title.textContent = `Скидка ${result.discount}%!`;
+      sub.textContent = `Поздравляем! Используй промокод при следующем заказе.\nПромокод также отправлен тебе в Telegram.`;
+      promoBox.style.display = 'block';
+      promoCode.textContent = result.promo.code;
+      promoExp.textContent = `Действует до: ${result.promo.expires_at}`;
+      currentPromoCode = result.promo.code;
+    }
+    modal.classList.add('show');
+  }
+
+  function closeWheelResult() {
+    document.getElementById('wheel-result-modal').classList.remove('show');
+    currentPromoCode = null;
+  }
+
+  function copyPromoCode() {
+    if (!currentPromoCode) return;
+    const el = document.querySelector('.promo-copy');
+    navigator.clipboard.writeText(currentPromoCode).then(() => {
+      const orig = el.textContent;
+      el.textContent = '✅ Скопировано!';
+      setTimeout(() => el.textContent = orig, 2000);
+    });
+  }
+
+  async function loadWheelStatus() {
+    if (!initData) return;
+    try {
+      const res  = await fetch('/api/wheel/status', { headers: { 'X-Init-Data': initData } });
+      const data = await res.json();
+      if (!data.ok) return;
+
+      const btn = document.getElementById('wheel-spin-btn');
+      const cooldownEl = document.getElementById('wheel-cooldown');
+
+      if (data.can_spin) {
+        btn.disabled = false;
+        btn.textContent = '🎡 Крутить!';
+        cooldownEl.classList.remove('show');
+        clearInterval(wheelCooldownInterval);
+      } else {
+        btn.disabled = true;
+        btn.textContent = '⏳ Уже крутил';
+        applyWheelCooldown(data.seconds_left);
+      }
+
+      // Промокоды
+      renderActivePromos(data.promos || []);
+    } catch (e) {}
+  }
+
+  function applyWheelCooldown(seconds) {
+    const btn = document.getElementById('wheel-spin-btn');
+    const cooldownEl = document.getElementById('wheel-cooldown');
+    btn.disabled = true;
+    btn.textContent = '⏳ Уже крутил';
+    cooldownEl.classList.add('show');
+
+    clearInterval(wheelCooldownInterval);
+    let left = seconds;
+    const update = () => {
+      const h = Math.floor(left / 3600);
+      const m = Math.floor((left % 3600) / 60);
+      const s = left % 60;
+      document.getElementById('wheel-timer').textContent =
+        h > 0 ? `${h}ч ${m}м` : `${m}м ${s}с`;
+      if (left <= 0) {
+        clearInterval(wheelCooldownInterval);
+        cooldownEl.classList.remove('show');
+        btn.disabled = false;
+        btn.textContent = '🎡 Крутить!';
+      }
+      left--;
+    };
+    update();
+    wheelCooldownInterval = setInterval(update, 1000);
+  }
+
+  function renderActivePromos(promos) {
+    const el = document.getElementById('wheel-promos-list');
+    if (!promos.length) {
+      el.innerHTML = `<div class="empty-state" style="padding:20px 0">
+        <div class="empty-state-icon">🎟</div>
+        <div class="empty-state-text" style="font-size:13px">Пока нет активных промокодов</div>
+      </div>`;
+      return;
+    }
+    el.innerHTML = `<div class="promo-list">${promos.map(p => `
+      <div class="promo-item">
+        <div class="promo-item-code">${escHtml(p.code)}</div>
+        <div class="promo-item-info">🏷 Скидка ${p.discount}% &nbsp;•&nbsp; ⏳ До ${escHtml(p.expires_at)}</div>
+        <div class="promo-item-copy" onclick="copyItemPromo('${escHtml(p.code)}', this)">📋 Скопировать</div>
+      </div>`).join('')}
+    </div>`;
+  }
+
+  function copyItemPromo(code, el) {
+    navigator.clipboard.writeText(code).then(() => {
+      const orig = el.textContent;
+      el.textContent = '✅ Скопировано!';
+      setTimeout(() => el.textContent = orig, 2000);
+    });
   }
 </script>
 </body>

@@ -6,9 +6,15 @@ import json
 import time
 import uuid
 import httpx
+import sqlite3
+import shutil
+import threading
+import random
+import string
 from contextlib import contextmanager
 from pathlib import Path
 from urllib.parse import parse_qsl
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
@@ -24,6 +30,102 @@ DATA_DIR = Path("data")
 DATA_DIR.mkdir(exist_ok=True)
 ORDERS_FILE = DATA_DIR / "orders.json"
 PRICES_FILE = DATA_DIR / "prices.json"
+
+# ─── SQLite (колесо, промокоды) ───────────────────────────────────────────────
+DB_FILE = DATA_DIR / "miniapp.db"
+BACKUP_DIR = DATA_DIR / "backups"
+BACKUP_DIR.mkdir(exist_ok=True)
+
+WHEEL_COOLDOWN = 24 * 3600  # 24 часа
+
+WHEEL_SEGMENTS = [
+    {"label": "Без выигрыша", "discount": 0,  "weight": 40},
+    {"label": "Скидка 5%",    "discount": 5,  "weight": 25},
+    {"label": "Скидка 10%",   "discount": 10, "weight": 15},
+    {"label": "Скидка 15%",   "discount": 15, "weight": 10},
+    {"label": "Скидка 20%",   "discount": 20, "weight": 7},
+    {"label": "Скидка 25%",   "discount": 25, "weight": 3},
+]
+
+
+def get_db():
+    conn = sqlite3.connect(str(DB_FILE), check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db():
+    with get_db() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS wheel_spins (
+                user_id INTEGER PRIMARY KEY,
+                last_spin TEXT NOT NULL
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS wheel_promos (
+                code TEXT PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                discount INTEGER NOT NULL,
+                created_at TEXT NOT NULL,
+                expires_at TEXT NOT NULL,
+                used INTEGER NOT NULL DEFAULT 0
+            )
+        """)
+        conn.commit()
+
+
+def backup_db():
+    if not DB_FILE.exists():
+        return
+    ts = datetime.now().strftime("%Y-%m-%d_%H_%M")
+    dst = BACKUP_DIR / f"miniapp_{ts}.db"
+    # Используем SQLite online-backup API — безопасно при активных записях
+    src_conn = sqlite3.connect(str(DB_FILE))
+    dst_conn = sqlite3.connect(str(dst))
+    try:
+        src_conn.backup(dst_conn)
+    finally:
+        dst_conn.close()
+        src_conn.close()
+    # Оставляем только последние 24 бэкапа
+    backups = sorted(BACKUP_DIR.glob("miniapp_*.db"))
+    for old in backups[:-24]:
+        try:
+            old.unlink()
+        except Exception:
+            pass
+
+
+def _backup_loop():
+    while True:
+        time.sleep(3600)
+        try:
+            backup_db()
+        except Exception as e:
+            print(f"[backup] Ошибка: {e}")
+
+
+# Инициализация при старте
+init_db()
+backup_db()
+threading.Thread(target=_backup_loop, daemon=True, name="db-backup").start()
+
+
+def _spin_result():
+    total = sum(s["weight"] for s in WHEEL_SEGMENTS)
+    r = random.randint(1, total)
+    cumulative = 0
+    for seg in WHEEL_SEGMENTS:
+        cumulative += seg["weight"]
+        if r <= cumulative:
+            return seg
+    return WHEEL_SEGMENTS[0]
+
+
+def _gen_promo_code(discount: int) -> str:
+    suffix = "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    return f"WHEEL{discount}-{suffix}"
 
 
 ORDERS_LOCK_FILE = DATA_DIR / "orders.lock"
@@ -274,6 +376,155 @@ def create_order():
             print(f"Ошибка уведомления: {e}")
 
     return jsonify({"ok": True, "order_id": order["id"]})
+
+
+# ─── Wheel API ───────────────────────────────────────────────────────────────
+
+@app.route("/api/wheel/status", methods=["GET"])
+def wheel_status():
+    init_data = request.headers.get("X-Init-Data", "")
+    user = verify_init_data(init_data)
+    if not user:
+        return jsonify({"ok": False, "error": "Открой приложение через Telegram"}), 401
+    user_id = int(user.get("id", 0))
+    now_ts = time.time()
+
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT last_spin FROM wheel_spins WHERE user_id = ?", (user_id,)
+        ).fetchone()
+        can_spin = True
+        seconds_left = 0
+        if row:
+            last_ts = datetime.fromisoformat(row["last_spin"]).timestamp()
+            elapsed = now_ts - last_ts
+            if elapsed < WHEEL_COOLDOWN:
+                can_spin = False
+                seconds_left = int(WHEEL_COOLDOWN - elapsed)
+
+        now_iso = datetime.now().isoformat()
+        promos = conn.execute(
+            "SELECT code, discount, expires_at FROM wheel_promos "
+            "WHERE user_id = ? AND used = 0 AND expires_at > ?",
+            (user_id, now_iso),
+        ).fetchall()
+
+    return jsonify({
+        "ok": True,
+        "can_spin": can_spin,
+        "seconds_left": seconds_left,
+        "promos": [
+            {"code": p["code"], "discount": p["discount"], "expires_at": p["expires_at"][:10]}
+            for p in promos
+        ],
+    })
+
+
+@app.route("/api/wheel/spin", methods=["POST"])
+def do_wheel_spin():
+    init_data = request.headers.get("X-Init-Data", "")
+    user = verify_init_data(init_data)
+    if not user:
+        return jsonify({"ok": False, "error": "Открой приложение через Telegram"}), 401
+    user_id = int(user.get("id", 0))
+    now_dt = datetime.now()
+    now_ts = now_dt.timestamp()
+
+    promo_code = None
+    result = None
+    seg_index = 0
+
+    conn = get_db()
+    try:
+        # BEGIN IMMEDIATE — эксклюзивная блокировка записи с самого начала,
+        # исключает race condition при одновременных запросах от одного пользователя
+        conn.execute("BEGIN IMMEDIATE")
+
+        row = conn.execute(
+            "SELECT last_spin FROM wheel_spins WHERE user_id = ?", (user_id,)
+        ).fetchone()
+        if row:
+            last_ts = datetime.fromisoformat(row["last_spin"]).timestamp()
+            if now_ts - last_ts < WHEEL_COOLDOWN:
+                conn.rollback()
+                conn.close()
+                seconds_left = int(WHEEL_COOLDOWN - (now_ts - last_ts))
+                return jsonify({"ok": False, "error": "Ещё рано крутить", "seconds_left": seconds_left}), 429
+
+        result = _spin_result()
+        seg_index = WHEEL_SEGMENTS.index(result)
+
+        conn.execute(
+            "INSERT OR REPLACE INTO wheel_spins (user_id, last_spin) VALUES (?, ?)",
+            (user_id, now_dt.isoformat()),
+        )
+
+        if result["discount"] > 0:
+            code = _gen_promo_code(result["discount"])
+            expires_at = (now_dt + timedelta(days=3)).isoformat()
+            conn.execute(
+                "INSERT INTO wheel_promos (code, user_id, discount, created_at, expires_at) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (code, user_id, result["discount"], now_dt.isoformat(), expires_at),
+            )
+            promo_code = {
+                "code": code,
+                "discount": result["discount"],
+                "expires_at": expires_at[:10],
+            }
+
+        conn.commit()
+    except Exception as e:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        conn.close()
+        print(f"[wheel/spin] Ошибка БД: {e}")
+        return jsonify({"ok": False, "error": "Ошибка сервера"}), 500
+    finally:
+        conn.close()
+
+    # Уведомление в Telegram: и админу и пользователю
+    if promo_code and BOT_TOKEN:
+        user_name = (
+            f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
+            or "Пользователь"
+        )
+        admin_msg = (
+            f"🎡 <b>Колесо фортуны!</b>\n"
+            f"👤 {user_name} (ID: <code>{user_id}</code>) выиграл скидку <b>{promo_code['discount']}%</b>\n"
+            f"🎟 Промокод: <code>{promo_code['code']}</code>\n"
+            f"⏳ Действует до: {promo_code['expires_at']}"
+        )
+        user_msg = (
+            f"🎡 Поздравляем! Ты выиграл скидку <b>{promo_code['discount']}%</b>!\n\n"
+            f"🎟 Твой промокод: <code>{promo_code['code']}</code>\n"
+            f"⏳ Действует до: {promo_code['expires_at']}\n\n"
+            f"Покажи промокод при оформлении заказа в мини-приложении."
+        )
+        try:
+            if ADMIN_ID:
+                httpx.post(
+                    f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                    json={"chat_id": ADMIN_ID, "text": admin_msg, "parse_mode": "HTML"},
+                    timeout=10,
+                )
+            httpx.post(
+                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                json={"chat_id": user_id, "text": user_msg, "parse_mode": "HTML"},
+                timeout=10,
+            )
+        except Exception as e:
+            print(f"[wheel] Ошибка уведомления: {e}")
+
+    return jsonify({
+        "ok": True,
+        "segment_index": seg_index,
+        "discount": result["discount"],
+        "label": result["label"],
+        "promo": promo_code,
+    })
 
 
 if __name__ == "__main__":
