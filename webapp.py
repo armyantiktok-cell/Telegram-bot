@@ -199,18 +199,27 @@ def create_order():
     if not tg_user:
         return jsonify({"ok": False, "error": "Открой приложение через Telegram"}), 401
 
-    data = request.get_json(silent=True) or {}
-    payment_type = data.get("payment_type", "—")
-    tg_tag = data.get("tg_tag", "—").strip()
-    pubg_id = data.get("pubg_id", "").strip()
+    # поддерживаем и multipart/form-data (с файлом), и application/json
+    if request.content_type and "multipart/form-data" in request.content_type:
+        payment_type = request.form.get("payment_type", "—")
+        tg_tag = request.form.get("tg_tag", "—").strip()
+        pubg_id = request.form.get("pubg_id", "").strip()
+        screenshot_file = request.files.get("screenshot")
+    else:
+        data = request.get_json(silent=True) or {}
+        payment_type = data.get("payment_type", "—")
+        tg_tag = data.get("tg_tag", "—").strip()
+        pubg_id = data.get("pubg_id", "").strip()
+        screenshot_file = None
+
+    if not tg_tag or tg_tag == "—":
+        return jsonify({"ok": False, "error": "Telegram тег обязателен"}), 400
+
     user_name = (
         f"{tg_user.get('first_name', '')} {tg_user.get('last_name', '')}".strip()
         or "Неизвестно"
     )
     user_id = str(tg_user.get("id", "—"))
-
-    if not tg_tag or tg_tag == "—":
-        return jsonify({"ok": False, "error": "Telegram тег обязателен"}), 400
 
     prices = load_json(PRICES_FILE, {"uah_price": 800, "uc_price": 1320})
     price_label = (
@@ -237,7 +246,7 @@ def create_order():
         save_json(ORDERS_FILE, orders)
 
     if ADMIN_ID and BOT_TOKEN:
-        lines = [
+        caption_lines = [
             "🆕 <b>Новая заявка (Mini App)!</b>",
             f"🆔 ID: <code>{order['id']}</code>",
             f"👤 Клиент: {user_name} (TG ID: {user_id})",
@@ -245,18 +254,22 @@ def create_order():
             f"✈️ Telegram: <code>{tg_tag}</code>",
         ]
         if pubg_id and payment_type == "UAH":
-            lines.append(f"🎮 PUBG ID: <code>{pubg_id}</code>")
-        lines.append("\n📸 Клиент отправит скриншот оплаты в бот.")
+            caption_lines.append(f"🎮 PUBG ID: <code>{pubg_id}</code>")
+        caption = "\n".join(caption_lines)
         try:
-            httpx.post(
-                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                json={
-                    "chat_id": ADMIN_ID,
-                    "text": "\n".join(lines),
-                    "parse_mode": "HTML",
-                },
-                timeout=10,
-            )
+            if screenshot_file:
+                httpx.post(
+                    f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
+                    data={"chat_id": ADMIN_ID, "caption": caption, "parse_mode": "HTML"},
+                    files={"photo": (screenshot_file.filename, screenshot_file.read(), screenshot_file.content_type)},
+                    timeout=20,
+                )
+            else:
+                httpx.post(
+                    f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                    json={"chat_id": ADMIN_ID, "text": caption, "parse_mode": "HTML"},
+                    timeout=10,
+                )
         except Exception as e:
             print(f"Ошибка уведомления: {e}")
 

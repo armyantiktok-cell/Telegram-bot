@@ -609,8 +609,7 @@
     <div class="notice">
       <div class="notice-title">⚠️ Важно</div>
       <div class="notice-text">
-        После перевода нажми «Я оплатил» и заполни форму.<br>
-        Скриншот квитанции нужно будет прислать в бота отдельным сообщением.
+        После перевода нажми «Я оплатил» и заполни форму — там прикрепишь скриншот квитанции.
       </div>
     </div>
   </div>
@@ -643,8 +642,7 @@
     <div class="notice">
       <div class="notice-title">⚠️ Важно</div>
       <div class="notice-text">
-        После пополнения нажми «Я оплатил» и заполни форму.<br>
-        Скриншот пополнения нужно будет прислать в бота отдельным сообщением.
+        После пополнения нажми «Я оплатил» и заполни форму — там прикрепишь скриншот пополнения.
       </div>
     </div>
   </div>
@@ -681,11 +679,18 @@
       <input class="form-input" id="input-pubgid" type="text" placeholder="Твой PUBG ID" autocomplete="off" />
     </div>
 
-    <div class="notice">
-      <div class="notice-title">📸 Не забудь про скриншот!</div>
-      <div class="notice-text">
-        После отправки формы — напиши в бот и пришли скриншот оплаты / пополнения UC. Это обязательно для подтверждения.
-      </div>
+    <div class="form-group">
+      <label class="form-label">📸 Скриншот оплаты <span style="color:#ff6b6b;font-weight:700">*</span></label>
+      <label id="upload-label" style="
+        display:flex;align-items:center;justify-content:center;gap:10px;
+        width:100%;min-height:80px;border:1.5px dashed rgba(255,180,0,.35);
+        border-radius:12px;cursor:pointer;background:rgba(255,180,0,.04);
+        font-size:14px;color:#888;transition:border-color .2s;
+      ">
+        <span id="upload-text">📎 Прикрепить фото</span>
+        <input type="file" id="input-screenshot" accept="image/*" style="display:none" onchange="onFileSelected(this)" />
+      </label>
+      <div class="error-msg" id="err-screenshot">Прикрепи скриншот оплаты</div>
     </div>
   </div>
   <div class="cta-wrap">
@@ -705,8 +710,8 @@
       Оплата получена. В ближайшее время<br>с тобой свяжутся для согласования времени.
     </div>
     <div class="success-warn">
-      📸 <b>Осталось одно:</b> открой бота и пришли скриншот оплаты / пополнения UC. Без скриншота настройка не начнётся.<br><br>
-      🎙️ Настройка пройдёт в голосовом звонке — подготовь устройство, на котором играешь.
+      🎙️ Настройка пройдёт в голосовом звонке — подготовь устройство, на котором играешь.<br><br>
+      ⏳ В ближайшее время с тобой свяжутся в Telegram для согласования времени.
     </div>
     <button class="btn btn-primary" onclick="closeApp()">Готово ✓</button>
   </div>
@@ -878,17 +883,33 @@
     } catch (e) {}
   }
 
+  // ─── File picker ───
+  function onFileSelected(input) {
+    const label = document.getElementById('upload-label');
+    const text = document.getElementById('upload-text');
+    if (input.files && input.files[0]) {
+      text.textContent = '✅ ' + input.files[0].name;
+      label.style.borderColor = 'rgba(255,180,0,.7)';
+      label.style.background = 'rgba(255,180,0,.08)';
+      document.getElementById('err-screenshot').classList.remove('show');
+    }
+  }
+
   // ─── Submit Order ───
   async function submitOrder() {
     const tgTag = document.getElementById('input-tg').value.trim();
     const errTg = document.getElementById('err-tg');
+    const errScreenshot = document.getElementById('err-screenshot');
     const errSubmit = document.getElementById('err-submit');
     const btn = document.getElementById('submit-btn');
+    const screenshotFile = document.getElementById('input-screenshot').files[0];
 
     errTg.classList.remove('show');
+    errScreenshot.classList.remove('show');
     errSubmit.style.display = 'none';
 
     if (!tgTag) { errTg.classList.add('show'); return; }
+    if (!screenshotFile) { errScreenshot.classList.add('show'); return; }
 
     btn.disabled = true;
     btn.textContent = 'Отправляю...';
@@ -896,14 +917,16 @@
     const pubgId = document.getElementById('input-pubgid').value.trim();
 
     try {
+      const fd = new FormData();
+      fd.append('payment_type', selectedPay);
+      fd.append('tg_tag', tgTag);
+      fd.append('pubg_id', pubgId);
+      fd.append('screenshot', screenshotFile);
+
       const res = await fetch('/api/order', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Init-Data': initData },
-        body: JSON.stringify({
-          payment_type: selectedPay,
-          tg_tag: tgTag,
-          pubg_id: pubgId,
-        }),
+        headers: { 'X-Init-Data': initData },
+        body: fd,
       });
       const data = await res.json();
       if (data.ok) {
