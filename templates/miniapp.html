@@ -18,7 +18,7 @@
         radial-gradient(circle at 100% 30%, rgba(0,255,196,.05) 0%, transparent 40%),
         linear-gradient(180deg, #121212 0%, #0a0a0a 60%);
       background-attachment: fixed;
-      color: #e0e0e0;
+      color: #fff;
       min-height: 100vh;
       max-width: 480px;
       margin: 0 auto;
@@ -66,7 +66,7 @@
     .nav-tab {
       flex: 1; display: flex; flex-direction: column; align-items: center;
       justify-content: center; padding: 10px 4px;
-      color: #555; font-size: 10px; cursor: pointer;
+      color: #fff; font-size: 10px; cursor: pointer;
       transition: color .2s; gap: 4px; border: none; background: none;
     }
     .nav-tab .nav-icon { font-size: 22px; line-height: 1; }
@@ -87,18 +87,18 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 20px; flex-shrink: 0;
     }
-    .logo-text-main { font-size: 15px; font-weight: 700; color: #00ffc4; letter-spacing: .5px; }
-    .logo-text-sub { font-size: 11px; color: #888; letter-spacing: 1px; }
+    .logo-text-main { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: .5px; }
+    .logo-text-sub { font-size: 11px; color: #fff; letter-spacing: 1px; }
     .header h1 {
       font-size: 22px; font-weight: 800; line-height: 1.2;
       background: linear-gradient(90deg, #fff 0%, #00ffc4 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .header p { font-size: 13px; color: #aaa; margin-top: 6px; line-height: 1.5; }
+    .header p { font-size: 13px; color: #fff; margin-top: 6px; line-height: 1.5; }
 
     /* ─── Sections ─── */
     .section { padding: 16px 20px 0; }
-    .section-label { font-size: 11px; font-weight: 700; color: #555; letter-spacing: 1.2px; margin-bottom: 12px; text-transform: uppercase; }
+    .section-label { font-size: 11px; font-weight: 700; color: #fff; letter-spacing: 1.2px; margin-bottom: 12px; text-transform: uppercase; }
 
     /* ─── Price Card ─── */
     .price-card {
@@ -113,17 +113,17 @@
       padding: 5px 14px; border-bottom-left-radius: 12px; letter-spacing: .5px;
     }
     .price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 3px; }
-    .price-amount { font-size: 36px; font-weight: 900; color: #00ffc4; }
-    .price-currency { font-size: 20px; font-weight: 700; color: #00ffc4; }
-    .price-old { font-size: 14px; color: #555; margin-left: 4px; }
-    .price-sub { font-size: 12px; color: #888; margin-bottom: 14px; }
+    .price-amount { font-size: 36px; font-weight: 900; color: #fff; }
+    .price-currency { font-size: 20px; font-weight: 700; color: #fff; }
+    .price-old { font-size: 14px; color: #fff; margin-left: 4px; }
+    .price-sub { font-size: 12px; color: #fff; margin-bottom: 14px; }
     .price-pills { display: flex; gap: 8px; }
     .pill {
       flex: 1; background: rgba(0,255,196,.08); border: 1px solid rgba(0,255,196,.15);
       border-radius: 10px; padding: 10px 6px; text-align: center;
     }
     .pill-icon { font-size: 16px; margin-bottom: 4px; }
-    .pill-label { font-size: 10px; color: #aaa; line-height: 1.3; }
+    .pill-label { font-size: 10px; color: #fff; line-height: 1.3; }
 
     /* ─── Features ─── */
     .feature-list { display: flex; flex-direction: column; gap: 10px; }
@@ -134,7 +134,7 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 12px; margin-top: 1px;
     }
-    .feature-text { font-size: 13px; color: #ccc; line-height: 1.4; }
+    .feature-text { font-size: 13px; color: #fff; line-height: 1.4; }
 
     /* ─── Steps ─── */
     .steps { display: flex; gap: 8px; }
@@ -145,7 +145,7 @@
     }
     .step-icon { font-size: 20px; margin-bottom: 6px; }
     .step-title { font-size: 11px; font-weight: 700; color: #fff; margin-bottom: 3px; }
-    .step-desc { font-size: 10px; color: #666; line-height: 1.3; }
+    .step-desc { font-size: 10px; color: #fff; line-height: 1.3; }
 
     /* ─── Category Cards (shop) ─── */
     .cat-list { display: flex; flex-direction: column; gap: 14px; }
@@ -160,8 +160,8 @@
       transition: transform .15s, border-color .2s;
     }
     .cat-card:active { transform: scale(.98); }
-    .cat-card-title { font-size: 19px; font-weight: 800; color: #00ffc4; margin-bottom: 6px; letter-spacing: .3px; }
-    .cat-card-sub { font-size: 12px; color: #bbb; line-height: 1.5; }
+    .cat-card-title { font-size: 19px; font-weight: 800; color: #fff; margin-bottom: 6px; letter-spacing: .3px; }
+    .cat-card-sub { font-size: 12px; color: #fff; line-height: 1.5; }
     .cat-card-arrow {
       position: absolute; top: 50%; right: 16px; transform: translateY(-50%);
       font-size: 22px; color: rgba(0,255,196,.6);
@@ -172,11 +172,11 @@
         radial-gradient(circle at 85% 20%, rgba(92,255,223,.22) 0%, transparent 55%),
         linear-gradient(135deg, #0f2321 0%, #0c1414 100%);
     }
-    .cat-card.soon .cat-card-title { color: #5cffdf; }
+    .cat-card.soon .cat-card-title { color: #fff; }
     .soon-badge {
       display: inline-block; font-size: 9px; font-weight: 800; letter-spacing: 1px;
       background: rgba(92,255,223,.2); border: 1px solid rgba(92,255,223,.4);
-      color: #5cffdf; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px;
+      color: #fff; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px;
       text-transform: uppercase;
     }
 
@@ -195,8 +195,8 @@
       font-size: 18px;
     }
     .pop-row-name { font-size: 13px; font-weight: 700; color: #fff; }
-    .pop-row-sub { font-size: 11px; color: #777; margin-top: 2px; }
-    .pop-row-price { margin-left: auto; font-size: 14px; font-weight: 800; color: #00ffc4; white-space: nowrap; }
+    .pop-row-sub { font-size: 11px; color: #fff; margin-top: 2px; }
+    .pop-row-price { margin-left: auto; font-size: 14px; font-weight: 800; color: #fff; white-space: nowrap; }
 
     /* ─── Profile ─── */
     .profile-card {
@@ -211,17 +211,17 @@
       font-size: 24px; font-weight: 800; color: #000;
     }
     .profile-name { font-size: 16px; font-weight: 800; color: #fff; }
-    .profile-id { font-size: 12px; color: #666; margin-top: 3px; font-family: monospace; }
+    .profile-id { font-size: 12px; color: #fff; margin-top: 3px; font-family: monospace; }
     .profile-links { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
     .profile-link {
       display: flex; align-items: center; gap: 12px;
       background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
       border-radius: 12px; padding: 14px; cursor: pointer;
-      color: #ddd; font-size: 14px; font-weight: 600;
+      color: #fff; font-size: 14px; font-weight: 600;
       text-decoration: none; transition: border-color .2s;
     }
     .profile-link:active { border-color: rgba(0,255,196,.4); }
-    .profile-link .pl-arrow { margin-left: auto; color: #555; }
+    .profile-link .pl-arrow { margin-left: auto; color: #fff; }
 
     /* ─── CTA ─── */
     .cta-wrap { padding: 20px 20px 28px; }
@@ -237,13 +237,13 @@
     }
     .btn-outline {
       background: transparent; border: 1px solid rgba(0,255,196,.4);
-      color: #00ffc4; font-size: 14px; padding: 12px;
+      color: #fff; font-size: 14px; padding: 12px;
     }
     .btn-danger {
       background: transparent; border: 1px solid rgba(255,80,80,.4);
       color: #ff6b6b; font-size: 14px; padding: 12px;
     }
-    .btn-note { text-align: center; font-size: 12px; color: #555; margin-top: 8px; }
+    .btn-note { text-align: center; font-size: 12px; color: #fff; margin-top: 8px; }
 
     /* ─── Payment Choice ─── */
     .pay-options { display: flex; flex-direction: column; gap: 12px; }
@@ -254,26 +254,26 @@
     .pay-card:hover, .pay-card.selected { border-color: #00ffc4; background: rgba(0,255,196,.06); }
     .pay-card-top { display: flex; justify-content: space-between; align-items: center; }
     .pay-card-name { font-size: 15px; font-weight: 700; }
-    .pay-card-price { font-size: 16px; font-weight: 800; color: #00ffc4; }
-    .pay-card-desc { font-size: 12px; color: #888; margin-top: 5px; }
+    .pay-card-price { font-size: 16px; font-weight: 800; color: #fff; }
+    .pay-card-desc { font-size: 12px; color: #fff; margin-top: 5px; }
 
     /* ─── Requisites ─── */
     .req-box {
       background: rgba(0,255,196,.06); border: 1px solid rgba(0,255,196,.2);
       border-radius: 14px; padding: 16px; margin-bottom: 16px;
     }
-    .req-label { font-size: 12px; color: #888; margin-bottom: 6px; }
-    .req-value { font-size: 18px; font-weight: 800; color: #00ffc4; letter-spacing: 2px; word-break: break-all; }
+    .req-label { font-size: 12px; color: #fff; margin-bottom: 6px; }
+    .req-value { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: 2px; word-break: break-all; }
     .req-copy {
       display: inline-block; margin-top: 8px;
-      font-size: 11px; color: #666; cursor: pointer;
+      font-size: 11px; color: #fff; cursor: pointer;
       border: 1px solid #333; border-radius: 6px; padding: 4px 10px;
     }
     .req-copy:active { background: #222; }
 
     /* ─── Form ─── */
     .form-group { margin-bottom: 14px; }
-    .form-label { display: block; font-size: 13px; color: #ccc; font-weight: 600; margin-bottom: 6px; }
+    .form-label { display: block; font-size: 13px; color: #fff; font-weight: 600; margin-bottom: 6px; }
     .form-input {
       width: 100%;
       background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
@@ -281,15 +281,15 @@
       color: #fff; font-size: 14px; outline: none; transition: border-color .2s;
     }
     .form-input:focus { border-color: rgba(0,255,196,.5); }
-    .form-input::placeholder { color: #555; }
+    .form-input::placeholder { color: #fff; }
 
     /* ─── Notice ─── */
     .notice {
       background: rgba(0,255,196,.06); border: 1px solid rgba(0,255,196,.2);
       border-radius: 12px; padding: 14px; margin-bottom: 16px;
     }
-    .notice-title { font-size: 13px; font-weight: 700; color: #00ffc4; margin-bottom: 5px; }
-    .notice-text { font-size: 12px; color: #aaa; line-height: 1.6; }
+    .notice-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 5px; }
+    .notice-text { font-size: 12px; color: #fff; line-height: 1.6; }
 
     /* ─── Success ─── */
     .success-wrap { padding: 50px 20px; text-align: center; }
@@ -300,11 +300,11 @@
       font-size: 36px;
     }
     .success-title { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
-    .success-text { font-size: 14px; color: #888; line-height: 1.7; margin-bottom: 10px; }
+    .success-text { font-size: 14px; color: #fff; line-height: 1.7; margin-bottom: 10px; }
     .success-warn {
       background: rgba(0,255,196,.08); border: 1px solid rgba(0,255,196,.2);
       border-radius: 12px; padding: 14px; margin: 20px 0;
-      font-size: 13px; color: #ccc; line-height: 1.6; text-align: left;
+      font-size: 13px; color: #fff; line-height: 1.6; text-align: left;
     }
 
     /* ─── Error ─── */
@@ -318,12 +318,12 @@
       border-bottom: 1px solid rgba(92,255,223,.2);
     }
     .admin-header h2 { font-size: 20px; font-weight: 800; color: #fff; }
-    .admin-header p { font-size: 12px; color: #666; margin-top: 4px; }
+    .admin-header p { font-size: 12px; color: #fff; margin-top: 4px; }
 
     .admin-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,.07); }
     .admin-tab {
       flex: 1; padding: 12px; text-align: center;
-      font-size: 13px; font-weight: 600; color: #555;
+      font-size: 13px; font-weight: 600; color: #fff;
       cursor: pointer; border-bottom: 2px solid transparent;
       transition: color .2s, border-color .2s;
     }
@@ -339,10 +339,10 @@
       border-radius: 12px; padding: 14px; margin-bottom: 12px;
     }
     .order-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-    .order-id { font-size: 11px; color: #555; font-family: monospace; }
-    .order-date { font-size: 11px; color: #555; }
+    .order-id { font-size: 11px; color: #fff; font-family: monospace; }
+    .order-date { font-size: 11px; color: #fff; }
     .order-name { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-    .order-detail { font-size: 12px; color: #888; margin-bottom: 3px; }
+    .order-detail { font-size: 12px; color: #fff; margin-bottom: 3px; }
     .order-tg { font-size: 12px; color: #5ba3f5; }
 
     .status-badge {
@@ -363,7 +363,7 @@
     /* Prices editor */
     .price-editor { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; }
     .price-editor-row { }
-    .price-editor-label { font-size: 13px; color: #ccc; font-weight: 600; margin-bottom: 8px; }
+    .price-editor-label { font-size: 13px; color: #fff; font-weight: 600; margin-bottom: 8px; }
     .price-editor-input {
       width: 100%; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
       border-radius: 10px; padding: 14px; color: #fff; font-size: 22px; font-weight: 800;
@@ -380,7 +380,7 @@
     }
     .saved-toast.show { opacity: 1; }
 
-    .empty-state { text-align: center; padding: 40px 20px; color: #444; }
+    .empty-state { text-align: center; padding: 40px 20px; color: #fff; }
     .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
     .empty-state-text { font-size: 14px; }
 
@@ -703,7 +703,7 @@
         display:flex;align-items:center;justify-content:center;gap:10px;
         width:100%;min-height:80px;border:1.5px dashed rgba(0,255,196,.35);
         border-radius:12px;cursor:pointer;background:rgba(0,255,196,.04);
-        font-size:14px;color:#888;transition:border-color .2s;
+        font-size:14px;color:#fff;transition:border-color .2s;
       ">
         <span id="upload-text">📎 Прикрепить фото</span>
         <input type="file" id="input-screenshot" accept="image/*" style="display:none" onchange="onFileSelected(this)" />
