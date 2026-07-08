@@ -105,7 +105,7 @@ def main_menu_keyboard():
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     name = update.effective_user.first_name
-    await update.message.reply_text(
+    caption = (
         f"Привет, <b>{name}</b>! 👋\n\n"
         "Добро пожаловать в <b>ARMYAN SERVICES</b>\n\n"
         "Здесь вы можете быстро и удобно заказать любые мои услуги по PUBG MOBILE, "
@@ -116,10 +116,22 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "✅ Поддержка клиентов\n"
         "✅ Быстрое оформление заказов\n\n"
         "🕒 Работаем 24/7 – заявки принимаются круглосуточно.\n\n"
-        "Выберите интересующий вас раздел ниже:",
-        parse_mode="HTML",
-        reply_markup=main_menu_keyboard()
+        "Выберите интересующий вас раздел ниже:"
     )
+    logo_url = f"{WEBAPP_URL}/static/logo.jpg" if WEBAPP_URL else None
+    if logo_url:
+        await update.message.reply_photo(
+            photo=logo_url,
+            caption=caption,
+            parse_mode="HTML",
+            reply_markup=main_menu_keyboard()
+        )
+    else:
+        await update.message.reply_text(
+            caption,
+            parse_mode="HTML",
+            reply_markup=main_menu_keyboard()
+        )
 
 
 async def back_to_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
