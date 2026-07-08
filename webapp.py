@@ -194,17 +194,54 @@ def is_admin(init_data: str) -> bool:
     return int(user.get("id", 0)) in ADMIN_IDS
 
 
+DEFAULT_PRICES = {
+    "uah_price": 800,
+    "uc_price": 1320,
+    "currency": "UAH",
+    "boost_legend": 8000,
+    "boost_conqueror_solo": 4000,
+    "boost_conqueror_duo": 6000,
+    "boost_conqueror_squad": 8000,
+}
+
+CURRENCY_SYMBOLS = {"UAH": "грн", "USD": "$", "EUR": "€"}
+
+
+def load_prices() -> dict:
+    return load_json(PRICES_FILE, DEFAULT_PRICES)
+
+
 @app.route("/")
 def index():
-    prices = load_json(PRICES_FILE, {"uah_price": 800, "uc_price": 1320})
+    prices = load_prices()
+    currency = prices.get("currency", "UAH")
+    cur_sym = CURRENCY_SYMBOLS.get(currency, "грн")
+
+    def fmt(key, default):
+        val = prices.get(key, default)
+        if currency == "UAH":
+            # format with space thousands separator
+            return f"{val:,}".replace(",", " ") + " " + cur_sym
+        return cur_sym + str(val)
+
     return render_template(
         "miniapp.html",
         monobank_card=MONOBANK_CARD,
         pubg_id_uc=PUBG_ID_FOR_UC,
-        uah_price=prices.get("uah_price", 800),
-        uc_price=prices.get("uc_price", 1320),
+        uah_price=prices.get("uah_price", DEFAULT_PRICES["uah_price"]),
+        uc_price=prices.get("uc_price", DEFAULT_PRICES["uc_price"]),
         admin_ids=sorted(ADMIN_IDS),
         reviews_link=REVIEWS_LINK,
+        currency=currency,
+        cur_sym=cur_sym,
+        boost_legend_price=prices.get("boost_legend", DEFAULT_PRICES["boost_legend"]),
+        boost_solo_price=prices.get("boost_conqueror_solo", DEFAULT_PRICES["boost_conqueror_solo"]),
+        boost_duo_price=prices.get("boost_conqueror_duo", DEFAULT_PRICES["boost_conqueror_duo"]),
+        boost_squad_price=prices.get("boost_conqueror_squad", DEFAULT_PRICES["boost_conqueror_squad"]),
+        boost_legend_label=fmt("boost_legend", DEFAULT_PRICES["boost_legend"]),
+        boost_solo_label=fmt("boost_conqueror_solo", DEFAULT_PRICES["boost_conqueror_solo"]),
+        boost_duo_label=fmt("boost_conqueror_duo", DEFAULT_PRICES["boost_conqueror_duo"]),
+        boost_squad_label=fmt("boost_conqueror_squad", DEFAULT_PRICES["boost_conqueror_squad"]),
     )
 
 
@@ -242,7 +279,7 @@ def get_my_orders():
 
 @app.route("/api/prices", methods=["GET"])
 def get_prices():
-    prices = load_json(PRICES_FILE, {"uah_price": 800, "uc_price": 1320})
+    prices = load_prices()
     return jsonify(prices)
 
 
@@ -253,11 +290,26 @@ def update_prices():
         return jsonify({"ok": False, "error": "Нет доступа"}), 403
     data = request.get_json(silent=True) or {}
     try:
-        uah = int(data.get("uah_price", 800))
-        uc = int(data.get("uc_price", 1320))
+        uah = int(data.get("uah_price", DEFAULT_PRICES["uah_price"]))
+        uc  = int(data.get("uc_price",  DEFAULT_PRICES["uc_price"]))
+        b_legend = int(data.get("boost_legend",          DEFAULT_PRICES["boost_legend"]))
+        b_solo   = int(data.get("boost_conqueror_solo",  DEFAULT_PRICES["boost_conqueror_solo"]))
+        b_duo    = int(data.get("boost_conqueror_duo",   DEFAULT_PRICES["boost_conqueror_duo"]))
+        b_squad  = int(data.get("boost_conqueror_squad", DEFAULT_PRICES["boost_conqueror_squad"]))
     except (ValueError, TypeError):
         return jsonify({"ok": False, "error": "Неверные данные"}), 400
-    prices = {"uah_price": uah, "uc_price": uc}
+    currency = data.get("currency", "UAH")
+    if currency not in CURRENCY_SYMBOLS:
+        currency = "UAH"
+    prices = {
+        "uah_price": uah,
+        "uc_price": uc,
+        "currency": currency,
+        "boost_legend": b_legend,
+        "boost_conqueror_solo": b_solo,
+        "boost_conqueror_duo": b_duo,
+        "boost_conqueror_squad": b_squad,
+    }
     save_json(PRICES_FILE, prices)
     return jsonify({"ok": True, "prices": prices})
 

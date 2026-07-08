@@ -361,9 +361,17 @@
     }
 
     /* Prices editor */
-    .price-editor { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; }
+    .price-editor { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
     .price-editor-row { }
+    .price-editor-group-title { font-size: 12px; font-weight: 800; color: #00ffc4; text-transform: uppercase; letter-spacing: .06em; padding: 4px 0 2px; border-bottom: 1px solid rgba(0,255,196,.15); }
     .price-editor-label { font-size: 13px; color: #fff; font-weight: 600; margin-bottom: 8px; }
+    .price-editor-select {
+      width: 100%; padding: 12px 16px; border-radius: 14px; font-size: 15px;
+      background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,255,255,.1);
+      color: #fff; outline: none; appearance: none;
+    }
+    .price-editor-select:focus { border-color: rgba(0,255,196,.5); }
+    .price-editor-select option { background: #1a1a2e; color: #fff; }
     .price-editor-input {
       width: 100%; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
       border-radius: 10px; padding: 14px; color: #fff; font-size: 22px; font-weight: 800;
@@ -811,12 +819,12 @@
     <div class="cat-list">
       <div class="cat-card" onclick="selectBoostMode('legend')">
         <div class="cat-card-title">1️⃣ Легенда Ultimate Royale</div>
-        <div class="cat-card-sub">Легенда → Ultimate &nbsp;•&nbsp; <b style="color:#00ffc4">200$</b></div>
+        <div class="cat-card-sub">Легенда → Ultimate &nbsp;•&nbsp; <b style="color:#00ffc4">{{ boost_legend_label }}</b></div>
         <div class="cat-card-arrow">›</div>
       </div>
       <div class="cat-card" onclick="selectBoostMode('conqueror')">
         <div class="cat-card-title">2️⃣ Завоеватель</div>
-        <div class="cat-card-sub">Соло / Дуо / Сквады &nbsp;•&nbsp; <b style="color:#00ffc4">от 100$</b></div>
+        <div class="cat-card-sub">Соло / Дуо / Сквады &nbsp;•&nbsp; <b style="color:#00ffc4">від {{ boost_solo_label }}</b></div>
         <div class="cat-card-arrow">›</div>
       </div>
     </div>
@@ -1294,6 +1302,18 @@
     <!-- Prices section -->
     <div class="admin-section" id="asec-prices">
       <div class="price-editor">
+
+        <div class="price-editor-group-title">🌍 Валюта буста</div>
+        <div class="price-editor-row">
+          <div class="price-editor-label">Выбери валюту для буст-цен</div>
+          <select class="price-editor-select" id="edit-currency">
+            <option value="UAH" {% if currency == 'UAH' %}selected{% endif %}>🇺🇦 Гривна (грн)</option>
+            <option value="USD" {% if currency == 'USD' %}selected{% endif %}>🇺🇸 Доллар ($)</option>
+            <option value="EUR" {% if currency == 'EUR' %}selected{% endif %}>🇪🇺 Евро (€)</option>
+          </select>
+        </div>
+
+        <div class="price-editor-group-title" style="margin-top:18px">🎯 Настройка чувствительности</div>
         <div class="price-editor-row">
           <div class="price-editor-label">💳 Цена гривнами (UAH)</div>
           <input class="price-editor-input" id="edit-uah-price" type="number" value="{{ uah_price }}" min="1" />
@@ -1302,7 +1322,27 @@
           <div class="price-editor-label">💎 Цена в UC</div>
           <input class="price-editor-input" id="edit-uc-price" type="number" value="{{ uc_price }}" min="1" />
         </div>
-        <button class="btn btn-primary" onclick="savePrices()">💾 Сохранить цены</button>
+
+        <div class="price-editor-group-title" style="margin-top:18px">🏆 Буст ранга</div>
+        <div class="price-editor-row">
+          <div class="price-editor-label">1️⃣ Легенда → Ultimate Royale</div>
+          <input class="price-editor-input" id="edit-boost-legend" type="number" value="{{ boost_legend_price }}" min="1" />
+        </div>
+        <div class="price-editor-row">
+          <div class="price-editor-label">👤 Завоеватель Соло</div>
+          <input class="price-editor-input" id="edit-boost-solo" type="number" value="{{ boost_solo_price }}" min="1" />
+        </div>
+        <div class="price-editor-row">
+          <div class="price-editor-label">👥 Завоеватель Дуо</div>
+          <input class="price-editor-input" id="edit-boost-duo" type="number" value="{{ boost_duo_price }}" min="1" />
+        </div>
+        <div class="price-editor-row">
+          <div class="price-editor-label">👨‍👨‍👦 Завоеватель Сквады</div>
+          <input class="price-editor-input" id="edit-boost-squad" type="number" value="{{ boost_squad_price }}" min="1" />
+        </div>
+
+        <button class="btn btn-primary" style="margin-top:8px" onclick="savePrices()">💾 Сохранить цены</button>
+        <p style="font-size:11px;color:rgba(255,255,255,.4);margin-top:10px;text-align:center">Цены применятся после перезагрузки приложения</p>
       </div>
     </div>
   </div>
@@ -1589,6 +1629,8 @@
     document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
     document.getElementById('atab-' + tab).classList.add('active');
     document.getElementById('asec-' + tab).classList.add('active');
+    if (tab === 'prices') loadAdminPrices();
+    if (tab === 'orders') loadOrders();
   }
 
   // ─── Admin: load orders ───
@@ -1698,19 +1740,47 @@
     } catch (e) {}
   }
 
+  // ─── Admin: load prices into form ───
+  async function loadAdminPrices() {
+    try {
+      const res = await fetch('/api/prices');
+      const p = await res.json();
+      if (p.uah_price)         document.getElementById('edit-uah-price').value   = p.uah_price;
+      if (p.uc_price)          document.getElementById('edit-uc-price').value    = p.uc_price;
+      if (p.boost_legend)      document.getElementById('edit-boost-legend').value = p.boost_legend;
+      if (p.boost_conqueror_solo)  document.getElementById('edit-boost-solo').value  = p.boost_conqueror_solo;
+      if (p.boost_conqueror_duo)   document.getElementById('edit-boost-duo').value   = p.boost_conqueror_duo;
+      if (p.boost_conqueror_squad) document.getElementById('edit-boost-squad').value = p.boost_conqueror_squad;
+      if (p.currency)          document.getElementById('edit-currency').value    = p.currency;
+    } catch (e) {}
+  }
+
   // ─── Admin: save prices ───
   async function savePrices() {
-    const uah = parseInt(document.getElementById('edit-uah-price').value) || 800;
-    const uc = parseInt(document.getElementById('edit-uc-price').value) || 1320;
+    const uah      = parseInt(document.getElementById('edit-uah-price').value)    || 800;
+    const uc       = parseInt(document.getElementById('edit-uc-price').value)     || 1320;
+    const legend   = parseInt(document.getElementById('edit-boost-legend').value) || 8000;
+    const solo     = parseInt(document.getElementById('edit-boost-solo').value)   || 4000;
+    const duo      = parseInt(document.getElementById('edit-boost-duo').value)    || 6000;
+    const squad    = parseInt(document.getElementById('edit-boost-squad').value)  || 8000;
+    const currency = document.getElementById('edit-currency').value || 'UAH';
     try {
       const res = await fetch('/api/prices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Init-Data': initData },
-        body: JSON.stringify({ uah_price: uah, uc_price: uc }),
+        body: JSON.stringify({
+          uah_price: uah,
+          uc_price: uc,
+          currency,
+          boost_legend: legend,
+          boost_conqueror_solo: solo,
+          boost_conqueror_duo: duo,
+          boost_conqueror_squad: squad,
+        }),
       });
       const data = await res.json();
       if (data.ok) {
-        showToast('✅ Цены сохранены!');
+        showToast('✅ Цены сохранены! Перезагрузи приложение.');
         refreshPrices();
       } else {
         showToast('❌ ' + (data.error || 'Ошибка'));
@@ -1988,10 +2058,10 @@
   let boostSelected = null;
 
   const BOOST_OPTIONS = {
-    legend:          { label: 'Легенда → Ultimate Royale', price: '200$' },
-    conqueror_solo:  { label: 'Завоеватель (Соло)',            price: '100$' },
-    conqueror_duo:   { label: 'Завоеватель (Дуо)',             price: '150$' },
-    conqueror_squad: { label: 'Завоеватель (Сквады)',          price: '200$' },
+    legend:          { label: 'Легенда → Ultimate Royale', price: '{{ boost_legend_label }}' },
+    conqueror_solo:  { label: 'Завоеватель (Соло)',        price: '{{ boost_solo_label }}' },
+    conqueror_duo:   { label: 'Завоеватель (Дуо)',         price: '{{ boost_duo_label }}' },
+    conqueror_squad: { label: 'Завоеватель (Сквады)',      price: '{{ boost_squad_label }}' },
   };
 
   function selectBoostMode(mode) {
