@@ -137,10 +137,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "🕒 Работаем 24/7 – заявки принимаются круглосуточно.\n\n"
         "Выберите интересующий вас раздел ниже:"
     )
-    logo_url = f"{WEBAPP_URL}/static/logo.jpg" if WEBAPP_URL else None
-    if logo_url:
+    banner_url = f"{WEBAPP_URL}/static/banner.jpg" if WEBAPP_URL else None
+    if banner_url:
         await update.message.reply_photo(
-            photo=logo_url,
+            photo=banner_url,
             caption=caption,
             parse_mode="HTML",
             reply_markup=main_menu_keyboard()
