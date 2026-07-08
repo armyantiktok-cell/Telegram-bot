@@ -92,6 +92,25 @@ PUBG_ID_FOR_UC = "51230579110"
 ) = range(6)
 
 
+async def safe_edit(query, text, reply_markup=None, parse_mode="HTML"):
+    """Обновляет сообщение с учётом того, что исходное сообщение может быть
+    фото (например, приветствие с логотипом) — такие сообщения нельзя
+    редактировать через edit_message_text, поэтому в этом случае старое
+    сообщение удаляется и отправляется новое текстовое."""
+    if query.message and query.message.photo:
+        try:
+            await query.message.delete()
+        except Exception:
+            pass
+        await query.message.chat.send_message(text, parse_mode=parse_mode, reply_markup=reply_markup)
+        return
+    try:
+        await query.edit_message_text(text, parse_mode=parse_mode, reply_markup=reply_markup)
+    except Exception as e:
+        logger.warning(f"edit_message_text не удался, отправляю новое сообщение: {e}")
+        await query.message.chat.send_message(text, parse_mode=parse_mode, reply_markup=reply_markup)
+
+
 def main_menu_keyboard():
     rows = []
     if WEBAPP_URL:
@@ -137,10 +156,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def back_to_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text(
-        "Выбери раздел:",
-        reply_markup=main_menu_keyboard()
-    )
+    await safe_edit(query, "Выбери раздел:", reply_markup=main_menu_keyboard())
 
 
 async def sensitivity_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -166,7 +182,7 @@ async def sensitivity_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
         [InlineKeyboardButton("💎 Оплатить UC (1320 UC)", callback_data="pay_uc")],
         [InlineKeyboardButton("◀️ Назад", callback_data="back_to_menu")],
     ])
-    await query.edit_message_text(text, parse_mode="HTML", reply_markup=keyboard)
+    await safe_edit(query, text, reply_markup=keyboard)
     return CHOOSING_PAYMENT
 
 
@@ -184,7 +200,7 @@ async def pay_uah(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         [InlineKeyboardButton("✅ Я оплатил", callback_data="paid_uah")],
         [InlineKeyboardButton("◀️ Назад", callback_data="sensitivity")],
     ])
-    await query.edit_message_text(text, parse_mode="HTML", reply_markup=keyboard)
+    await safe_edit(query, text, reply_markup=keyboard)
     return CHOOSING_PAYMENT
 
 
@@ -203,7 +219,7 @@ async def pay_uc(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         [InlineKeyboardButton("✅ Я оплатил", callback_data="paid_uc")],
         [InlineKeyboardButton("◀️ Назад", callback_data="sensitivity")],
     ])
-    await query.edit_message_text(text, parse_mode="HTML", reply_markup=keyboard)
+    await safe_edit(query, text, reply_markup=keyboard)
     return CHOOSING_PAYMENT
 
 
@@ -211,9 +227,7 @@ async def paid_uah_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     query = update.callback_query
     await query.answer()
     context.user_data["payment_type"] = "UAH"
-    await query.edit_message_text(
-        "📸 Отлично! Пришли скриншот оплаты (фото квитанции из Monobank):"
-    )
+    await safe_edit(query, "📸 Отлично! Пришли скриншот оплаты (фото квитанции из Monobank):")
     return WAITING_UAH_SCREENSHOT
 
 
@@ -221,9 +235,7 @@ async def paid_uc_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     query = update.callback_query
     await query.answer()
     context.user_data["payment_type"] = "UC"
-    await query.edit_message_text(
-        "📸 Отлично! Пришли скриншот пополнения UC:"
-    )
+    await safe_edit(query, "📸 Отлично! Пришли скриншот пополнения UC:")
     return WAITING_UC_SCREENSHOT
 
 
@@ -417,10 +429,10 @@ async def reviews_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("📋 Открыть отзывы", url=REVIEWS_LINK)],
         [InlineKeyboardButton("◀️ Назад", callback_data="back_to_menu")],
     ])
-    await query.edit_message_text(
+    await safe_edit(
+        query,
         "⭐ <b>Отзывы клиентов</b>\n\n"
         "Посмотри, что говорят другие игроки о настройке:",
-        parse_mode="HTML",
         reply_markup=keyboard
     )
 
@@ -432,11 +444,11 @@ async def contact_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("✉️ Написать @ARMYAN_help", url="https://t.me/ARMYAN_help")],
         [InlineKeyboardButton("◀️ Назад", callback_data="back_to_menu")],
     ])
-    await query.edit_message_text(
+    await safe_edit(
+        query,
         "📩 <b>Связаться со мной</b>\n\n"
         "По всем вопросам пиши напрямую:\n"
         "Telegram: @ARMYAN_help",
-        parse_mode="HTML",
         reply_markup=keyboard
     )
 
@@ -458,7 +470,7 @@ async def faq_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("◀️ Назад", callback_data="back_to_menu")],
     ])
-    await query.edit_message_text(text, parse_mode="HTML", reply_markup=keyboard)
+    await safe_edit(query, text, reply_markup=keyboard)
 
 
 async def unknown_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
