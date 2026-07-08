@@ -2,6 +2,9 @@ import fcntl
 import json
 import logging
 import os
+import shutil
+import sqlite3
+import tempfile
 import time
 import uuid
 from contextlib import contextmanager
@@ -28,6 +31,9 @@ DATA_DIR = Path("data")
 DATA_DIR.mkdir(exist_ok=True)
 ORDERS_FILE = DATA_DIR / "orders.json"
 ORDERS_LOCK_FILE = DATA_DIR / "orders.lock"
+DB_FILE = DATA_DIR / "miniapp.db"
+BACKUP_DIR = DATA_DIR / "backups"
+BACKUP_DIR.mkdir(exist_ok=True)
 
 
 @contextmanager
@@ -480,6 +486,128 @@ async def unknown_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
+# ─── Backup / Restore (только для админа) ─────────────────────────────────────
+
+async def cmd_backup(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Команда /backup — отправляет текущую БД мини-приложения файлом."""
+    if update.effective_user.id not in ADMIN_IDS:
+        return
+    if not DB_FILE.exists():
+        await update.message.reply_text("❌ База данных не найдена (data/miniapp.db).")
+        return
+    size_kb = DB_FILE.stat().st_size // 1024
+    ts = time.strftime("%Y-%m-%d_%H_%M")
+    with open(DB_FILE, "rb") as f:
+        await update.message.reply_document(
+            document=f,
+            filename=f"miniapp_{ts}.db",
+            caption=(
+                f"📦 <b>Текущая база данных</b>\n"
+                f"💾 Размер: {size_kb} KB\n\n"
+                f"Чтобы восстановить — просто отправь мне любой <code>.db</code> файл."
+            ),
+            parse_mode="HTML",
+        )
+
+
+async def handle_db_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Получает .db файл от админа и спрашивает подтверждение на восстановление."""
+    if update.effective_user.id not in ADMIN_IDS:
+        return
+    doc = update.message.document
+    if not doc or not (doc.file_name or "").lower().endswith(".db"):
+        return
+
+    context.user_data["pending_db_file_id"] = doc.file_id
+    context.user_data["pending_db_file_name"] = doc.file_name
+
+    keyboard = InlineKeyboardMarkup([[
+        InlineKeyboardButton("✅ Применить", callback_data="dbrestore:confirm"),
+        InlineKeyboardButton("❌ Отмена",    callback_data="dbrestore:cancel"),
+    ]])
+    await update.message.reply_text(
+        f"📁 Файл: <code>{doc.file_name}</code>\n"
+        f"💾 Размер: {doc.file_size // 1024} KB\n\n"
+        f"⚠️ <b>Применить как базу данных мини-приложения?</b>\n"
+        f"<i>Текущая БД будет автоматически сохранена в бэкап.</i>",
+        parse_mode="HTML",
+        reply_markup=keyboard,
+    )
+
+
+async def restore_decision(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Подтверждение или отмена восстановления БД."""
+    query = update.callback_query
+    if query.from_user.id not in ADMIN_IDS:
+        await query.answer("⛔ Нет доступа", show_alert=True)
+        return
+
+    await query.answer()
+    _, action = query.data.split(":", 1)
+
+    if action == "cancel":
+        context.user_data.pop("pending_db_file_id", None)
+        context.user_data.pop("pending_db_file_name", None)
+        await query.edit_message_text("❌ Восстановление отменено.")
+        return
+
+    file_id   = context.user_data.get("pending_db_file_id")
+    file_name = context.user_data.get("pending_db_file_name", "файл")
+    if not file_id:
+        await query.edit_message_text("❌ Файл не найден. Отправь его снова.")
+        return
+
+    await query.edit_message_text("⏳ Применяю базу данных...")
+
+    tmp_path = None
+    try:
+        # 1. Бэкап текущей БД через SQLite API (безопасно при активных соединениях)
+        if DB_FILE.exists():
+            ts = time.strftime("%Y-%m-%d_%H_%M")
+            bak = BACKUP_DIR / f"miniapp_{ts}_before_restore.db"
+            src = sqlite3.connect(str(DB_FILE))
+            dst = sqlite3.connect(str(bak))
+            src.backup(dst)
+            dst.close()
+            src.close()
+
+        # 2. Скачиваем файл во временный путь
+        tg_file = await context.bot.get_file(file_id)
+        tmp_fd, tmp_str = tempfile.mkstemp(suffix=".db")
+        os.close(tmp_fd)
+        tmp_path = Path(tmp_str)
+        await tg_file.download_to_drive(str(tmp_path))
+
+        # 3. Проверяем что файл — валидная SQLite БД
+        check = sqlite3.connect(str(tmp_path))
+        check.execute("SELECT name FROM sqlite_master LIMIT 1").fetchall()
+        check.close()
+
+        # 4. Заменяем БД
+        shutil.move(str(tmp_path), str(DB_FILE))
+        tmp_path = None  # уже перемещён
+
+        context.user_data.pop("pending_db_file_id", None)
+        context.user_data.pop("pending_db_file_name", None)
+
+        await query.edit_message_text(
+            f"✅ <b>База данных применена!</b>\n\n"
+            f"📁 Файл: <code>{file_name}</code>\n"
+            f"💾 Бэкап старой БД сохранён в <code>data/backups/</code>\n\n"
+            f"🔄 Мини-приложение автоматически начнёт использовать новую БД.",
+            parse_mode="HTML",
+        )
+
+    except Exception as e:
+        logger.error(f"[restore] Ошибка: {e}")
+        if tmp_path and tmp_path.exists():
+            tmp_path.unlink(missing_ok=True)
+        await query.edit_message_text(
+            f"❌ <b>Ошибка при применении файла:</b>\n<code>{e}</code>",
+            parse_mode="HTML",
+        )
+
+
 def main() -> None:
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     if not token:
@@ -529,12 +657,15 @@ def main() -> None:
     )
 
     application.add_handler(CallbackQueryHandler(admin_decision, pattern="^adm:"), group=-1)
+    application.add_handler(CallbackQueryHandler(restore_decision, pattern="^dbrestore:"), group=-1)
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("backup", cmd_backup))
     application.add_handler(payment_conv)
     application.add_handler(CallbackQueryHandler(back_to_menu, pattern="^back_to_menu$"))
     application.add_handler(CallbackQueryHandler(reviews_handler, pattern="^reviews$"))
     application.add_handler(CallbackQueryHandler(contact_handler, pattern="^contact$"))
     application.add_handler(CallbackQueryHandler(faq_handler, pattern="^faq$"))
+    application.add_handler(MessageHandler(filters.Document.ALL, handle_db_file))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, unknown_text))
 
     logger.info("Бот ARMYAN запускается...")
