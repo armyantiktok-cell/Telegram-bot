@@ -1,20 +1,29 @@
-# Telegram Bot
+# ARMYAN SERVICES — Telegram Bot + Mini App
 
-A Python Telegram bot built with python-telegram-bot library.
+Telegram-бот и Flask мини-приложение для заказа услуг по PUBG MOBILE (настройка чувствительности, оплата UC и т.д.).
 
-## Setup
+## Структура
 
-1. Set the `TELEGRAM_BOT_TOKEN` secret in the Replit Secrets tab.
-2. Run the workflow "Start application" to launch the bot.
+- `bot.py` — Telegram-бот (polling, python-telegram-bot v22+)
+- `webapp.py` — Flask мини-приложение (Telegram Mini App), порт 5000
+- `templates/miniapp.html` — фронтенд мини-приложения
+- `data/orders.json`, `data/prices.json` — файловое хранилище (с fcntl-локом, см. memory: orders-file-sharing)
 
-## Commands
+## Запуск на Replit
 
-- `/start` — Greet the user
-- `/help` — Show available commands
+Два воркфлоу:
+- **Web App** — `python webapp.py` (порт 5000, webview)
+- **Bot** — `python bot.py` (консоль, long polling)
 
-Any non-command text is echoed back to the sender.
+Секреты (заданы в Replit Secrets):
+- `TELEGRAM_BOT_TOKEN` — токен от @BotFather
+- `ADMIN_CHAT_ID` — Telegram ID администратора
+
+Переменные окружения:
+- `WEBAPP_URL` — публичный URL мини-приложения (уже задан на dev-домен Replit)
+- `REVIEWS_LINK` — опционально, ссылка на отзывы
 
 ## User preferences
 
 - Language: Python
-- Framework: python-telegram-bot (v20+)
+- Framework: python-telegram-bot (v22+), Flask
