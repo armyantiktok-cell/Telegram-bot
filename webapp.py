@@ -218,6 +218,36 @@ def load_prices() -> dict:
     return {**DEFAULT_PRICES, **load_json(PRICES_FILE, {})}
 
 
+def _notify_admin_bg(caption: str, screenshot_file=None):
+    """Отправляет уведомление админу в фоновом потоке чтобы не блокировать ответ клиенту."""
+    if not (ADMIN_ID and BOT_TOKEN):
+        return
+    # Читаем байты файла сразу, пока он ещё доступен в контексте запроса
+    photo_bytes = screenshot_file.read() if screenshot_file else None
+    photo_name  = screenshot_file.filename if screenshot_file else None
+    photo_ct    = screenshot_file.content_type if screenshot_file else None
+
+    def _send():
+        try:
+            if photo_bytes:
+                httpx.post(
+                    f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
+                    data={"chat_id": ADMIN_ID, "caption": caption, "parse_mode": "HTML"},
+                    files={"photo": (photo_name, photo_bytes, photo_ct)},
+                    timeout=30,
+                )
+            else:
+                httpx.post(
+                    f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                    json={"chat_id": ADMIN_ID, "text": caption, "parse_mode": "HTML"},
+                    timeout=15,
+                )
+        except Exception as e:
+            print(f"[notify] Ошибка отправки уведомления: {e}")
+
+    threading.Thread(target=_send, daemon=True, name="admin-notify").start()
+
+
 @app.route("/")
 def index():
     prices = load_prices()
@@ -540,33 +570,16 @@ def create_order():
                 conn.execute("UPDATE wheel_promos SET used = 1 WHERE code = ?", (promo_code,))
                 conn.commit()
 
-        if ADMIN_ID and BOT_TOKEN:
-            promo_line = f"\n🎟️ Промокод: <code>{promo_code}</code> (-{promo_discount}%)" if promo_code else ""
-            caption = (
-                "🆕 <b>Новая заявка — Буст ранга!</b>\n"
-                f"🆔 ID: <code>{order['id']}</code>\n"
-                f"👤 Клиент: {user_name} (TG ID: {user_id})\n"
-                f"🎮 Услуга: <b>{price_label}</b>"
-                f"{promo_line}\n"
-                f"✈️ Telegram: <code>{tg_tag}</code>"
-            )
-            try:
-                if screenshot_file:
-                    httpx.post(
-                        f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
-                        data={"chat_id": ADMIN_ID, "caption": caption, "parse_mode": "HTML"},
-                        files={"photo": (screenshot_file.filename, screenshot_file.read(), screenshot_file.content_type)},
-                        timeout=20,
-                    )
-                else:
-                    httpx.post(
-                        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                        json={"chat_id": ADMIN_ID, "text": caption, "parse_mode": "HTML"},
-                        timeout=10,
-                    )
-            except Exception as e:
-                print(f"Ошибка уведомления (boost): {e}")
-
+        promo_line = f"\n🎟️ Промокод: <code>{promo_code}</code> (-{promo_discount}%)" if promo_code else ""
+        caption = (
+            "🆕 <b>Новая заявка — Буст ранга!</b>\n"
+            f"🆔 ID: <code>{order['id']}</code>\n"
+            f"👤 Клиент: {user_name} (TG ID: {user_id})\n"
+            f"🎮 Услуга: <b>{price_label}</b>"
+            f"{promo_line}\n"
+            f"✈️ Telegram: <code>{tg_tag}</code>"
+        )
+        _notify_admin_bg(caption, screenshot_file)
         return jsonify({"ok": True, "order_id": order["id"]})
 
     # ── Metro Shop → Буст баланса ───────────────────────────────────────────────
@@ -662,35 +675,17 @@ def create_order():
             except Exception as e:
                 print(f"[promo] Ошибка пометки промокода (metro): {e}")
 
-        if ADMIN_ID and BOT_TOKEN:
-            caption_lines = [
-                "🆕 <b>Новая заявка — Metro Shop!</b>",
-                f"🆔 ID: <code>{order['id']}</code>",
-                f"👤 Клиент: {user_name} (TG ID: {user_id})",
-                f"🏬 Категория: Metro Shop → Буст баланса",
-                f"💰 Пакет: <b>{price_label}</b>",
-                f"✈️ Telegram: <code>{tg_tag}</code>",
-            ]
-            if metro_promo_code:
-                caption_lines.append(f"🎟 Промокод: <code>{metro_promo_code}</code> (−{metro_promo_discount}%)")
-            caption = "\n".join(caption_lines)
-            try:
-                if screenshot_file:
-                    httpx.post(
-                        f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
-                        data={"chat_id": ADMIN_ID, "caption": caption, "parse_mode": "HTML"},
-                        files={"photo": (screenshot_file.filename, screenshot_file.read(), screenshot_file.content_type)},
-                        timeout=20,
-                    )
-                else:
-                    httpx.post(
-                        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                        json={"chat_id": ADMIN_ID, "text": caption, "parse_mode": "HTML"},
-                        timeout=10,
-                    )
-            except Exception as e:
-                print(f"Ошибка уведомления (metro_boost): {e}")
-
+        caption_lines = [
+            "🆕 <b>Новая заявка — Metro Shop!</b>",
+            f"🆔 ID: <code>{order['id']}</code>",
+            f"👤 Клиент: {user_name} (TG ID: {user_id})",
+            f"🏬 Категория: Metro Shop → Буст баланса",
+            f"💰 Пакет: <b>{price_label}</b>",
+            f"✈️ Telegram: <code>{tg_tag}</code>",
+        ]
+        if metro_promo_code:
+            caption_lines.append(f"🎟 Промокод: <code>{metro_promo_code}</code> (−{metro_promo_discount}%)")
+        _notify_admin_bg("\n".join(caption_lines), screenshot_file)
         return jsonify({"ok": True, "order_id": order["id"]})
 
     # ── Настройка чувствительности ────────────────────────────────────────────
@@ -763,36 +758,18 @@ def create_order():
         except Exception as e:
             print(f"[promo] Ошибка пометки промокода: {e}")
 
-    if ADMIN_ID and BOT_TOKEN:
-        caption_lines = [
-            "🆕 <b>Новая заявка (Mini App)!</b>",
-            f"🆔 ID: <code>{order['id']}</code>",
-            f"👤 Клиент: {user_name} (TG ID: {user_id})",
-            f"💰 Оплата: <b>{price_label}</b>",
-            f"✈️ Telegram: <code>{tg_tag}</code>",
-        ]
-        if pubg_id and payment_type == "UAH":
-            caption_lines.append(f"🎮 PUBG ID: <code>{pubg_id}</code>")
-        if promo_code:
-            caption_lines.append(f"🎟 Промокод: <code>{promo_code}</code> (−{promo_discount}%)")
-        caption = "\n".join(caption_lines)
-        try:
-            if screenshot_file:
-                httpx.post(
-                    f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
-                    data={"chat_id": ADMIN_ID, "caption": caption, "parse_mode": "HTML"},
-                    files={"photo": (screenshot_file.filename, screenshot_file.read(), screenshot_file.content_type)},
-                    timeout=20,
-                )
-            else:
-                httpx.post(
-                    f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-                    json={"chat_id": ADMIN_ID, "text": caption, "parse_mode": "HTML"},
-                    timeout=10,
-                )
-        except Exception as e:
-            print(f"Ошибка уведомления: {e}")
-
+    caption_lines = [
+        "🆕 <b>Новая заявка (Mini App)!</b>",
+        f"🆔 ID: <code>{order['id']}</code>",
+        f"👤 Клиент: {user_name} (TG ID: {user_id})",
+        f"💰 Оплата: <b>{price_label}</b>",
+        f"✈️ Telegram: <code>{tg_tag}</code>",
+    ]
+    if pubg_id and payment_type == "UAH":
+        caption_lines.append(f"🎮 PUBG ID: <code>{pubg_id}</code>")
+    if promo_code:
+        caption_lines.append(f"🎟 Промокод: <code>{promo_code}</code> (−{promo_discount}%)")
+    _notify_admin_bg("\n".join(caption_lines), screenshot_file)
     return jsonify({"ok": True, "order_id": order["id"]})
 
 
