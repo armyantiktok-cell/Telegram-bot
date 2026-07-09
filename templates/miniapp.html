@@ -24,6 +24,7 @@
       margin: 0 auto;
       overflow-x: hidden;
       padding-bottom: 70px;
+      position: relative;
     }
 
     h1, h2, .heading, .logo-text-main, .cat-card-title, .price-amount,
@@ -56,7 +57,10 @@
     }
     .screen.leaving {
       display: block;
+      position: absolute;
+      top: 0; left: 0; width: 100%;
       animation: screenOut .18s cubic-bezier(.4,0,1,1) both;
+      pointer-events: none;
     }
     @keyframes screenIn {
       from { opacity: 0; transform: translateY(14px) scale(.985); }
@@ -1488,14 +1492,22 @@
   }
 
   function showScreen(screenId) {
-    const target  = document.getElementById(screenId);
+    const target = document.getElementById(screenId);
+    if (!target) return;
+    document.querySelectorAll('.screen.leaving').forEach(s => {
+      s.classList.remove('leaving');
+      if (s._leaveTimer) { clearTimeout(s._leaveTimer); s._leaveTimer = null; }
+    });
     const current = document.querySelector('.screen.active');
     if (current && current !== target) {
       current.classList.remove('active');
       current.classList.add('leaving');
-      setTimeout(() => current.classList.remove('leaving'), 200);
+      current._leaveTimer = setTimeout(() => current.classList.remove('leaving'), 200);
     }
-    document.querySelectorAll('.screen').forEach(s => { if (s !== current) s.classList.remove('active'); });
+    document.querySelectorAll('.screen').forEach(s => { if (s !== current && s !== target) s.classList.remove('active'); });
+    // Force re-trigger of entrance animation even if already active
+    target.classList.remove('active');
+    void target.offsetWidth;
     target.classList.add('active');
     window.scrollTo(0, 0);
   }
