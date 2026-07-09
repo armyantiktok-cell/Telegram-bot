@@ -215,7 +215,7 @@ CURRENCY_SYMBOLS = {"UAH": "грн", "USD": "$", "EUR": "€"}
 
 
 def load_prices() -> dict:
-    return load_json(PRICES_FILE, DEFAULT_PRICES)
+    return {**DEFAULT_PRICES, **load_json(PRICES_FILE, {})}
 
 
 @app.route("/")
