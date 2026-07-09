@@ -1145,6 +1145,27 @@
       <div class="req-value">{{ monobank_card }}</div>
       <div class="req-copy" onclick="copyText('{{ monobank_card }}', this)">📋 Скопировать</div>
     </div>
+    <!-- Промокод для буста баланса -->
+    <div style="margin-top:16px">
+      <div class="section-label">Промокод (необязательно)</div>
+      <input class="form-input" id="metro-promo-input" type="text"
+             placeholder="Введи промокод"
+             oninput="onMetroPromoInput(this.value)"
+             autocomplete="off"
+             style="text-transform:uppercase;letter-spacing:1.5px" />
+      <div class="promo-feedback" id="metro-promo-feedback"></div>
+      <div class="promo-calc" id="metro-promo-calc">
+        <div class="promo-calc-title">✂️ Итоговая цена со скидкой</div>
+        <div class="promo-calc-row">
+          <span class="promo-calc-label">💳 Сумма к оплате</span>
+          <span class="promo-calc-prices">
+            <span class="promo-calc-old" id="mpc-old"></span>
+            <span class="promo-calc-new" id="mpc-new"></span>
+          </span>
+        </div>
+      </div>
+    </div>
+
     <div class="notice" style="margin-top:16px">
       <div class="notice-title">⚠️ Важно</div>
       <div class="notice-text" id="metro-req-notice">
@@ -2574,7 +2595,9 @@
 
   // ═══════════════ METRO SHOP LOGIC ═══════════════
 
-  let metroSelected = null;
+  let metroSelected      = null;
+  let metroAppliedPromo  = null;
+  let metroPromoTimer    = null;
 
   const METRO_OPTIONS = {
     '20m':  { label: '20 млн',    price: '{{ metro_20m_label }}' },
@@ -2584,7 +2607,28 @@
     'vip':  { label: 'VIP буст',  price: 'Цена уточняется' },
   };
 
+  const METRO_PRICES_NUM = {
+    '20m':  {{ metro_20m_price }},
+    '50m':  {{ metro_50m_price }},
+    '100m': {{ metro_100m_price }},
+    '200m': {{ metro_200m_price }},
+  };
+
+  const METRO_CUR_SYM = '{{ cur_sym }}';
+
+  function resetMetroPromo() {
+    metroAppliedPromo = null;
+    clearTimeout(metroPromoTimer);
+    const inp = document.getElementById('metro-promo-input');
+    if (inp) inp.value = '';
+    const fb = document.getElementById('metro-promo-feedback');
+    if (fb) { fb.className = 'promo-feedback'; fb.textContent = ''; }
+    const calc = document.getElementById('metro-promo-calc');
+    if (calc) calc.classList.remove('show');
+  }
+
   function selectMetroPackage(key) {
+    resetMetroPromo();
     metroSelected = { key, ...METRO_OPTIONS[key] };
     updateMetroScreens();
     if (key === 'vip') {
@@ -2597,13 +2641,58 @@
 
   function updateMetroScreens() {
     if (!metroSelected) return;
-    document.getElementById('metro-req-amount').textContent = metroSelected.price;
+    let displayPrice = metroSelected.price;
+    if (metroAppliedPromo && metroSelected.key !== 'vip') {
+      const baseNum = METRO_PRICES_NUM[metroSelected.key] || 0;
+      const discNum = Math.round(baseNum * (1 - metroAppliedPromo.discount / 100));
+      displayPrice = discNum + ' ' + METRO_CUR_SYM;
+    }
+    document.getElementById('metro-req-amount').textContent = displayPrice;
     document.getElementById('metro-req-label').textContent  = '🏬 Metro Shop — Буст баланса — ' + metroSelected.label;
     document.getElementById('metro-form-summary').textContent =
-      'Metro Shop → Буст баланса — ' + metroSelected.label + ' — ' + metroSelected.price;
+      'Metro Shop → Буст баланса — ' + metroSelected.label + ' — ' + displayPrice;
 
     const uploadGroup = document.getElementById('metro-upload-group');
     if (uploadGroup) uploadGroup.style.display = metroSelected.key === 'vip' ? 'none' : '';
+  }
+
+  function onMetroPromoInput(raw) {
+    clearTimeout(metroPromoTimer);
+    metroAppliedPromo = null;
+    updateMetroScreens();
+    const code = raw.trim().toUpperCase();
+    const fb   = document.getElementById('metro-promo-feedback');
+    const calc = document.getElementById('metro-promo-calc');
+    if (!code) { fb.className = 'promo-feedback'; fb.textContent = ''; calc.classList.remove('show'); return; }
+    if (code.length < 4) return;
+    fb.className   = 'promo-feedback loading';
+    fb.textContent = '⏳ Проверяем...';
+    metroPromoTimer = setTimeout(async () => {
+      try {
+        const res  = await fetch(`/api/promo/validate?code=${encodeURIComponent(code)}`);
+        const data = await res.json();
+        if (data.ok) {
+          metroAppliedPromo = { code: data.code, discount: data.discount };
+          fb.className   = 'promo-feedback valid';
+          fb.textContent = `✅ Промокод применён — скидка ${data.discount}%!`;
+          updateMetroScreens();
+          const baseNum = metroSelected ? (METRO_PRICES_NUM[metroSelected.key] || 0) : 0;
+          const discNum = Math.round(baseNum * (1 - data.discount / 100));
+          document.getElementById('mpc-old').textContent = baseNum + ' ' + METRO_CUR_SYM;
+          document.getElementById('mpc-new').textContent = discNum + ' ' + METRO_CUR_SYM;
+          calc.classList.add('show');
+        } else {
+          metroAppliedPromo = null;
+          fb.className   = 'promo-feedback invalid';
+          fb.textContent = data.error || '❌ Промокод недействителен';
+          calc.classList.remove('show');
+          updateMetroScreens();
+        }
+      } catch (e) {
+        fb.className   = 'promo-feedback invalid';
+        fb.textContent = '❌ Ошибка сети';
+      }
+    }, 600);
   }
 
   function onMetroFileSelected(input) {
@@ -2645,6 +2734,7 @@
       fd.append('price_label',  metroSelected.label + ' — ' + metroSelected.price);
       fd.append('tg_tag',       tgTag);
       if (screenshotFile) fd.append('screenshot', screenshotFile);
+      if (metroAppliedPromo) fd.append('promo_code', metroAppliedPromo.code);
 
       const res  = await fetch('/api/order', {
         method: 'POST',

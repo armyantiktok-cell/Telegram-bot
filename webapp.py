@@ -596,11 +596,35 @@ def create_order():
         metro_cur_sym  = CURRENCY_SYMBOLS.get(metro_currency, "грн")
         metro_option_label = METRO_OPTION_LABELS[boost_option]
 
+        # ── Промокод для Metro ────────────────────────────────────────────────
+        # VIP — цена договорная, промокоды не применяются
+        _raw_promo = (
+            request.form.get("promo_code", "").strip().upper()
+            if is_multipart
+            else (request.get_json(silent=True) or {}).get("promo_code", "").strip().upper()
+        )
+        metro_promo_code = "" if boost_option == "vip" else _raw_promo
+        metro_promo_discount = 0
+        if metro_promo_code:
+            with get_db() as conn:
+                prow = conn.execute(
+                    "SELECT discount, expires_at, used FROM wheel_promos WHERE code = ?",
+                    (metro_promo_code,),
+                ).fetchone()
+            if prow and not prow["used"] and prow["expires_at"] >= datetime.now().isoformat():
+                metro_promo_discount = prow["discount"]
+            else:
+                metro_promo_code = ""  # невалидный — игнорируем
+
         if boost_option == "vip":
             price_label = f"{metro_option_label} — Цена уточняется"
         else:
             base_price = metro_prices.get(METRO_OPTION_PRICE_KEYS[boost_option], 0)
-            price_label = f"{metro_option_label} — {base_price} {metro_cur_sym}"
+            if metro_promo_discount:
+                final_price = round(base_price * (1 - metro_promo_discount / 100))
+                price_label = f"{metro_option_label} — {final_price} {metro_cur_sym} (скидка {metro_promo_discount}%)"
+            else:
+                price_label = f"{metro_option_label} — {base_price} {metro_cur_sym}"
 
         order = {
             "id": str(uuid.uuid4())[:8],
@@ -617,21 +641,39 @@ def create_order():
             "boost_option": boost_option,
             "status": "new",
         }
+        if metro_promo_code:
+            order["promo_code"] = metro_promo_code
+            order["promo_discount"] = metro_promo_discount
 
         with orders_lock():
             orders = load_json(ORDERS_FILE, [])
             orders.append(order)
             save_json(ORDERS_FILE, orders)
 
+        # Помечаем промокод как использованный
+        if metro_promo_code:
+            try:
+                with get_db() as conn:
+                    conn.execute(
+                        "UPDATE wheel_promos SET used = 1 WHERE code = ?",
+                        (metro_promo_code,),
+                    )
+                    conn.commit()
+            except Exception as e:
+                print(f"[promo] Ошибка пометки промокода (metro): {e}")
+
         if ADMIN_ID and BOT_TOKEN:
-            caption = (
-                "🆕 <b>Новая заявка — Metro Shop!</b>\n"
-                f"🆔 ID: <code>{order['id']}</code>\n"
-                f"👤 Клиент: {user_name} (TG ID: {user_id})\n"
-                f"🏬 Категория: Metro Shop → Буст баланса\n"
-                f"💰 Пакет: <b>{price_label}</b>\n"
-                f"✈️ Telegram: <code>{tg_tag}</code>"
-            )
+            caption_lines = [
+                "🆕 <b>Новая заявка — Metro Shop!</b>",
+                f"🆔 ID: <code>{order['id']}</code>",
+                f"👤 Клиент: {user_name} (TG ID: {user_id})",
+                f"🏬 Категория: Metro Shop → Буст баланса",
+                f"💰 Пакет: <b>{price_label}</b>",
+                f"✈️ Telegram: <code>{tg_tag}</code>",
+            ]
+            if metro_promo_code:
+                caption_lines.append(f"🎟 Промокод: <code>{metro_promo_code}</code> (−{metro_promo_discount}%)")
+            caption = "\n".join(caption_lines)
             try:
                 if screenshot_file:
                     httpx.post(
