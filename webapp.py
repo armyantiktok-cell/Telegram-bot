@@ -203,7 +203,13 @@ DEFAULT_PRICES = {
     "boost_conqueror_solo": 4000,
     "boost_conqueror_duo": 6000,
     "boost_conqueror_squad": 8000,
+    "metro_balance_20m": 375,
+    "metro_balance_50m": 750,
+    "metro_balance_100m": 1666,
+    "metro_balance_200m": 3333,
 }
+
+METRO_BANNER_PATH = Path("static") / "metro_boost_banner.jpg"
 
 CURRENCY_SYMBOLS = {"UAH": "грн", "USD": "$", "EUR": "€"}
 
@@ -243,6 +249,15 @@ def index():
         boost_solo_label=fmt("boost_conqueror_solo", DEFAULT_PRICES["boost_conqueror_solo"]),
         boost_duo_label=fmt("boost_conqueror_duo", DEFAULT_PRICES["boost_conqueror_duo"]),
         boost_squad_label=fmt("boost_conqueror_squad", DEFAULT_PRICES["boost_conqueror_squad"]),
+        metro_20m_price=prices.get("metro_balance_20m", DEFAULT_PRICES["metro_balance_20m"]),
+        metro_50m_price=prices.get("metro_balance_50m", DEFAULT_PRICES["metro_balance_50m"]),
+        metro_100m_price=prices.get("metro_balance_100m", DEFAULT_PRICES["metro_balance_100m"]),
+        metro_200m_price=prices.get("metro_balance_200m", DEFAULT_PRICES["metro_balance_200m"]),
+        metro_20m_label=fmt("metro_balance_20m", DEFAULT_PRICES["metro_balance_20m"]),
+        metro_50m_label=fmt("metro_balance_50m", DEFAULT_PRICES["metro_balance_50m"]),
+        metro_100m_label=fmt("metro_balance_100m", DEFAULT_PRICES["metro_balance_100m"]),
+        metro_200m_label=fmt("metro_balance_200m", DEFAULT_PRICES["metro_balance_200m"]),
+        metro_banner_url="/static/metro_boost_banner.jpg?v=" + str(int(METRO_BANNER_PATH.stat().st_mtime) if METRO_BANNER_PATH.exists() else 0),
     )
 
 
@@ -335,6 +350,10 @@ def update_prices():
         b_solo   = int(data.get("boost_conqueror_solo",  DEFAULT_PRICES["boost_conqueror_solo"]))
         b_duo    = int(data.get("boost_conqueror_duo",   DEFAULT_PRICES["boost_conqueror_duo"]))
         b_squad  = int(data.get("boost_conqueror_squad", DEFAULT_PRICES["boost_conqueror_squad"]))
+        m_20   = int(data.get("metro_balance_20m",  DEFAULT_PRICES["metro_balance_20m"]))
+        m_50   = int(data.get("metro_balance_50m",  DEFAULT_PRICES["metro_balance_50m"]))
+        m_100  = int(data.get("metro_balance_100m", DEFAULT_PRICES["metro_balance_100m"]))
+        m_200  = int(data.get("metro_balance_200m", DEFAULT_PRICES["metro_balance_200m"]))
     except (ValueError, TypeError):
         return jsonify({"ok": False, "error": "Неверные данные"}), 400
     currency = data.get("currency", "UAH")
@@ -348,9 +367,34 @@ def update_prices():
         "boost_conqueror_solo": b_solo,
         "boost_conqueror_duo": b_duo,
         "boost_conqueror_squad": b_squad,
+        "metro_balance_20m": m_20,
+        "metro_balance_50m": m_50,
+        "metro_balance_100m": m_100,
+        "metro_balance_200m": m_200,
     }
     save_json(PRICES_FILE, prices)
     return jsonify({"ok": True, "prices": prices})
+
+
+@app.route("/api/admin/metro-banner", methods=["POST"])
+def upload_metro_banner():
+    """Загрузка баннера для категории Metro Shop → Буст баланса."""
+    init_data = request.headers.get("X-Init-Data", "")
+    if not is_admin(init_data):
+        return jsonify({"ok": False, "error": "Нет доступа"}), 403
+    file = request.files.get("banner")
+    if not file or not file.filename:
+        return jsonify({"ok": False, "error": "Файл не выбран"}), 400
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in (".jpg", ".jpeg", ".png", ".webp"):
+        return jsonify({"ok": False, "error": "Разрешены только изображения (jpg, png, webp)"}), 400
+    METRO_BANNER_PATH.parent.mkdir(parents=True, exist_ok=True)
+    file.save(str(METRO_BANNER_PATH.with_suffix(ext if ext != ".jpg" else ".jpg")))
+    if ext != ".jpg":
+        # держим единое имя файла metro_boost_banner.jpg для простоты фронтенда
+        saved_path = METRO_BANNER_PATH.with_suffix(ext)
+        shutil.move(str(saved_path), str(METRO_BANNER_PATH))
+    return jsonify({"ok": True, "banner_url": "/static/metro_boost_banner.jpg?v=" + str(int(time.time()))})
 
 
 @app.route("/api/orders", methods=["GET"])
@@ -522,6 +566,88 @@ def create_order():
                     )
             except Exception as e:
                 print(f"Ошибка уведомления (boost): {e}")
+
+        return jsonify({"ok": True, "order_id": order["id"]})
+
+    # ── Metro Shop → Буст баланса ───────────────────────────────────────────────
+    if service_type == "metro_boost":
+        METRO_OPTION_LABELS = {
+            "20m":  "20 млн",
+            "50m":  "50 млн",
+            "100m": "100 млн",
+            "200m": "200 млн",
+            "vip":  "VIP буст",
+        }
+        METRO_OPTION_PRICE_KEYS = {
+            "20m":  "metro_balance_20m",
+            "50m":  "metro_balance_50m",
+            "100m": "metro_balance_100m",
+            "200m": "metro_balance_200m",
+        }
+
+        if boost_option not in METRO_OPTION_LABELS:
+            return jsonify({"ok": False, "error": "Неверный пакет"}), 400
+
+        if boost_option != "vip" and not screenshot_file:
+            return jsonify({"ok": False, "error": "Прикрепи скриншот оплаты"}), 400
+
+        metro_prices = load_prices()
+        metro_currency = metro_prices.get("currency", "UAH")
+        metro_cur_sym  = CURRENCY_SYMBOLS.get(metro_currency, "грн")
+        metro_option_label = METRO_OPTION_LABELS[boost_option]
+
+        if boost_option == "vip":
+            price_label = f"{metro_option_label} — Цена уточняется"
+        else:
+            base_price = metro_prices.get(METRO_OPTION_PRICE_KEYS[boost_option], 0)
+            price_label = f"{metro_option_label} — {base_price} {metro_cur_sym}"
+
+        order = {
+            "id": str(uuid.uuid4())[:8],
+            "timestamp": int(time.time()),
+            "user_name": user_name,
+            "user_id": user_id,
+            "tg_tag": tg_tag,
+            "pubg_id": "",
+            "payment_type": "UAH",
+            "price_label": price_label,
+            "service_type": "metro_boost",
+            "category": "Metro Shop",
+            "subcategory": "Буст баланса",
+            "boost_option": boost_option,
+            "status": "new",
+        }
+
+        with orders_lock():
+            orders = load_json(ORDERS_FILE, [])
+            orders.append(order)
+            save_json(ORDERS_FILE, orders)
+
+        if ADMIN_ID and BOT_TOKEN:
+            caption = (
+                "🆕 <b>Новая заявка — Metro Shop!</b>\n"
+                f"🆔 ID: <code>{order['id']}</code>\n"
+                f"👤 Клиент: {user_name} (TG ID: {user_id})\n"
+                f"🏬 Категория: Metro Shop → Буст баланса\n"
+                f"💰 Пакет: <b>{price_label}</b>\n"
+                f"✈️ Telegram: <code>{tg_tag}</code>"
+            )
+            try:
+                if screenshot_file:
+                    httpx.post(
+                        f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
+                        data={"chat_id": ADMIN_ID, "caption": caption, "parse_mode": "HTML"},
+                        files={"photo": (screenshot_file.filename, screenshot_file.read(), screenshot_file.content_type)},
+                        timeout=20,
+                    )
+                else:
+                    httpx.post(
+                        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                        json={"chat_id": ADMIN_ID, "text": caption, "parse_mode": "HTML"},
+                        timeout=10,
+                    )
+            except Exception as e:
+                print(f"Ошибка уведомления (metro_boost): {e}")
 
         return jsonify({"ok": True, "order_id": order["id"]})
 

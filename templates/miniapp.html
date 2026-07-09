@@ -739,6 +739,11 @@
         <div class="cat-card-sub">Легенда Ultimate • Завоеватель • Быстро и безопасно</div>
         <div class="cat-card-arrow">›</div>
       </div>
+      <div class="cat-card" onclick="goTo('screen-metro-shop')">
+        <div class="cat-card-title">🏬 Metro Shop</div>
+        <div class="cat-card-sub">Буст баланса • Дёшево, быстро, безопасно</div>
+        <div class="cat-card-arrow">›</div>
+      </div>
       <div class="cat-card soon">
         <div class="soon-badge">Скоро</div>
         <div class="cat-card-title">✨ Новые услуги</div>
@@ -1035,6 +1040,179 @@
     </div>
     <div class="success-warn">
       📱 Для выполнения заказа потребуется вход через QR-код PUBG MOBILE — это обеспечивает максимальную безопасность вашего аккаунта. Пароль передавать не нужно.
+    </div>
+    <button class="btn btn-primary" onclick="closeApp()">Готово ✓</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: METRO SHOP (категория) ═══════════════ -->
+<div class="screen" id="screen-metro-shop">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">🏬</div>
+      <div>
+        <div class="logo-text-main">Metro Shop</div>
+        <div class="logo-text-sub">ARMYAN SERVICES</div>
+      </div>
+    </div>
+    <h1>Metro Shop</h1>
+    <p>Дёшево • Быстро • Безопасно</p>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Подкатегории</div>
+    <div class="cat-list">
+      <div class="cat-card" onclick="goTo('screen-metro-boost')">
+        <div class="cat-card-title">🔥 Буст баланса</div>
+        <div class="cat-card-sub">Пополнение баланса Metro • От {{ metro_20m_label }}</div>
+        <div class="cat-card-arrow">›</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-wrap">
+    <button class="btn btn-outline" onclick="goTo('screen-shop')">← В магазин</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: METRO — БУСТ БАЛАНСА (товары) ═══════════════ -->
+<div class="screen" id="screen-metro-boost">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">💰</div>
+      <div>
+        <div class="logo-text-main">Буст баланса</div>
+        <div class="logo-text-sub">METRO SHOP</div>
+      </div>
+    </div>
+    <h1>🔥 Буст баланса 🔥</h1>
+    <p>Выбери пакет и оформи заказ в пару кликов</p>
+  </div>
+
+  <div class="section">
+    <img src="{{ metro_banner_url }}" alt="Буст баланса Metro" style="width:100%;border-radius:16px;display:block;margin-bottom:16px;object-fit:cover;" />
+
+    <div class="section-label">Пакеты</div>
+    <div class="cat-list">
+      <div class="cat-card">
+        <div class="cat-card-title">💵 20 млн</div>
+        <div class="cat-card-sub"><b style="color:#00ffc4">{{ metro_20m_label }}</b></div>
+        <button class="btn btn-primary" style="margin-top:10px" onclick="selectMetroPackage('20m')">Купить</button>
+      </div>
+      <div class="cat-card">
+        <div class="cat-card-title">💵 50 млн</div>
+        <div class="cat-card-sub"><b style="color:#00ffc4">{{ metro_50m_label }}</b></div>
+        <button class="btn btn-primary" style="margin-top:10px" onclick="selectMetroPackage('50m')">Купить</button>
+      </div>
+      <div class="cat-card">
+        <div class="cat-card-title">💵 100 млн</div>
+        <div class="cat-card-sub"><b style="color:#00ffc4">{{ metro_100m_label }}</b></div>
+        <button class="btn btn-primary" style="margin-top:10px" onclick="selectMetroPackage('100m')">Купить</button>
+      </div>
+      <div class="cat-card">
+        <div class="cat-card-title">💵 200 млн</div>
+        <div class="cat-card-sub"><b style="color:#00ffc4">{{ metro_200m_label }}</b></div>
+        <button class="btn btn-primary" style="margin-top:10px" onclick="selectMetroPackage('200m')">Купить</button>
+      </div>
+      <div class="cat-card">
+        <div class="cat-card-title">👑 VIP буст</div>
+        <div class="cat-card-sub"><b style="color:#00ffc4">Цена уточняется</b></div>
+        <button class="btn btn-primary" style="margin-top:10px" onclick="selectMetroPackage('vip')">Купить</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-wrap">
+    <button class="btn btn-outline" onclick="goTo('screen-metro-shop')">← Назад</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: METRO REQUISITES ═══════════════ -->
+<div class="screen" id="screen-metro-req">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">💳</div>
+      <div>
+        <div class="logo-text-main">Оплата</div>
+        <div class="logo-text-sub">ШАГ 1 ИЗ 2</div>
+      </div>
+    </div>
+    <h1>Переведи <span id="metro-req-amount">—</span></h1>
+    <p id="metro-req-label" style="margin-top:6px;font-size:13px;color:rgba(0,255,196,.8)"></p>
+  </div>
+  <div class="section">
+    <div class="spacer"></div>
+    <div class="req-box">
+      <div class="req-label">💳 Monobank — номер карты</div>
+      <div class="req-value">{{ monobank_card }}</div>
+      <div class="req-copy" onclick="copyText('{{ monobank_card }}', this)">📋 Скопировать</div>
+    </div>
+    <div class="notice" style="margin-top:16px">
+      <div class="notice-title">⚠️ Важно</div>
+      <div class="notice-text" id="metro-req-notice">
+        После перевода нажми «Я оплатил» и прикрепи скриншот квитанции.
+      </div>
+    </div>
+  </div>
+  <div class="cta-wrap">
+    <button class="btn btn-primary" id="metro-req-pay-btn" onclick="goTo('screen-metro-form')">✅ Я оплатил</button>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" onclick="goTo('screen-metro-boost')">← Назад</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: METRO FORM ═══════════════ -->
+<div class="screen" id="screen-metro-form">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">📝</div>
+      <div>
+        <div class="logo-text-main">Данные заказа</div>
+        <div class="logo-text-sub">ШАГ 2 ИЗ 2</div>
+      </div>
+    </div>
+    <h1>Укажи свои данные</h1>
+  </div>
+  <div class="section">
+    <div class="spacer"></div>
+    <div class="notice" style="margin-bottom:16px">
+      <div class="notice-title">🏬 Ваш заказ</div>
+      <div class="notice-text" id="metro-form-summary">—</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">✈️ Telegram тег</label>
+      <input class="form-input" id="metro-input-tg" type="text" placeholder="@username" autocomplete="off" />
+      <div class="error-msg" id="metro-err-tg">Введи свой Telegram тег</div>
+    </div>
+    <div class="form-group" id="metro-upload-group">
+      <label class="form-label">📸 Скриншот оплаты <span style="color:#ff6b6b;font-weight:700">*</span></label>
+      <label id="metro-upload-label" style="
+        display:flex;align-items:center;justify-content:center;gap:10px;
+        width:100%;min-height:80px;border:1.5px dashed rgba(0,255,196,.35);
+        border-radius:12px;cursor:pointer;background:rgba(0,255,196,.04);
+        font-size:14px;color:#fff;transition:border-color .2s;
+      ">
+        <span id="metro-upload-text">📎 Прикрепить фото</span>
+        <input type="file" id="metro-input-screenshot" accept="image/*" style="display:none" onchange="onMetroFileSelected(this)" />
+      </label>
+      <div class="error-msg" id="metro-err-screenshot">Прикрепи скриншот оплаты</div>
+    </div>
+  </div>
+  <div class="cta-wrap">
+    <button class="btn btn-primary" id="metro-submit-btn" onclick="submitMetroOrder()">Отправить заявку 🚀</button>
+    <div class="error-msg" id="metro-err-submit" style="text-align:center;margin-top:10px"></div>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" onclick="goTo('screen-metro-req')">← Назад</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: METRO SUCCESS ═══════════════ -->
+<div class="screen" id="screen-metro-success">
+  <div class="success-wrap">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Заявка успешно создана!</div>
+    <div class="success-text">
+      Наш менеджер проверит оплату и свяжется с вами в ближайшее время.
     </div>
     <button class="btn btn-primary" onclick="closeApp()">Готово ✓</button>
   </div>
@@ -1413,8 +1591,44 @@
           <input class="price-editor-input" id="edit-boost-squad" type="number" value="{{ boost_squad_price }}" min="1" />
         </div>
 
+        <div class="price-editor-group-title" style="margin-top:18px">🏬 Metro Shop — Буст баланса</div>
+        <div class="price-editor-row">
+          <div class="price-editor-label">💵 20 млн</div>
+          <input class="price-editor-input" id="edit-metro-20m" type="number" value="{{ metro_20m_price }}" min="1" />
+        </div>
+        <div class="price-editor-row">
+          <div class="price-editor-label">💵 50 млн</div>
+          <input class="price-editor-input" id="edit-metro-50m" type="number" value="{{ metro_50m_price }}" min="1" />
+        </div>
+        <div class="price-editor-row">
+          <div class="price-editor-label">💵 100 млн</div>
+          <input class="price-editor-input" id="edit-metro-100m" type="number" value="{{ metro_100m_price }}" min="1" />
+        </div>
+        <div class="price-editor-row">
+          <div class="price-editor-label">💵 200 млн</div>
+          <input class="price-editor-input" id="edit-metro-200m" type="number" value="{{ metro_200m_price }}" min="1" />
+        </div>
+        <div class="price-editor-row">
+          <div class="price-editor-label">👑 VIP буст</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.5)">Цена уточняется вручную</div>
+        </div>
+
         <button class="btn btn-primary" style="margin-top:8px" onclick="savePrices()">💾 Сохранить цены</button>
         <p style="font-size:11px;color:rgba(255,255,255,.4);margin-top:10px;text-align:center">Цены применятся после перезагрузки приложения</p>
+
+        <div class="price-editor-group-title" style="margin-top:18px">🖼 Баннер «Буст баланса»</div>
+        <div class="price-editor-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+          <img id="metro-banner-preview" src="{{ metro_banner_url }}" style="width:100%;border-radius:12px;object-fit:cover;" />
+          <label style="
+            display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:48px;
+            border:1.5px dashed rgba(0,255,196,.35);border-radius:12px;cursor:pointer;
+            background:rgba(0,255,196,.04);font-size:14px;color:#fff;
+          ">
+            <span id="metro-banner-upload-text">📎 Выбрать изображение</span>
+            <input type="file" id="metro-banner-input" accept="image/*" style="display:none" onchange="onMetroBannerSelected(this)" />
+          </label>
+          <button class="btn btn-primary" style="width:100%" onclick="uploadMetroBanner()">💾 Загрузить баннер</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1775,7 +1989,7 @@
           <span class="order-id">#${o.id}</span>
           <span class="order-date">${date}</span>
         </div>
-        <div class="order-name">${o.service_type === 'boost' ? '🎮 Буст ранга' : '🎯 Настройка чувствительности'}</div>
+        <div class="order-name">${o.service_type === 'boost' ? '🎮 Буст ранга' : (o.service_type === 'metro_boost' ? '🏬 Metro Shop — Буст баланса' : '🎯 Настройка чувствительности')}</div>
         <div class="order-detail">💰 ${escHtml(o.price_label)}</div>
         <div class="spacer-sm"></div>
         <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status] || o.status}</span>
@@ -1838,8 +2052,47 @@
       if (p.boost_conqueror_solo)  document.getElementById('edit-boost-solo').value  = p.boost_conqueror_solo;
       if (p.boost_conqueror_duo)   document.getElementById('edit-boost-duo').value   = p.boost_conqueror_duo;
       if (p.boost_conqueror_squad) document.getElementById('edit-boost-squad').value = p.boost_conqueror_squad;
+      if (p.metro_balance_20m)  document.getElementById('edit-metro-20m').value  = p.metro_balance_20m;
+      if (p.metro_balance_50m)  document.getElementById('edit-metro-50m').value  = p.metro_balance_50m;
+      if (p.metro_balance_100m) document.getElementById('edit-metro-100m').value = p.metro_balance_100m;
+      if (p.metro_balance_200m) document.getElementById('edit-metro-200m').value = p.metro_balance_200m;
       if (p.currency)          document.getElementById('edit-currency').value    = p.currency;
     } catch (e) {}
+  }
+
+  // ─── Admin: Metro banner upload ───
+  let metroBannerFile = null;
+
+  function onMetroBannerSelected(input) {
+    const text = document.getElementById('metro-banner-upload-text');
+    if (input.files && input.files[0]) {
+      metroBannerFile = input.files[0];
+      text.textContent = '✅ ' + metroBannerFile.name;
+      const preview = document.getElementById('metro-banner-preview');
+      preview.src = URL.createObjectURL(metroBannerFile);
+    }
+  }
+
+  async function uploadMetroBanner() {
+    if (!metroBannerFile) { showToast('❌ Выбери изображение'); return; }
+    try {
+      const fd = new FormData();
+      fd.append('banner', metroBannerFile);
+      const res = await fetch('/api/admin/metro-banner', {
+        method: 'POST',
+        headers: { 'X-Init-Data': initData },
+        body: fd,
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast('✅ Баннер обновлён!');
+        document.getElementById('metro-banner-preview').src = data.banner_url;
+      } else {
+        showToast('❌ ' + (data.error || 'Ошибка'));
+      }
+    } catch (e) {
+      showToast('❌ Ошибка сети');
+    }
   }
 
   // ─── Admin: save prices ───
@@ -1850,6 +2103,10 @@
     const solo     = parseInt(document.getElementById('edit-boost-solo').value)   || 4000;
     const duo      = parseInt(document.getElementById('edit-boost-duo').value)    || 6000;
     const squad    = parseInt(document.getElementById('edit-boost-squad').value)  || 8000;
+    const metro20  = parseInt(document.getElementById('edit-metro-20m').value)   || 375;
+    const metro50  = parseInt(document.getElementById('edit-metro-50m').value)   || 750;
+    const metro100 = parseInt(document.getElementById('edit-metro-100m').value)  || 1666;
+    const metro200 = parseInt(document.getElementById('edit-metro-200m').value)  || 3333;
     const currency = document.getElementById('edit-currency').value || 'UAH';
     try {
       const res = await fetch('/api/prices', {
@@ -1863,6 +2120,10 @@
           boost_conqueror_solo: solo,
           boost_conqueror_duo: duo,
           boost_conqueror_squad: squad,
+          metro_balance_20m: metro20,
+          metro_balance_50m: metro50,
+          metro_balance_100m: metro100,
+          metro_balance_200m: metro200,
         }),
       });
       const data = await res.json();
@@ -2300,6 +2561,101 @@
       const data = await res.json();
       if (data.ok) {
         goTo('screen-boost-success');
+      } else {
+        errSubmit.textContent = data.error || 'Ошибка. Попробуй ещё раз.';
+        errSubmit.style.display = 'block';
+      }
+    } catch (e) {
+      errSubmit.textContent = 'Ошибка сети. Попробуй ещё раз.';
+      errSubmit.style.display = 'block';
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = 'Отправить заявку 🚀';
+    }
+  }
+
+  // ═══════════════ METRO SHOP LOGIC ═══════════════
+
+  let metroSelected = null;
+
+  const METRO_OPTIONS = {
+    '20m':  { label: '20 млн',    price: '{{ metro_20m_label }}' },
+    '50m':  { label: '50 млн',    price: '{{ metro_50m_label }}' },
+    '100m': { label: '100 млн',   price: '{{ metro_100m_label }}' },
+    '200m': { label: '200 млн',   price: '{{ metro_200m_label }}' },
+    'vip':  { label: 'VIP буст',  price: 'Цена уточняется' },
+  };
+
+  function selectMetroPackage(key) {
+    metroSelected = { key, ...METRO_OPTIONS[key] };
+    updateMetroScreens();
+    if (key === 'vip') {
+      // Для VIP цена уточняется — сразу переходим к оформлению без оплаты
+      goTo('screen-metro-form');
+    } else {
+      goTo('screen-metro-req');
+    }
+  }
+
+  function updateMetroScreens() {
+    if (!metroSelected) return;
+    document.getElementById('metro-req-amount').textContent = metroSelected.price;
+    document.getElementById('metro-req-label').textContent  = '🏬 Metro Shop — Буст баланса — ' + metroSelected.label;
+    document.getElementById('metro-form-summary').textContent =
+      'Metro Shop → Буст баланса — ' + metroSelected.label + ' — ' + metroSelected.price;
+
+    const uploadGroup = document.getElementById('metro-upload-group');
+    if (uploadGroup) uploadGroup.style.display = metroSelected.key === 'vip' ? 'none' : '';
+  }
+
+  function onMetroFileSelected(input) {
+    const label = document.getElementById('metro-upload-label');
+    const text  = document.getElementById('metro-upload-text');
+    if (input.files && input.files[0]) {
+      text.textContent = '✅ ' + input.files[0].name;
+      label.style.borderColor = 'rgba(0,255,196,.7)';
+      label.style.background  = 'rgba(0,255,196,.08)';
+      document.getElementById('metro-err-screenshot').classList.remove('show');
+    }
+  }
+
+  async function submitMetroOrder() {
+    const tgTag          = document.getElementById('metro-input-tg').value.trim();
+    const screenshotFile = document.getElementById('metro-input-screenshot').files[0];
+    const errTg          = document.getElementById('metro-err-tg');
+    const errScreenshot  = document.getElementById('metro-err-screenshot');
+    const errSubmit      = document.getElementById('metro-err-submit');
+    const btn            = document.getElementById('metro-submit-btn');
+    const requireScreenshot = metroSelected && metroSelected.key !== 'vip';
+
+    errTg.classList.remove('show');
+    errScreenshot.classList.remove('show');
+    errSubmit.style.display = 'none';
+
+    if (!tgTag)                              { errTg.classList.add('show');         return; }
+    if (requireScreenshot && !screenshotFile) { errScreenshot.classList.add('show'); return; }
+    if (!metroSelected) { errSubmit.textContent = 'Выберите пакет'; errSubmit.style.display = 'block'; return; }
+
+    btn.disabled    = true;
+    btn.textContent = 'Отправляю...';
+
+    try {
+      const fd = new FormData();
+      fd.append('service_type', 'metro_boost');
+      fd.append('boost_option', metroSelected.key);
+      fd.append('payment_type', 'UAH');
+      fd.append('price_label',  metroSelected.label + ' — ' + metroSelected.price);
+      fd.append('tg_tag',       tgTag);
+      if (screenshotFile) fd.append('screenshot', screenshotFile);
+
+      const res  = await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'X-Init-Data': initData },
+        body: fd,
+      });
+      const data = await res.json();
+      if (data.ok) {
+        goTo('screen-metro-success');
       } else {
         errSubmit.textContent = data.error || 'Ошибка. Попробуй ещё раз.';
         errSubmit.style.display = 'block';
