@@ -50,7 +50,53 @@
 
     /* ─── Screens ─── */
     .screen { display: none; position: relative; z-index: 1; }
-    .screen.active { display: block; }
+    .screen.active {
+      display: block;
+      animation: screenIn .32s cubic-bezier(.22,.9,.32,1) both;
+    }
+    .screen.leaving {
+      display: block;
+      animation: screenOut .18s cubic-bezier(.4,0,1,1) both;
+    }
+    @keyframes screenIn {
+      from { opacity: 0; transform: translateY(14px) scale(.985); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes screenOut {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to   { opacity: 0; transform: translateY(-10px) scale(.985); }
+    }
+
+    /* ─── Micro-interactions ─── */
+    .btn, .cat-card, .pop-row, .pay-card, .req-copy, .nav-tab, .status-select,
+    .promo-copy, .case-promo-copy, .btn-case {
+      transition: transform .15s cubic-bezier(.34,1.56,.64,1), border-color .2s, background .2s, opacity .15s, color .2s;
+    }
+    .btn:active, .cat-card:active, .pop-row:active, .pay-card:active,
+    .req-copy:active, .promo-copy:active, .case-promo-copy:active, .btn-case:active {
+      transform: scale(.96);
+    }
+    .nav-tab:active { transform: scale(.9); }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .screen.active .cat-card,
+    .screen.active .pop-row,
+    .screen.active .pay-card {
+      animation: fadeInUp .35s cubic-bezier(.22,.9,.32,1) both;
+    }
+    .screen.active .cat-list .cat-card:nth-child(1) { animation-delay: .03s; }
+    .screen.active .cat-list .cat-card:nth-child(2) { animation-delay: .08s; }
+    .screen.active .cat-list .cat-card:nth-child(3) { animation-delay: .13s; }
+    .screen.active .cat-list .cat-card:nth-child(4) { animation-delay: .18s; }
+    .screen.active .pay-card:nth-child(1) { animation-delay: .05s; }
+    .screen.active .pay-card:nth-child(2) { animation-delay: .1s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .screen.active, .screen.leaving, .cat-card, .pop-row, .pay-card { animation: none !important; }
+    }
 
     /* ─── Bottom Nav ─── */
     .bottom-nav {
@@ -1442,8 +1488,15 @@
   }
 
   function showScreen(screenId) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
+    const target  = document.getElementById(screenId);
+    const current = document.querySelector('.screen.active');
+    if (current && current !== target) {
+      current.classList.remove('active');
+      current.classList.add('leaving');
+      setTimeout(() => current.classList.remove('leaving'), 200);
+    }
+    document.querySelectorAll('.screen').forEach(s => { if (s !== current) s.classList.remove('active'); });
+    target.classList.add('active');
     window.scrollTo(0, 0);
   }
 
