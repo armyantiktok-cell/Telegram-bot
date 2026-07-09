@@ -1,0 +1,67 @@
+2026-07-08T19:53:42.959618396Z [inf]  Starting Container
+2026-07-08T19:53:43.373660212Z [err]  /app/bot.py:670: PTBUserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message. Read this FAQ entry to learn more about the per_* settings: https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-Asked-Questions#what-do-the-per_-settings-in-conversationhandler-do.
+2026-07-08T19:53:43.373664192Z [err]    payment_conv = ConversationHandler(
+2026-07-08T19:53:43.373667102Z [err]  /app/bot.py:735: PTBUserWarning: No `JobQueue` set up. To use `JobQueue`, you must install PTB via `pip install "python-telegram-bot[job-queue]"`.
+2026-07-08T19:53:43.373669842Z [err]    application.job_queue.run_repeating(
+2026-07-08T19:53:43.373672562Z [err]  Traceback (most recent call last):
+2026-07-08T19:53:43.373675252Z [err]    File "/app/bot.py", line 748, in <module>
+2026-07-08T19:53:43.373677591Z [err]      main()
+2026-07-08T19:53:43.373680101Z [err]    File "/app/bot.py", line 735, in main
+2026-07-08T19:53:43.373682851Z [err]      application.job_queue.run_repeating(
+2026-07-08T19:53:43.373685321Z [err]      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-08T19:53:43.373688401Z [err]  AttributeError: 'NoneType' object has no attribute 'run_repeating'
+2026-07-08T19:53:43.716738651Z [err]  /app/bot.py:670: PTBUserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message. Read this FAQ entry to learn more about the per_* settings: https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-Asked-Questions#what-do-the-per_-settings-in-conversationhandler-do.
+2026-07-08T19:53:43.716744611Z [err]    payment_conv = ConversationHandler(
+2026-07-08T19:53:43.716747561Z [err]  /app/bot.py:735: PTBUserWarning: No `JobQueue` set up. To use `JobQueue`, you must install PTB via `pip install "python-telegram-bot[job-queue]"`.
+2026-07-08T19:53:43.716750221Z [err]    application.job_queue.run_repeating(
+2026-07-08T19:53:43.716752521Z [err]  Traceback (most recent call last):
+2026-07-08T19:53:43.716755201Z [err]    File "/app/bot.py", line 748, in <module>
+2026-07-08T19:53:43.716757530Z [err]      main()
+2026-07-08T19:53:43.716760310Z [err]    File "/app/bot.py", line 735, in main
+2026-07-08T19:53:43.716763310Z [err]      application.job_queue.run_repeating(
+2026-07-08T19:53:43.716766280Z [err]      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-08T19:53:43.716769290Z [err]  AttributeError: 'NoneType' object has no attribute 'run_repeating'
+2026-07-08T19:53:44.625291570Z [err]  /app/bot.py:670: PTBUserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message. Read this FAQ entry to learn more about the per_* settings: https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-Asked-Questions#what-do-the-per_-settings-in-conversationhandler-do.
+2026-07-08T19:53:44.625297460Z [err]      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-08T19:53:44.625307920Z [err]    payment_conv = ConversationHandler(
+2026-07-08T19:53:44.625310930Z [err]  AttributeError: 'NoneType' object has no attribute 'run_repeating'
+2026-07-08T19:53:44.625314920Z [err]  /app/bot.py:735: PTBUserWarning: No `JobQueue` set up. To use `JobQueue`, you must install PTB via `pip install "python-telegram-bot[job-queue]"`.
+2026-07-08T19:53:44.625319640Z [err]    application.job_queue.run_repeating(
+2026-07-08T19:53:44.625323810Z [err]  Traceback (most recent call last):
+2026-07-08T19:53:44.625327690Z [err]    File "/app/bot.py", line 748, in <module>
+2026-07-08T19:53:44.625330890Z [err]      main()
+2026-07-08T19:53:44.625334380Z [err]    File "/app/bot.py", line 735, in main
+2026-07-08T19:53:44.625337740Z [err]      application.job_queue.run_repeating(
+2026-07-08T19:53:45.560309615Z [err]  /app/bot.py:670: PTBUserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message. Read this FAQ entry to learn more about the per_* settings: https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-Asked-Questions#what-do-the-per_-settings-in-conversationhandler-do.
+2026-07-08T19:53:45.560314835Z [err]    payment_conv = ConversationHandler(
+2026-07-08T19:53:45.560319815Z [err]  /app/bot.py:735: PTBUserWarning: No `JobQueue` set up. To use `JobQueue`, you must install PTB via `pip install "python-telegram-bot[job-queue]"`.
+2026-07-08T19:53:45.560323855Z [err]    application.job_queue.run_repeating(
+2026-07-08T19:53:45.560327505Z [err]  Traceback (most recent call last):
+2026-07-08T19:53:45.560331095Z [err]    File "/app/bot.py", line 748, in <module>
+2026-07-08T19:53:45.560334975Z [err]      main()
+2026-07-08T19:53:45.560339135Z [err]    File "/app/bot.py", line 735, in main
+2026-07-08T19:53:45.560344155Z [err]      application.job_queue.run_repeating(
+2026-07-08T19:53:45.560347995Z [err]      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-08T19:53:45.560351615Z [err]  AttributeError: 'NoneType' object has no attribute 'run_repeating'
+2026-07-08T19:53:46.511620111Z [err]  /app/bot.py:670: PTBUserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message. Read this FAQ entry to learn more about the per_* settings: https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-Asked-Questions#what-do-the-per_-settings-in-conversationhandler-do.
+2026-07-08T19:53:46.511627821Z [err]    payment_conv = ConversationHandler(
+2026-07-08T19:53:46.511633731Z [err]  /app/bot.py:735: PTBUserWarning: No `JobQueue` set up. To use `JobQueue`, you must install PTB via `pip install "python-telegram-bot[job-queue]"`.
+2026-07-08T19:53:46.511639111Z [err]    application.job_queue.run_repeating(
+2026-07-08T19:53:46.511642911Z [err]  Traceback (most recent call last):
+2026-07-08T19:53:46.511646931Z [err]    File "/app/bot.py", line 748, in <module>
+2026-07-08T19:53:46.511650831Z [err]      main()
+2026-07-08T19:53:46.511654401Z [err]    File "/app/bot.py", line 735, in main
+2026-07-08T19:53:46.511657891Z [err]      application.job_queue.run_repeating(
+2026-07-08T19:53:46.511661340Z [err]      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-08T19:53:46.511664900Z [err]  AttributeError: 'NoneType' object has no attribute 'run_repeating'
+2026-07-08T19:53:47.666868796Z [err]  /app/bot.py:670: PTBUserWarning: If 'per_message=False', 'CallbackQueryHandler' will not be tracked for every message. Read this FAQ entry to learn more about the per_* settings: https://github.com/python-telegram-bot/python-telegram-bot/wiki/Frequently-Asked-Questions#what-do-the-per_-settings-in-conversationhandler-do.
+2026-07-08T19:53:47.666880096Z [err]    payment_conv = ConversationHandler(
+2026-07-08T19:53:47.666885656Z [err]  /app/bot.py:735: PTBUserWarning: No `JobQueue` set up. To use `JobQueue`, you must install PTB via `pip install "python-telegram-bot[job-queue]"`.
+2026-07-08T19:53:47.666890476Z [err]    application.job_queue.run_repeating(
+2026-07-08T19:53:47.666895806Z [err]  Traceback (most recent call last):
+2026-07-08T19:53:47.666901106Z [err]    File "/app/bot.py", line 748, in <module>
+2026-07-08T19:53:47.666905656Z [err]      main()
+2026-07-08T19:53:47.666912746Z [err]    File "/app/bot.py", line 735, in main
+2026-07-08T19:53:47.666916496Z [err]      application.job_queue.run_repeating(
+2026-07-08T19:53:47.666922456Z [err]      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-08T19:53:47.666927466Z [err]  AttributeError: 'NoneType' object has no attribute 'run_repeating'
