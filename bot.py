@@ -129,9 +129,8 @@ def main_menu_keyboard():
     return InlineKeyboardMarkup(rows)
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    name = update.effective_user.first_name
-    caption = (
+def greeting_caption(name: str) -> str:
+    return (
         f"Привет, <b>{name}</b>! 👋\n\n"
         "Добро пожаловать в <b>ARMYAN SERVICES</b>\n\n"
         "Здесь вы можете быстро и удобно заказать любые мои услуги по PUBG MOBILE, "
@@ -144,6 +143,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "🕒 Работаем 24/7 – заявки принимаются круглосуточно.\n\n"
         "Выберите интересующий вас раздел ниже:"
     )
+
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    name = update.effective_user.first_name
+    caption = greeting_caption(name)
     banner_url = f"{WEBAPP_URL}/static/banner.jpg" if WEBAPP_URL else None
     if banner_url:
         await update.message.reply_photo(
@@ -163,7 +167,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def back_to_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    await safe_edit(query, "Выбери раздел:", reply_markup=main_menu_keyboard())
+    name = update.effective_user.first_name
+    await safe_edit(query, greeting_caption(name), reply_markup=main_menu_keyboard())
 
 
 async def sensitivity_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -230,11 +235,28 @@ async def pay_uc(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return CHOOSING_PAYMENT
 
 
+def cancel_order_keyboard():
+    return InlineKeyboardMarkup([[InlineKeyboardButton("❌ Отменить заказ", callback_data="cancel_order")]])
+
+
+async def cancel_order_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    await query.answer("Заказ отменён")
+    context.user_data.clear()
+    name = update.effective_user.first_name
+    await safe_edit(query, greeting_caption(name), reply_markup=main_menu_keyboard())
+    return ConversationHandler.END
+
+
 async def paid_uah_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
     context.user_data["payment_type"] = "UAH"
-    await safe_edit(query, "📸 Отлично! Пришли скриншот оплаты (фото квитанции из Monobank):")
+    await safe_edit(
+        query,
+        "📸 Отлично! Пришли скриншот оплаты (фото квитанции из Monobank):",
+        reply_markup=cancel_order_keyboard()
+    )
     return WAITING_UAH_SCREENSHOT
 
 
@@ -242,20 +264,28 @@ async def paid_uc_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
     query = update.callback_query
     await query.answer()
     context.user_data["payment_type"] = "UC"
-    await safe_edit(query, "📸 Отлично! Пришли скриншот пополнения UC:")
+    await safe_edit(
+        query,
+        "📸 Отлично! Пришли скриншот пополнения UC:",
+        reply_markup=cancel_order_keyboard()
+    )
     return WAITING_UC_SCREENSHOT
 
 
 async def uah_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     if not update.message.photo:
-        await update.message.reply_text("📸 Нужно прислать именно фото (скриншот). Попробуй снова:")
+        await update.message.reply_text(
+            "📸 Нужно прислать именно фото (скриншот). Попробуй снова:",
+            reply_markup=cancel_order_keyboard()
+        )
         return WAITING_UAH_SCREENSHOT
 
     context.user_data["screenshot"] = update.message.photo[-1].file_id
     await update.message.reply_text(
         "✅ Скриншот получен!\n\n"
         "📝 Теперь укажи свой <b>Telegram тег</b> (например: @username):",
-        parse_mode="HTML"
+        parse_mode="HTML",
+        reply_markup=cancel_order_keyboard()
     )
     return WAITING_UAH_TG
 
@@ -264,7 +294,8 @@ async def uah_tg(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data["tg_tag"] = update.message.text.strip()
     await update.message.reply_text(
         "🎮 Отлично! Последний шаг — укажи свой <b>PUBG ID</b>:",
-        parse_mode="HTML"
+        parse_mode="HTML",
+        reply_markup=cancel_order_keyboard()
     )
     return WAITING_UAH_PUBG_ID
 
@@ -277,14 +308,18 @@ async def uah_pubg_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
 
 async def uc_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     if not update.message.photo:
-        await update.message.reply_text("📸 Нужно прислать именно фото (скриншот). Попробуй снова:")
+        await update.message.reply_text(
+            "📸 Нужно прислать именно фото (скриншот). Попробуй снова:",
+            reply_markup=cancel_order_keyboard()
+        )
         return WAITING_UC_SCREENSHOT
 
     context.user_data["screenshot"] = update.message.photo[-1].file_id
     await update.message.reply_text(
         "✅ Скриншот получен!\n\n"
         "📝 Укажи свой <b>Telegram тег</b> (например: @username):",
-        parse_mode="HTML"
+        parse_mode="HTML",
+        reply_markup=cancel_order_keyboard()
     )
     return WAITING_UC_TG
 
@@ -422,8 +457,10 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         "Действие отменено. Возвращаю в меню:",
         reply_markup=ReplyKeyboardRemove()
     )
+    name = update.effective_user.first_name
     await update.message.reply_text(
-        "Выбери раздел:",
+        greeting_caption(name),
+        parse_mode="HTML",
         reply_markup=main_menu_keyboard()
     )
     return ConversationHandler.END
@@ -679,22 +716,28 @@ def main() -> None:
                 CallbackQueryHandler(paid_uc_start, pattern="^paid_uc$"),
                 CallbackQueryHandler(sensitivity_handler, pattern="^sensitivity$"),
                 CallbackQueryHandler(back_to_menu, pattern="^back_to_menu$"),
+                CallbackQueryHandler(cancel_order_callback, pattern="^cancel_order$"),
             ],
             WAITING_UAH_SCREENSHOT: [
+                CallbackQueryHandler(cancel_order_callback, pattern="^cancel_order$"),
                 MessageHandler(filters.PHOTO, uah_screenshot),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, uah_screenshot),
             ],
             WAITING_UAH_TG: [
+                CallbackQueryHandler(cancel_order_callback, pattern="^cancel_order$"),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, uah_tg),
             ],
             WAITING_UAH_PUBG_ID: [
+                CallbackQueryHandler(cancel_order_callback, pattern="^cancel_order$"),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, uah_pubg_id),
             ],
             WAITING_UC_SCREENSHOT: [
+                CallbackQueryHandler(cancel_order_callback, pattern="^cancel_order$"),
                 MessageHandler(filters.PHOTO, uc_screenshot),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, uc_screenshot),
             ],
             WAITING_UC_TG: [
+                CallbackQueryHandler(cancel_order_callback, pattern="^cancel_order$"),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, uc_tg),
             ],
         },
